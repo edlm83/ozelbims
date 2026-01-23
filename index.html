@@ -22,6 +22,24 @@
         .status-vacation { background-color: #fef3c7; color: #92400e; }
         .status-holiday { background-color: #f3e8ff; color: #6b21a8; }
         
+        /* --- [تعديل جذري] توسيط النصوص وإخفاء أسهم الأرقام --- */
+        
+        /* 1. إجبار التوسيط لجميع الحقول داخل الجدول */
+        td input, td select {
+            text-align: center !important;
+            text-align-last: center !important;
+        }
+
+        /* 2. إخفاء أسهم زيادة ونقصان الأرقام (Spinners) لضمان التوسيط التام */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* لمتصفح فايرفوكس */
+        }
+
         /* --- تحسينات وضع القراءة (المحاسب) --- */
         input:disabled, select:disabled { 
             background-color: #f8fafc; 
@@ -35,11 +53,11 @@
 
         /* --- إخفاء سهم القائمة المنسدلة فقط للمحاسب (عند التجميد) --- */
         select:disabled {
-            -webkit-appearance: none;  /* إخفاء السهم لمتصفحات كروم وسفاري */
-            -moz-appearance: none;     /* إخفاء السهم لمتصفح فايرفوكس */
-            appearance: none;          /* إخفاء السهم القياسي */
-            background-image: none !important; /* إزالة أي أيقونة خلفية */
-            padding-left: 0.5rem;      /* تعديل المحاذاة */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: none !important;
+            padding-left: 0.5rem;
             padding-right: 0.5rem;
         }
         
@@ -112,7 +130,7 @@
                 padding: 0.6rem;
                 border-radius: 0.5rem;
                 border: 1px solid #d1d5db;
-                text-align: center;
+                text-align: center !important; /* تأكيد التوسيط في الجوال */
                 background-color: #fff;
             }
             

@@ -20,6 +20,7 @@
         .status-present { background-color: #dcfce7; color: #166534; }
         .status-absent { background-color: #fee2e2; color: #991b1b; }
         .status-vacation { background-color: #fef3c7; color: #92400e; }
+        .status-holiday { background-color: #f3e8ff; color: #6b21a8; } /* لون جديد للعطل الرسمية (بنفسجي) */
         
         input:disabled, select:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; border-color: #e5e7eb; }
         
@@ -104,7 +105,6 @@
 </head>
 <body class="p-4 md:p-6 text-gray-800 transition-all duration-300">
 
-    <!-- شاشة التحميل -->
     <div id="loadingScreen" class="overlay" style="z-index: 60; background: white;">
         <div class="flex flex-col items-center">
             <div class="loader mb-4"></div>
@@ -112,7 +112,6 @@
         </div>
     </div>
 
-    <!-- شاشة إعداد Firebase -->
     <div id="setupOverlay" class="overlay hidden" style="z-index: 70; background: rgba(0,0,0,0.9);">
         <div class="setup-guide shadow-2xl">
             <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ Setup Required</h2>
@@ -123,7 +122,6 @@
         </div>
     </div>
 
-    <!-- 1. شاشة تسجيل الدخول -->
     <div id="loginOverlay" class="overlay hidden">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative">
             <div class="absolute top-4 right-4 flex gap-3">
@@ -146,7 +144,6 @@
         </div>
     </div>
 
-    <!-- 2. إضافة موظف -->
     <div id="addEmployeeOverlay" class="modal-overlay hidden">
         <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
             <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="add_emp_title">إضافة موظف</h3>
@@ -158,26 +155,23 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التقارير (تم الإصلاح للموبايل) -->
     <div id="monthlyReportOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] md:h-[90vh]">
             
-            <!-- هيدر النافذة -->
             <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-xl font-bold text-gray-800" data-i18n="reports_title">التقارير</h3>
                 <button onclick="toggleModal('monthlyReportOverlay', false)" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
             </div>
             
-            <!-- أدوات التحكم -->
             <div class="flex flex-wrap gap-3 p-4 bg-gray-50 border-b">
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
-                        <input type="number" id="repYearInput" onchange="generateReport(currentReportType); handleReportYearChange()" class="p-2 border rounded w-20 text-center font-bold">
+                        <input type="number" id="repYearInput" onchange="handleReportYearChange()" class="p-2 border rounded w-20 text-center font-bold">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_month">الشهر</label>
-                        <select id="repMonthSelect" onchange="generateReport(currentReportType)" class="p-2 border rounded w-28 font-bold cursor-pointer">
+                        <select id="repMonthSelect" onchange="generateReport('monthly')" class="p-2 border rounded w-28 font-bold cursor-pointer">
                             <option value="01">01</option> <option value="02">02</option> <option value="03">03</option>
                             <option value="04">04</option> <option value="05">05</option> <option value="06">06</option>
                             <option value="07">07</option> <option value="08">08</option> <option value="09">09</option>
@@ -195,7 +189,6 @@
 
             <div id="reportTitleDisplay" class="text-center font-bold text-lg text-blue-900 py-2 border-b bg-blue-50/50"></div>
 
-            <!-- حاوية الجدول القابلة للسكرول -->
             <div class="flex-1 overflow-auto p-2 relative bg-gray-50">
                 <div id="reportLoader" class="hidden absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
                     <div class="loader"></div>
@@ -208,7 +201,7 @@
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_present">أيام الحضور</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_absent">أيام الغياب</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_vacation">أيام الإجازة</th>
-                            <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
+                            <th class="p-3 border border-gray-200 text-center text-purple-700" data-i18n="th_holiday">أيام العطل</th> <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
                             <th class="p-3 border border-gray-200 text-center text-red-600" data-i18n="th_total_delay">إجمالي التأخير</th>
                         </tr>
                     </thead>
@@ -218,7 +211,6 @@
         </div>
     </div>
 
-    <!-- 4. الواجهة الرئيسية -->
     <div id="appContainer" class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-4 md:p-6 hidden h-full md:h-auto min-h-screen md:min-h-0">
         
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
@@ -278,7 +270,6 @@
         </div>
     </div>
 
-    <!-- Firebase & App Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -317,6 +308,7 @@
                 th_present: "أيام الحضور",
                 th_absent: "أيام الغياب",
                 th_vacation: "أيام الإجازة",
+                th_holiday: "عطل رسمية", // ترجمة جديدة
                 th_total_overtime: "إجمالي الإضافي (ساعة)",
                 th_total_delay: "إجمالي التأخير (ساعة)",
                 th_status: "الحالة",
@@ -328,7 +320,7 @@
                 th_notes: "ملاحظات",
                 th_delete: "حذف",
                 no_data: "لا يوجد موظفين مسجلين حالياً.",
-                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_choose: "-- اختر --",
+                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_holiday: "عطلة رسمية", val_choose: "-- اختر --",
                 sum_title: "ملخص شهر", sum_emp: "للموظف:", sum_days: "يوم", sum_hrs: "س",
                 day_sunday: "الأحد", day_monday: "الإثنين", day_tuesday: "الثلاثاء", day_wednesday: "الأربعاء", day_thursday: "الخميس", day_friday: "الجمعة", day_saturday: "السبت"
             },
@@ -364,6 +356,7 @@
                 th_present: "Geldiği Günler",
                 th_absent: "Gelmediği Günler",
                 th_vacation: "İzin Günleri",
+                th_holiday: "Resmi Tatil", // ترجمة جديدة
                 th_total_overtime: "Toplam Mesai (Saat)",
                 th_total_delay: "Toplam Gecikme (Saat)",
                 th_status: "Durum",
@@ -375,7 +368,7 @@
                 th_notes: "Notlar",
                 th_delete: "Sil",
                 no_data: "Henüz kayıtlı personel yok.",
-                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_choose: "-- Seç --",
+                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_holiday: "Resmi Tatil", val_choose: "-- Seç --",
                 sum_title: "Ay Özeti", sum_emp: "Personel:", sum_days: "Gün", sum_hrs: "S",
                 day_sunday: "Pazar", day_monday: "Pazartesi", day_tuesday: "Salı", day_wednesday: "Çarşamba", day_thursday: "Perşembe", day_friday: "Cuma", day_saturday: "Cumartesi"
             }
@@ -563,11 +556,14 @@
                 document.getElementById('reportLoader').classList.remove('hidden');
                 loadYearData(selectedYear, () => {
                     document.getElementById('reportLoader').classList.add('hidden');
-                    const currentMonthDay = document.getElementById('currentDateInput').value.slice(5);
-                    document.getElementById('currentDateInput').value = `${selectedYear}-${currentMonthDay}`;
+                    const dateInput = document.getElementById('currentDateInput');
+                    const currentMonthDay = dateInput.value ? dateInput.value.slice(5) : '01-01';
+                    dateInput.value = `${selectedYear}-${currentMonthDay}`;
                     renderDailyTable(); 
                     generateReport(currentReportType);
                 });
+            } else {
+                generateReport(currentReportType);
             }
         };
 
@@ -590,7 +586,7 @@
             const prefix = type === 'monthly' ? `${year}-${month}` : `${year}`;
 
             globalEmployees.forEach(empName => {
-                let present = 0, absent = 0, vacation = 0, totalOvertime = 0, totalDelay = 0;
+                let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalDelay = 0;
                 const empData = globalDb[empName] || {};
                 
                 Object.keys(empData).forEach(dateKey => {
@@ -599,6 +595,7 @@
                         if (d.status === 'present') present++;
                         if (d.status === 'absent') absent++;
                         if (d.status === 'vacation') vacation++;
+                        if (d.status === 'holiday') holiday++; // عد العطل الرسمية
                         if (d.overtime) totalOvertime += parseFloat(d.overtime) || 0;
                         if (d.shortage) totalDelay += parseFloat(d.shortage) || 0;
                     }
@@ -610,7 +607,7 @@
                     <td class="p-3 border border-gray-300 text-center text-green-700 font-bold" data-label="${t('th_present')}">${present}</td>
                     <td class="p-3 border border-gray-300 text-center text-red-700 font-bold" data-label="${t('th_absent')}">${absent}</td>
                     <td class="p-3 border border-gray-300 text-center text-yellow-700 font-bold" data-label="${t('th_vacation')}">${vacation}</td>
-                    <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" dir="ltr" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
+                    <td class="p-3 border border-gray-300 text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${holiday}</td> <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" dir="ltr" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
                     <td class="p-3 border border-gray-300 text-center text-red-600 font-bold" dir="ltr" data-label="${t('th_total_delay')}">${totalDelay}</td>
                 `;
                 tbody.appendChild(tr);
@@ -624,12 +621,13 @@
             
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += `${title}\n`;
-            csvContent += `${t('th_name')},${t('th_present')},${t('th_absent')},${t('th_vacation')},${t('th_total_overtime')},${t('th_total_delay')}\n`;
+            // تمت إضافة عمود العطل في الـ CSV
+            csvContent += `${t('th_name')},${t('th_present')},${t('th_absent')},${t('th_vacation')},${t('th_holiday')},${t('th_total_overtime')},${t('th_total_delay')}\n`;
             
             const prefix = currentReportType === 'monthly' ? `${year}-${month}` : `${year}`;
 
             globalEmployees.forEach(empName => {
-                let present = 0, absent = 0, vacation = 0, totalOvertime = 0, totalDelay = 0;
+                let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalDelay = 0;
                 const empData = globalDb[empName] || {};
                 Object.keys(empData).forEach(dateKey => {
                     if (dateKey.startsWith(prefix)) {
@@ -637,11 +635,12 @@
                         if (d.status === 'present') present++;
                         if (d.status === 'absent') absent++;
                         if (d.status === 'vacation') vacation++;
+                        if (d.status === 'holiday') holiday++;
                         if (d.overtime) totalOvertime += parseFloat(d.overtime) || 0;
                         if (d.shortage) totalDelay += parseFloat(d.shortage) || 0;
                     }
                 });
-                csvContent += `"${empName}",${present},${absent},${vacation},${totalOvertime},${totalDelay}\n`;
+                csvContent += `"${empName}",${present},${absent},${vacation},${holiday},${totalOvertime},${totalDelay}\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -664,18 +663,19 @@
             }
         };
 
-        // --- باقي دوال العرض والمنطق (كما هي) ---
         window.showEmployeeSummary = function(empName) {
             const dateStr = document.getElementById('currentDateInput').value;
             const currentMonth = dateStr.slice(0, 7); 
             const monthName = dateStr.slice(5, 7); 
-            let present = 0, absent = 0, totalOvertime = 0, totalShortage = 0;
+            let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalShortage = 0; 
             const empData = globalDb[empName] || {};
             Object.keys(empData).forEach(dateKey => {
                 if (dateKey.startsWith(currentMonth)) {
                     const d = empData[dateKey];
                     if (d.status === 'present') present++;
                     if (d.status === 'absent') absent++;
+                    if (d.status === 'vacation') vacation++;
+                    if (d.status === 'holiday') holiday++; // عد العطل
                     totalOvertime += parseFloat(d.overtime) || 0;
                     totalShortage += parseFloat(d.shortage) || 0;
                 }
@@ -698,6 +698,14 @@
                         <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded-lg flex flex-col items-center">
                             <span class="text-xs text-red-500 mb-1">${t('th_absent')}</span>
                             <span class="text-lg">${absent} ${t('sum_days')}</span>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg flex flex-col items-center">
+                            <span class="text-xs text-yellow-600 mb-1">${t('th_vacation')}</span>
+                            <span class="text-lg">${vacation} ${t('sum_days')}</span>
+                        </div>
+                        <div class="bg-purple-50 border border-purple-200 text-purple-800 px-4 py-2 rounded-lg flex flex-col items-center">
+                            <span class="text-xs text-purple-600 mb-1">${t('th_holiday')}</span>
+                            <span class="text-lg">${holiday} ${t('sum_days')}</span>
                         </div>
                         <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg flex flex-col items-center">
                             <span class="text-xs text-blue-500 mb-1">${t('th_overtime')}</span>
@@ -760,6 +768,8 @@
             let updates = {};
             updates[`${updatePath}.${field}`] = value;
 
+            // التعديل هنا: يتم مسح البيانات فقط إذا كانت الحالة "غياب" أو "إجازة"
+            // أما إذا كانت "عطلة رسمية" (holiday) فلا يتم مسح البيانات لأن الموظف قد يعمل
             if (field === 'status' && (value === 'absent' || value === 'vacation')) {
                 updates[`${updatePath}.entry`] = '';
                 updates[`${updatePath}.exit`] = '';
@@ -807,8 +817,11 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 border-b transition duration-150";
 
+                // المنطق: الحقول مجمدة فقط إذا لم تكن الحالة "حضور" ولم تكن "عطلة رسمية"
                 const isFrozen = (dayData.status === 'absent' || dayData.status === 'vacation');
-                const isInputsFrozen = !dayData.status || dayData.status !== 'present';
+                // السماح بالتعديل إذا كان "حضور" أو "عطلة رسمية"
+                const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday');
+                
                 const isDisabled = (userRole === 'viewer') ? 'disabled' : '';
                 const inputsDisabled = isInputsFrozen || userRole === 'viewer' ? 'disabled' : '';
 
@@ -816,6 +829,7 @@
                 if(dayData.status === 'absent') rowBg = 'bg-red-50';
                 if(dayData.status === 'vacation') rowBg = 'bg-yellow-50';
                 if(dayData.status === 'present') rowBg = 'bg-green-50';
+                if(dayData.status === 'holiday') rowBg = 'status-holiday'; // الخلفية البنفسجية
                 if(rowBg) tr.classList.add(rowBg);
 
                 const breakVal = dayData.breakDuration || '0';
@@ -831,7 +845,7 @@
                             <option value="present" ${dayData.status === 'present' ? 'selected' : ''}>${t('val_present')}</option>
                             <option value="absent" ${dayData.status === 'absent' ? 'selected' : ''}>${t('val_absent')}</option>
                             <option value="vacation" ${dayData.status === 'vacation' ? 'selected' : ''}>${t('val_vacation')}</option>
-                        </select>
+                            <option value="holiday" ${dayData.status === 'holiday' ? 'selected' : ''}>${t('val_holiday')}</option> </select>
                     </td>
                     <td class="p-3" data-label="${t('th_entry')}">
                         <input type="text" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empName}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center placeholder-gray-300 focus:ring-2 focus:ring-blue-400 outline-none ltr" style="direction: ltr;">

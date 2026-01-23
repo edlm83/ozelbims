@@ -51,15 +51,28 @@
             <div class="loader mb-4"></div>
             <p class="text-gray-600 font-bold" data-i18n="connecting">جاري الاتصال بقاعدة البيانات...</p>
         </div>
-        <!-- حاوية رسالة الخطأ (مخفية افتراضياً) -->
-        <div id="errorContainer" class="hidden flex flex-col items-center justify-center p-6 max-w-md bg-red-50 border border-red-200 rounded-xl shadow-2xl mx-4">
+        <!-- حاوية رسالة الخطأ -->
+        <div id="errorContainer" class="hidden flex flex-col items-center justify-center p-6 max-w-lg w-full bg-red-50 border border-red-200 rounded-xl shadow-2xl mx-4">
             <div class="text-red-500 text-5xl mb-4">⚠️</div>
             <h3 class="text-xl font-bold text-red-700 mb-2">فشل الاتصال / Connection Failed</h3>
-            <p id="errorText" class="text-sm text-gray-700 mb-4 text-center" style="direction: ltr; unicode-bidi: embed;">Unknown Error</p>
-            <div id="authDomainHint" class="hidden bg-white p-3 rounded border border-red-100 text-xs text-left w-full mb-4">
-                <strong>Solution:</strong> Go to Firebase Console -> Authentication -> Settings -> Authorized Domains. <br> Add your domain: <span class="text-blue-600 font-bold" id="currentDomain"></span>
+            
+            <div class="bg-white p-4 rounded border border-gray-300 w-full mb-4 text-left" style="direction: ltr;">
+                <p class="text-xs text-gray-500 font-bold uppercase">Technical Error:</p>
+                <p id="errorText" class="text-sm text-red-600 font-mono mb-2">Unknown</p>
+                <p class="text-xs text-gray-500 font-bold uppercase">Error Code:</p>
+                <p id="errorCode" class="text-sm text-gray-800 font-mono">N/A</p>
             </div>
-            <button onclick="location.reload()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition font-bold">إعادة المحاولة / Retry</button>
+
+            <div class="bg-blue-50 p-4 rounded border border-blue-200 w-full mb-4 text-left" style="direction: ltr;">
+                <p class="text-sm text-blue-800 font-bold mb-1">Your Current Domain (Copy this):</p>
+                <div class="flex items-center gap-2">
+                    <code id="currentDomainDisplay" class="bg-white px-2 py-1 rounded border border-blue-300 flex-1 text-blue-700 font-bold"></code>
+                </div>
+                <p class="text-xs text-blue-600 mt-2">Add this domain to <b>Firebase Console > Auth > Settings > Authorized Domains</b></p>
+                <a href="https://console.firebase.google.com/" target="_blank" class="block mt-2 text-center bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">Open Firebase Console</a>
+            </div>
+
+            <button onclick="location.reload()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition font-bold w-full">تحديث الصفحة / Reload</button>
         </div>
     </div>
 
@@ -226,48 +239,16 @@
             document.getElementById('loadingContent').classList.add('hidden');
             document.getElementById('errorContainer').classList.remove('hidden');
             document.getElementById('errorText').innerText = msg;
+            document.getElementById('errorCode').innerText = code || 'N/A';
             
-            // إذا كان الخطأ بسبب الدومين
-            if (code && code.includes('unauthorized-domain')) {
-                document.getElementById('authDomainHint').classList.remove('hidden');
-                document.getElementById('currentDomain').innerText = window.location.hostname;
-            }
+            // عرض الدومين الحالي ليتمكن المستخدم من نسخه
+            const currentDomain = window.location.hostname;
+            document.getElementById('currentDomainDisplay').innerText = currentDomain;
         }
 
         // ==========================================
-        // إعدادات ومفاتيح Firebase
+        // 1. نظام اللغات والترجمة
         // ==========================================
-        let firebaseConfig;
-        let appId = 'cloud-shift-register';
-
-        if (typeof __firebase_config !== 'undefined') {
-            firebaseConfig = JSON.parse(__firebase_config);
-            if(typeof __app_id !== 'undefined' && __app_id) appId = __app_id;
-        } else {
-            // المفاتيح الحقيقية
-            firebaseConfig = {
-                apiKey: "AIzaSyDzRczKA0tVr57TVFmnrr3F57REDTF4xHQ",
-                authDomain: "cloud-shift-register.firebaseapp.com",
-                projectId: "cloud-shift-register",
-                storageBucket: "cloud-shift-register.firebasestorage.app",
-                messagingSenderId: "823312208352",
-                appId: "1:823312208352:web:fc0889a737e58482ce1b85",
-                measurementId: "G-BTTC5LXB7S"
-            };
-        }
-
-        let app, auth, dbFirestore;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            dbFirestore = getFirestore(app);
-            detectLanguage();
-            initAuth();
-        } catch (e) {
-            showFatalError("Config Error: " + e.message);
-        }
-
-        // باقي المتغيرات
         const translations = {
             ar: {
                 app_title: "نظام إدارة الورديات والموظفين",
@@ -401,6 +382,42 @@
 
         function t(key) { return translations[currentLang][key] || key; }
 
+        // ==========================================
+        // 2. إعدادات Firebase
+        // ==========================================
+        let firebaseConfig;
+        let appId = 'cloud-shift-register';
+
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+            if(typeof __app_id !== 'undefined' && __app_id) appId = __app_id;
+        } else {
+            // مفاتيح مشروعك الخاصة
+            firebaseConfig = {
+                apiKey: "AIzaSyDzRczKA0tVr57TVFmnrr3F57REDTF4xHQ",
+                authDomain: "cloud-shift-register.firebaseapp.com",
+                projectId: "cloud-shift-register",
+                storageBucket: "cloud-shift-register.firebasestorage.app",
+                messagingSenderId: "823312208352",
+                appId: "1:823312208352:web:fc0889a737e58482ce1b85",
+                measurementId: "G-BTTC5LXB7S"
+            };
+        }
+
+        let app, auth, dbFirestore;
+        try {
+            if (firebaseConfig.apiKey === "PASTE_YOUR_API_KEY_HERE" && typeof __firebase_config === 'undefined') {
+                throw new Error("PLACEHOLDER_KEYS_DETECTED");
+            }
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            dbFirestore = getFirestore(app);
+            detectLanguage();
+            initAuth();
+        } catch (e) {
+            showFatalError("Config Error: " + e.message);
+        }
+
         let currentDataYear = new Date().getFullYear(); 
         let globalDb = {};
         let globalEmployees = [];
@@ -503,6 +520,7 @@
             document.getElementById('repMonthSelect').value = String(today.getMonth() + 1).padStart(2, '0');
             
             toggleModal('monthlyReportOverlay', true);
+            // توليد التقرير تلقائياً عند الفتح
             generateReport('monthly'); 
         };
 
@@ -554,6 +572,7 @@
                 });
 
                 const tr = document.createElement('tr');
+                // Added data-label for mobile view in reports
                 tr.innerHTML = `
                     <td class="p-3 border border-gray-300 font-bold text-start bg-gray-50" data-label-type="name">${empName}</td>
                     <td class="p-3 border border-gray-300 text-center text-green-700 font-bold" data-label="${t('th_present')}">${present}</td>
@@ -612,6 +631,10 @@
                 document.body.style.overflow = ''; 
             }
         };
+
+        // --- باقي دوال العرض والمنطق (كما هي) ---
+        // ... (showEmployeeSummary, handleSmartTimeInput, confirmAddEmployee, deleteEmployee, saveDataToCloud, renderDailyTable) ...
+        // (تم الاحتفاظ بجميع الدوال السابقة)
 
         window.showEmployeeSummary = function(empName) {
             const dateStr = document.getElementById('currentDateInput').value;

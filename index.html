@@ -608,8 +608,8 @@
                     <td class="p-3 border border-gray-300 text-center text-red-700 font-bold" data-label="${t('th_absent')}">${absent}</td>
                     <td class="p-3 border border-gray-300 text-center text-yellow-700 font-bold" data-label="${t('th_vacation')}">${vacation}</td>
                     <td class="p-3 border border-gray-300 text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${holiday}</td>
-                    <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" dir="ltr" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
-                    <td class="p-3 border border-gray-300 text-center text-red-600 font-bold" dir="ltr" data-label="${t('th_total_delay')}">${totalDelay}</td>
+                    <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
+                    <td class="p-3 border border-gray-300 text-center text-red-600 font-bold" data-label="${t('th_total_delay')}">${totalDelay}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -776,11 +776,9 @@
                 updates[`${updatePath}.overtime`] = '';
             }
             
-            // --- التعديل هنا: إذا كانت الحالة حضور، اجعل الاستراحة 0.5 افتراضياً ---
             if (field === 'status' && value === 'present') {
                 updates[`${updatePath}.breakDuration`] = '0.5';
             }
-            // -------------------------------------------------------------------
 
             if ((field === 'entry' || field === 'exit') && value) {
                 const currentStatus = globalDb[empName]?.[date]?.status;
@@ -793,7 +791,6 @@
                 if(!deepObject[empName]) deepObject[empName] = {};
                 if(!deepObject[empName][date]) deepObject[empName][date] = {};
                 deepObject[empName][date][field] = value;
-                // في حالة إنشاء سجل جديد أيضاً نطبق القاعدة
                 if (field === 'status' && value === 'present') {
                     deepObject[empName][date]['breakDuration'] = '0.5';
                 }
@@ -827,7 +824,6 @@
                 tr.className = "hover:bg-blue-50 border-b transition duration-150";
 
                 const isFrozen = (dayData.status === 'absent' || dayData.status === 'vacation');
-                // السماح بالتعديل إذا كان حضور أو عطلة رسمية
                 const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday');
                 
                 const isDisabled = (userRole === 'viewer') ? 'disabled' : '';

@@ -20,7 +20,7 @@
         .status-present { background-color: #dcfce7; color: #166534; }
         .status-absent { background-color: #fee2e2; color: #991b1b; }
         .status-vacation { background-color: #fef3c7; color: #92400e; }
-        .status-holiday { background-color: #f3e8ff; color: #6b21a8; } /* لون جديد للعطل الرسمية (بنفسجي) */
+        .status-holiday { background-color: #f3e8ff; color: #6b21a8; }
         
         input:disabled, select:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; border-color: #e5e7eb; }
         
@@ -201,7 +201,8 @@
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_present">أيام الحضور</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_absent">أيام الغياب</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_vacation">أيام الإجازة</th>
-                            <th class="p-3 border border-gray-200 text-center text-purple-700" data-i18n="th_holiday">أيام العطل</th> <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
+                            <th class="p-3 border border-gray-200 text-center text-purple-700" data-i18n="th_holiday">أيام العطل</th>
+                            <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
                             <th class="p-3 border border-gray-200 text-center text-red-600" data-i18n="th_total_delay">إجمالي التأخير</th>
                         </tr>
                     </thead>
@@ -308,7 +309,7 @@
                 th_present: "أيام الحضور",
                 th_absent: "أيام الغياب",
                 th_vacation: "أيام الإجازة",
-                th_holiday: "عطل رسمية", // ترجمة جديدة
+                th_holiday: "عطل رسمية",
                 th_total_overtime: "إجمالي الإضافي (ساعة)",
                 th_total_delay: "إجمالي التأخير (ساعة)",
                 th_status: "الحالة",
@@ -356,7 +357,7 @@
                 th_present: "Geldiği Günler",
                 th_absent: "Gelmediği Günler",
                 th_vacation: "İzin Günleri",
-                th_holiday: "Resmi Tatil", // ترجمة جديدة
+                th_holiday: "Resmi Tatil",
                 th_total_overtime: "Toplam Mesai (Saat)",
                 th_total_delay: "Toplam Gecikme (Saat)",
                 th_status: "Durum",
@@ -546,7 +547,6 @@
             document.getElementById('repMonthSelect').value = String(today.getMonth() + 1).padStart(2, '0');
             
             toggleModal('monthlyReportOverlay', true);
-            // توليد التقرير تلقائياً عند الفتح
             generateReport('monthly'); 
         };
 
@@ -595,7 +595,7 @@
                         if (d.status === 'present') present++;
                         if (d.status === 'absent') absent++;
                         if (d.status === 'vacation') vacation++;
-                        if (d.status === 'holiday') holiday++; // عد العطل الرسمية
+                        if (d.status === 'holiday') holiday++;
                         if (d.overtime) totalOvertime += parseFloat(d.overtime) || 0;
                         if (d.shortage) totalDelay += parseFloat(d.shortage) || 0;
                     }
@@ -607,7 +607,8 @@
                     <td class="p-3 border border-gray-300 text-center text-green-700 font-bold" data-label="${t('th_present')}">${present}</td>
                     <td class="p-3 border border-gray-300 text-center text-red-700 font-bold" data-label="${t('th_absent')}">${absent}</td>
                     <td class="p-3 border border-gray-300 text-center text-yellow-700 font-bold" data-label="${t('th_vacation')}">${vacation}</td>
-                    <td class="p-3 border border-gray-300 text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${holiday}</td> <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" dir="ltr" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
+                    <td class="p-3 border border-gray-300 text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${holiday}</td>
+                    <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" dir="ltr" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
                     <td class="p-3 border border-gray-300 text-center text-red-600 font-bold" dir="ltr" data-label="${t('th_total_delay')}">${totalDelay}</td>
                 `;
                 tbody.appendChild(tr);
@@ -621,7 +622,6 @@
             
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += `${title}\n`;
-            // تمت إضافة عمود العطل في الـ CSV
             csvContent += `${t('th_name')},${t('th_present')},${t('th_absent')},${t('th_vacation')},${t('th_holiday')},${t('th_total_overtime')},${t('th_total_delay')}\n`;
             
             const prefix = currentReportType === 'monthly' ? `${year}-${month}` : `${year}`;
@@ -655,11 +655,11 @@
             const el = document.getElementById(id);
             if(show) { 
                 el.classList.remove('hidden'); 
-                document.body.style.overflow = 'hidden'; // قفل الخلفية عند فتح المودال
+                document.body.style.overflow = 'hidden'; 
                 if(id === 'addEmployeeOverlay') document.getElementById('newEmployeeName').focus(); 
             } else { 
                 el.classList.add('hidden'); 
-                document.body.style.overflow = ''; // استعادة السكرول عند الإغلاق
+                document.body.style.overflow = ''; 
             }
         };
 
@@ -675,7 +675,7 @@
                     if (d.status === 'present') present++;
                     if (d.status === 'absent') absent++;
                     if (d.status === 'vacation') vacation++;
-                    if (d.status === 'holiday') holiday++; // عد العطل
+                    if (d.status === 'holiday') holiday++; 
                     totalOvertime += parseFloat(d.overtime) || 0;
                     totalShortage += parseFloat(d.shortage) || 0;
                 }
@@ -768,8 +768,6 @@
             let updates = {};
             updates[`${updatePath}.${field}`] = value;
 
-            // التعديل هنا: يتم مسح البيانات فقط إذا كانت الحالة "غياب" أو "إجازة"
-            // أما إذا كانت "عطلة رسمية" (holiday) فلا يتم مسح البيانات لأن الموظف قد يعمل
             if (field === 'status' && (value === 'absent' || value === 'vacation')) {
                 updates[`${updatePath}.entry`] = '';
                 updates[`${updatePath}.exit`] = '';
@@ -777,6 +775,13 @@
                 updates[`${updatePath}.shortage`] = '';
                 updates[`${updatePath}.overtime`] = '';
             }
+            
+            // --- التعديل هنا: إذا كانت الحالة حضور، اجعل الاستراحة 0.5 افتراضياً ---
+            if (field === 'status' && value === 'present') {
+                updates[`${updatePath}.breakDuration`] = '0.5';
+            }
+            // -------------------------------------------------------------------
+
             if ((field === 'entry' || field === 'exit') && value) {
                 const currentStatus = globalDb[empName]?.[date]?.status;
                 if (!currentStatus) updates[`${updatePath}.status`] = 'present';
@@ -788,6 +793,10 @@
                 if(!deepObject[empName]) deepObject[empName] = {};
                 if(!deepObject[empName][date]) deepObject[empName][date] = {};
                 deepObject[empName][date][field] = value;
+                // في حالة إنشاء سجل جديد أيضاً نطبق القاعدة
+                if (field === 'status' && value === 'present') {
+                    deepObject[empName][date]['breakDuration'] = '0.5';
+                }
                 await setDoc(dataDocRef, { records: deepObject }, { merge: true });
             }
         };
@@ -817,9 +826,8 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 border-b transition duration-150";
 
-                // المنطق: الحقول مجمدة فقط إذا لم تكن الحالة "حضور" ولم تكن "عطلة رسمية"
                 const isFrozen = (dayData.status === 'absent' || dayData.status === 'vacation');
-                // السماح بالتعديل إذا كان "حضور" أو "عطلة رسمية"
+                // السماح بالتعديل إذا كان حضور أو عطلة رسمية
                 const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday');
                 
                 const isDisabled = (userRole === 'viewer') ? 'disabled' : '';
@@ -829,7 +837,7 @@
                 if(dayData.status === 'absent') rowBg = 'bg-red-50';
                 if(dayData.status === 'vacation') rowBg = 'bg-yellow-50';
                 if(dayData.status === 'present') rowBg = 'bg-green-50';
-                if(dayData.status === 'holiday') rowBg = 'status-holiday'; // الخلفية البنفسجية
+                if(dayData.status === 'holiday') rowBg = 'status-holiday'; 
                 if(rowBg) tr.classList.add(rowBg);
 
                 const breakVal = dayData.breakDuration || '0';
@@ -845,7 +853,8 @@
                             <option value="present" ${dayData.status === 'present' ? 'selected' : ''}>${t('val_present')}</option>
                             <option value="absent" ${dayData.status === 'absent' ? 'selected' : ''}>${t('val_absent')}</option>
                             <option value="vacation" ${dayData.status === 'vacation' ? 'selected' : ''}>${t('val_vacation')}</option>
-                            <option value="holiday" ${dayData.status === 'holiday' ? 'selected' : ''}>${t('val_holiday')}</option> </select>
+                            <option value="holiday" ${dayData.status === 'holiday' ? 'selected' : ''}>${t('val_holiday')}</option>
+                        </select>
                     </td>
                     <td class="p-3" data-label="${t('th_entry')}">
                         <input type="text" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empName}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center placeholder-gray-300 focus:ring-2 focus:ring-blue-400 outline-none ltr" style="direction: ltr;">

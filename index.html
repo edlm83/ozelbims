@@ -8,87 +8,126 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        
+        /* تنسيقات الجدول للشاشات الكبيرة */
         .table-container { overflow-x: auto; max-height: 70vh; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         thead th { position: sticky; top: 0; z-index: 10; background-color: #1e3a8a; color: white; }
-        .select-none { user-select: none; -webkit-user-select: none; }
+        
+        /* ألوان الحالات */
         .status-present { background-color: #dcfce7; color: #166534; }
         .status-absent { background-color: #fee2e2; color: #991b1b; }
         .status-vacation { background-color: #fef3c7; color: #92400e; }
+        
         input:disabled, select:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; border-color: #e5e7eb; }
         .overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, 0.95); z-index: 50; display: flex; justify-content: center; align-items: center; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 40; display: flex; justify-content: center; align-items: center; padding: 1rem; }
         .hidden { display: none !important; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Mobile Card View */
+        /* ========================================= */
+        /* تنسيقات الجوال (نظام البطاقات) - هام جداً */
+        /* ========================================= */
         @media (max-width: 768px) {
-            .table-container, .overflow-auto { background: transparent; box-shadow: none; overflow: visible !important; max-height: none !important; border: none; }
-            #monthlyReportOverlay .overflow-auto { overflow-y: auto !important; -webkit-overflow-scrolling: touch; max-height: 70vh !important; }
+            /* إلغاء خصائص الجدول التقليدي */
+            .table-container, .overflow-auto { 
+                background: transparent; box-shadow: none; overflow: visible !important; max-height: none !important; border: none; 
+            }
+            
+            /* السماح بالسكرول داخل نافذة التقرير فقط */
+            #monthlyReportOverlay .overflow-auto {
+                overflow-y: auto !important;
+                max-height: 65vh !important;
+            }
+
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
-            thead { display: none; }
-            tr { background: white; margin-bottom: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); padding: 0; border: 1px solid #e5e7eb; overflow: hidden; }
-            td { padding: 0.8rem 1.2rem; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between; align-items: center; text-align: start; min-height: 50px; }
+            thead { display: none; } /* إخفاء الرأس */
+            
+            /* البطاقة */
+            tr {
+                background: white;
+                margin-bottom: 1rem;
+                border-radius: 1rem;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+                border: 1px solid #e5e7eb;
+                overflow: hidden;
+            }
+
+            /* خلايا البطاقة */
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem;
+                border-bottom: 1px solid #f3f4f6;
+                text-align: start; /* محاذاة حسب اللغة */
+            }
             td:last-child { border-bottom: none; }
-            td::before { content: attr(data-label); font-weight: 600; color: #6b7280; font-size: 0.9rem; flex-basis: 40%; text-align: start; }
-            td[data-label-type="name"] { background: linear-gradient(to left, #eff6ff, #ffffff); padding: 1rem; display: flex; justify-content: center; align-items: center; color: #1e40af; font-size: 1.1rem; font-weight: 800; border-bottom: 2px solid #dbeafe; border-top: 4px solid #3b82f6; }
-            td[data-label-type="name"]::before { display: none; } 
+
+            /* العنوان الجانبي (يأخذ القيمة من data-label) */
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #6b7280;
+                font-size: 0.9rem;
+                flex-basis: 40%;
+            }
+
+            /* تخصيص اسم الموظف كعنوان */
+            td[data-label-type="name"] {
+                background: #eff6ff;
+                justify-content: center;
+                font-weight: 800;
+                color: #1e3a8a;
+                font-size: 1.1rem;
+                border-bottom: 2px solid #bfdbfe;
+            }
+            td[data-label-type="name"]::before { display: none; }
             td[data-label-type="index"] { display: none; }
-            td input, td select { width: 55% !important; max-width: none !important; padding: 0.6rem; border-radius: 0.5rem; border: 1px solid #d1d5db; text-align: center; background-color: #fff; }
-            td.delete-col { background: #fef2f2; justify-content: center; padding: 0.8rem; }
-            td.delete-col button { width: 100%; color: #ef4444; font-weight: bold; }
+
+            /* تحسين عرض الحقول */
+            td input, td select {
+                width: 55% !important;
+                text-align: center;
+                border: 1px solid #d1d5db;
+                border-radius: 0.375rem;
+                padding: 0.4rem;
+            }
+            
+            /* زر الحذف */
+            td.delete-col { justify-content: center; background: #fef2f2; }
+            td.delete-col button { width: 100%; color: #dc2626; font-weight: bold; }
             td.delete-col::before { display: none; }
         }
     </style>
 </head>
-<body class="p-4 md:p-6 text-gray-800 transition-all duration-300">
+<body class="p-4 md:p-6 text-gray-800">
 
-    <!-- شاشة التحميل والأخطاء -->
+    <!-- شاشة التحميل -->
     <div id="loadingScreen" class="overlay" style="z-index: 60; background: white;">
-        <div class="flex flex-col items-center text-center p-6" id="loadingContent">
+        <div class="flex flex-col items-center">
             <div class="loader mb-4"></div>
             <p class="text-gray-600 font-bold" data-i18n="connecting">جاري الاتصال بقاعدة البيانات...</p>
-        </div>
-        <!-- حاوية رسالة الخطأ -->
-        <div id="errorContainer" class="hidden flex flex-col items-center justify-center p-6 max-w-lg w-full bg-red-50 border border-red-200 rounded-xl shadow-2xl mx-4">
-            <div class="text-red-500 text-5xl mb-4">⚠️</div>
-            <h3 class="text-xl font-bold text-red-700 mb-2">فشل الاتصال / Connection Failed</h3>
-            
-            <div class="bg-white p-4 rounded border border-gray-300 w-full mb-4 text-left" style="direction: ltr;">
-                <p class="text-xs text-gray-500 font-bold uppercase">Technical Error:</p>
-                <p id="errorText" class="text-sm text-red-600 font-mono mb-2">Unknown</p>
-                <p class="text-xs text-gray-500 font-bold uppercase">Error Code:</p>
-                <p id="errorCode" class="text-sm text-gray-800 font-mono">N/A</p>
-            </div>
-
-            <div class="bg-blue-50 p-4 rounded border border-blue-200 w-full mb-4 text-left" style="direction: ltr;">
-                <p class="text-sm text-blue-800 font-bold mb-1">Your Current Domain (Copy this):</p>
-                <div class="flex items-center gap-2">
-                    <code id="currentDomainDisplay" class="bg-white px-2 py-1 rounded border border-blue-300 flex-1 text-blue-700 font-bold"></code>
-                </div>
-                <p class="text-xs text-blue-600 mt-2">Add this domain to <b>Firebase Console > Auth > Settings > Authorized Domains</b></p>
-                <a href="https://console.firebase.google.com/" target="_blank" class="block mt-2 text-center bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">Open Firebase Console</a>
-            </div>
-
-            <button onclick="location.reload()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition font-bold w-full">تحديث الصفحة / Reload</button>
         </div>
     </div>
 
     <!-- 1. شاشة تسجيل الدخول -->
     <div id="loginOverlay" class="overlay hidden">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative">
+            
+            <!-- أزرار اللغة (سوريا وتركيا) -->
             <div class="absolute top-4 right-4 flex gap-3">
-                <button id="btn-tr" onclick="changeLanguage('tr')" class="w-10 h-10 rounded-full overflow-hidden border-4 border-transparent transition-all duration-200 shadow-md">
+                <button id="btn-tr" onclick="changeLanguage('tr')" class="w-10 h-10 rounded-full overflow-hidden border-4 border-transparent hover:scale-105 transition-all shadow-md" title="Türkçe">
                     <img src="https://flagcdn.com/w40/tr.png" alt="Turkish" class="w-full h-full object-cover">
                 </button>
-                <button id="btn-ar" onclick="changeLanguage('ar')" class="w-10 h-10 rounded-full overflow-hidden border-4 border-transparent transition-all duration-200 shadow-md">
+                <button id="btn-ar" onclick="changeLanguage('ar')" class="w-10 h-10 rounded-full overflow-hidden border-4 border-transparent hover:scale-105 transition-all shadow-md" title="العربية">
+                    <!-- علم سوريا -->
                     <img src="https://flagcdn.com/w40/sy.png" alt="Arabic" class="w-full h-full object-cover">
                 </button>
             </div>
+
             <h2 class="text-2xl font-bold text-gray-800 mb-2 mt-8" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 mb-6 text-sm" data-i18n="app_title">نظام إدارة الورديات</p>
+            <p class="text-gray-500 mb-6 text-sm" data-i18n="app_title">نظام إدارة الورديات (أونلاين)</p>
             <input type="password" id="accessCode" class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4" data-i18n="login_btn">دخول</button>
             <div class="text-xs text-gray-400 bg-gray-50 p-2 rounded border text-start">
@@ -99,10 +138,10 @@
         </div>
     </div>
 
-    <!-- 2. إضافة موظف -->
+    <!-- 2. نافذة إضافة موظف -->
     <div id="addEmployeeOverlay" class="modal-overlay hidden">
         <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
-            <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="add_emp_title">إضافة موظف</h3>
+            <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="add_emp_title">إضافة موظف جديد للوردية</h3>
             <input type="text" id="newEmployeeName" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
             <div class="flex gap-2">
                 <button onclick="confirmAddEmployee()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition" data-i18n="save">حفظ</button>
@@ -111,24 +150,24 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التقارير -->
+    <!-- 3. نافذة التقرير الشهري/السنوي -->
     <div id="monthlyReportOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] md:h-[90vh]">
-            
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-xl font-bold text-gray-800" data-i18n="reports_title">التقارير</h3>
                 <button onclick="toggleModal('monthlyReportOverlay', false)" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
             </div>
             
-            <div class="flex flex-wrap gap-3 p-4 bg-gray-50 border-b">
+            <div class="flex flex-wrap gap-4 p-4 items-center bg-gray-50 border-b justify-between">
                 <div class="flex items-center gap-2">
+                    <!-- قوائم السنة والشهر مع التحديث التلقائي -->
                     <div class="flex flex-col">
-                        <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
-                        <input type="number" id="repYearInput" onchange="generateReport(currentReportType); handleReportYearChange()" class="p-2 border rounded w-20 text-center font-bold">
+                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
+                         <input type="number" id="repYearInput" onchange="generateReport(currentReportType)" class="p-2 border rounded w-24 text-center font-bold">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_month">الشهر</label>
-                        <select id="repMonthSelect" onchange="generateReport(currentReportType)" class="p-2 border rounded w-28 font-bold cursor-pointer">
+                        <select id="repMonthSelect" onchange="generateReport(currentReportType)" class="p-2 border rounded w-32 font-bold cursor-pointer">
                             <option value="01">01</option> <option value="02">02</option> <option value="03">03</option>
                             <option value="04">04</option> <option value="05">05</option> <option value="06">06</option>
                             <option value="07">07</option> <option value="08">08</option> <option value="09">09</option>
@@ -137,20 +176,16 @@
                     </div>
                 </div>
 
-                <div class="flex gap-2 flex-grow justify-end">
+                <div class="flex gap-2">
                     <button onclick="generateReport('monthly')" class="bg-blue-600 text-white px-3 py-2 rounded text-xs md:text-sm hover:bg-blue-700 transition font-bold" data-i18n="btn_monthly_report">شهري</button>
                     <button onclick="generateReport('annual')" class="bg-indigo-600 text-white px-3 py-2 rounded text-xs md:text-sm hover:bg-indigo-700 transition font-bold" data-i18n="btn_annual_report">سنوي</button>
                     <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-3 py-2 rounded text-xs md:text-sm hover:bg-green-700 transition font-bold" data-i18n="export_excel">Excel</button>
                 </div>
             </div>
 
-            <div id="reportTitleDisplay" class="text-center font-bold text-lg text-blue-900 py-2 border-b bg-blue-50/50"></div>
+            <div id="reportTitleDisplay" class="text-center font-bold text-lg text-blue-900 py-2 bg-blue-50/50"></div>
 
             <div class="flex-1 overflow-auto p-2 relative bg-gray-50">
-                <div id="reportLoader" class="hidden absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
-                    <div class="loader"></div>
-                </div>
-
                 <table class="w-full text-start text-sm border-collapse bg-white shadow-sm rounded-lg">
                     <thead class="bg-blue-100 text-gray-800 sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -159,6 +194,7 @@
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_absent">أيام الغياب</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_vacation">أيام الإجازة</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
+                            <!-- عمود التأخير المضاف -->
                             <th class="p-3 border border-gray-200 text-center text-red-600" data-i18n="th_total_delay">إجمالي التأخير</th>
                         </tr>
                     </thead>
@@ -173,10 +209,10 @@
         
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900" data-i18n="app_title">سجل الورديات</h1>
+                <h1 class="text-2xl font-bold text-blue-900" data-i18n="app_title">سجل الورديات السحابي</h1>
                 <div class="flex items-center gap-2 mt-1">
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <p class="text-green-600 text-xs font-bold" data-i18n="status_online">متصل</p>
+                    <p class="text-green-600 text-xs font-bold" data-i18n="status_online">متصل: Cloud Shift Register</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -198,13 +234,11 @@
             </div>
             <div id="adminControls" class="flex gap-2">
                 <button onclick="toggleModal('addEmployeeOverlay', true)" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded shadow text-sm transition flex items-center gap-1">
-                    <span data-i18n="new_employee">+ موظف</span>
+                    <span data-i18n="new_employee">+ موظف جديد</span>
                 </button>
-                <div id="viewerBadge" class="hidden bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm" data-i18n="viewer_mode">مشاهدة</div>
+                <div id="viewerBadge" class="hidden bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm" data-i18n="viewer_mode">وضع المشاهدة</div>
             </div>
         </div>
-
-        <div id="employeeStatsCard" class="hidden mb-4 bg-white border-r-4 ltr:border-r-0 ltr:border-l-4 border-indigo-500 shadow-lg p-5 rounded-lg fade-in-down border border-gray-100"></div>
 
         <div class="table-container border bg-white relative">
             <table class="w-full text-start border-collapse md:min-w-[1000px]">
@@ -224,7 +258,7 @@
                 </thead>
                 <tbody id="dailyTableBody" class="text-gray-700 text-sm font-medium"></tbody>
             </table>
-            <div id="emptyState" class="hidden text-center p-8 text-gray-400" data-i18n="no_data">لا يوجد بيانات.</div>
+            <div id="emptyState" class="hidden text-center p-8 text-gray-400" data-i18n="no_data">لا يوجد موظفين مسجلين حالياً.</div>
         </div>
     </div>
 
@@ -234,20 +268,8 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // دالة لإظهار شاشة الخطأ
-        function showFatalError(msg, code) {
-            document.getElementById('loadingContent').classList.add('hidden');
-            document.getElementById('errorContainer').classList.remove('hidden');
-            document.getElementById('errorText').innerText = msg;
-            document.getElementById('errorCode').innerText = code || 'N/A';
-            
-            // عرض الدومين الحالي ليتمكن المستخدم من نسخه
-            const currentDomain = window.location.hostname;
-            document.getElementById('currentDomainDisplay').innerText = currentDomain;
-        }
-
         // ==========================================
-        // 1. نظام اللغات والترجمة
+        // 1. نظام اللغات والترجمة (Updated)
         // ==========================================
         const translations = {
             ar: {
@@ -255,93 +277,50 @@
                 login_title: "تسجيل الدخول",
                 login_btn: "دخول",
                 login_placeholder: "رمز الدخول",
-                admin_role: "المدير (تعديل):",
-                viewer_role: "المحاسب (عرض):",
-                wrong_code: "رمز خاطئ",
-                connecting: "جاري الاتصال بقاعدة البيانات...",
+                admin_role: "المدير:", viewer_role: "المحاسب:",
+                wrong_code: "رمز خاطئ", connecting: "جاري الاتصال...",
                 status_online: "متصل: Cloud Shift Register",
-                reports_title: "التقارير",
-                logout: "خروج",
-                shift_date: "تاريخ الوردية:",
-                new_employee: "+ موظف جديد",
-                viewer_mode: "وضع المشاهدة (للقراءة فقط)",
-                add_emp_title: "إضافة موظف جديد",
-                emp_placeholder: "الاسم الثلاثي",
-                save: "حفظ",
-                cancel: "إلغاء",
-                monthly_report: "التقرير الشهري",
-                annual_report: "التقرير السنوي الشامل",
-                btn_monthly_report: "شهري",
-                btn_annual_report: "سنوي",
-                lbl_year: "السنة",
-                lbl_month: "الشهر",
-                close: "إغلاق",
-                select_month: "اختر الفترة:",
-                export_excel: "تصدير Excel",
-                th_name: "اسم الموظف",
-                th_present: "أيام الحضور",
-                th_absent: "أيام الغياب",
-                th_vacation: "أيام الإجازة",
-                th_total_overtime: "إجمالي الإضافي (ساعة)",
-                th_total_delay: "إجمالي التأخير (ساعة)",
-                th_status: "الحالة",
-                th_entry: "دخول",
-                th_exit: "خروج",
-                th_break: "استراحة",
-                th_delay: "تأخير",
-                th_overtime: "إضافي",
-                th_notes: "ملاحظات",
-                th_delete: "حذف",
-                no_data: "لا يوجد موظفين مسجلين حالياً.",
-                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_choose: "-- اختر --",
-                sum_title: "ملخص شهر", sum_emp: "للموظف:", sum_days: "يوم", sum_hrs: "س",
+                reports_title: "التقارير", logout: "خروج",
+                shift_date: "التاريخ:", new_employee: "+ موظف",
+                viewer_mode: "وضع المشاهدة",
+                add_emp_title: "إضافة موظف", emp_placeholder: "الاسم",
+                save: "حفظ", cancel: "إلغاء",
+                monthly_report: "تقرير شهري", annual_report: "تقرير سنوي",
+                btn_monthly_report: "شهري", btn_annual_report: "سنوي",
+                lbl_year: "سنة", lbl_month: "شهر",
+                close: "إغلاق", export_excel: "Excel",
+                th_name: "الاسم", th_present: "حضور", th_absent: "غياب",
+                th_vacation: "إجازة", th_total_overtime: "إضافي", th_total_delay: "تأخير",
+                th_status: "الحالة", th_entry: "دخول", th_exit: "خروج",
+                th_break: "استراحة", th_delay: "تأخير", th_overtime: "إضافي",
+                th_notes: "ملاحظات", th_delete: "حذف",
+                no_data: "لا يوجد بيانات.",
+                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_choose: "--",
                 day_sunday: "الأحد", day_monday: "الإثنين", day_tuesday: "الثلاثاء", day_wednesday: "الأربعاء", day_thursday: "الخميس", day_friday: "الجمعة", day_saturday: "السبت"
             },
             tr: {
-                app_title: "Vardiya ve Personel Yönetim Sistemi",
-                login_title: "Giriş Yap",
-                login_btn: "Giriş",
-                login_placeholder: "Giriş Kodu",
-                admin_role: "Yönetici (Düzenle):",
-                viewer_role: "Muhasebe (İzle):",
-                wrong_code: "Hatalı Kod",
-                connecting: "Veritabanına bağlanılıyor...",
-                status_online: "Çevrimiçi: Cloud Shift Register",
-                reports_title: "Raporlar",
-                logout: "Çıkış",
-                shift_date: "Vardiya Tarihi:",
-                new_employee: "+ Yeni Personel",
-                viewer_mode: "İzleme Modu (Sadece Okuma)",
-                add_emp_title: "Yeni Personel Ekle",
-                emp_placeholder: "Ad Soyad",
-                save: "Kaydet",
-                cancel: "İptal",
-                monthly_report: "Aylık Rapor",
-                annual_report: "Kapsamlı Yıllık Rapor",
-                btn_monthly_report: "Aylık",
-                btn_annual_report: "Yıllık",
-                lbl_year: "Yıl",
-                lbl_month: "Ay",
-                close: "Kapat",
-                select_month: "Dönem Seçin:",
-                export_excel: "Excel İndir",
-                th_name: "Personel Adı",
-                th_present: "Geldiği Günler",
-                th_absent: "Gelmediği Günler",
-                th_vacation: "İzin Günleri",
-                th_total_overtime: "Toplam Mesai (Saat)",
-                th_total_delay: "Toplam Gecikme (Saat)",
-                th_status: "Durum",
-                th_entry: "Giriş",
-                th_exit: "Çıkış",
-                th_break: "Mola",
-                th_delay: "Gecikme",
-                th_overtime: "Mesai",
-                th_notes: "Notlar",
-                th_delete: "Sil",
-                no_data: "Henüz kayıtlı personel yok.",
-                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_choose: "-- Seç --",
-                sum_title: "Ay Özeti", sum_emp: "Personel:", sum_days: "Gün", sum_hrs: "S",
+                app_title: "Vardiya Sistemi",
+                login_title: "Giriş", login_btn: "Giriş",
+                login_placeholder: "Kod",
+                admin_role: "Yönetici:", viewer_role: "Muhasebe:",
+                wrong_code: "Hatalı Kod", connecting: "Bağlanıyor...",
+                status_online: "Çevrimiçi",
+                reports_title: "Raporlar", logout: "Çıkış",
+                shift_date: "Tarih:", new_employee: "Yeni Personel",
+                viewer_mode: "İzleme",
+                add_emp_title: "Personel Ekle", emp_placeholder: "Ad Soyad",
+                save: "Kaydet", cancel: "İptal",
+                monthly_report: "Aylık Rapor", annual_report: "Yıllık Rapor",
+                btn_monthly_report: "Aylık", btn_annual_report: "Yıllık",
+                lbl_year: "Yıl", lbl_month: "Ay",
+                close: "Kapat", export_excel: "Excel",
+                th_name: "Ad Soyad", th_present: "Geldi", th_absent: "Gelmedi",
+                th_vacation: "İzin", th_total_overtime: "T. Mesai", th_total_delay: "T. Gecikme",
+                th_status: "Durum", th_entry: "Giriş", th_exit: "Çıkış",
+                th_break: "Mola", th_delay: "Gecikme", th_overtime: "Mesai",
+                th_notes: "Notlar", th_delete: "Sil",
+                no_data: "Kayıt yok.",
+                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_choose: "--",
                 day_sunday: "Pazar", day_monday: "Pazartesi", day_tuesday: "Salı", day_wednesday: "Çarşamba", day_thursday: "Perşembe", day_friday: "Cuma", day_saturday: "Cumartesi"
             }
         };
@@ -364,13 +343,19 @@
             document.documentElement.lang = lang;
             document.documentElement.dir = dir;
 
+            // تحديث إطار العلم
             const btnAr = document.getElementById('btn-ar');
             const btnTr = document.getElementById('btn-tr');
-            btnAr.classList.remove('border-green-500', 'border-transparent');
-            btnTr.classList.remove('border-green-500', 'border-transparent');
+            btnAr.classList.remove('border-green-500', 'border-transparent', 'scale-110');
+            btnTr.classList.remove('border-green-500', 'border-transparent', 'scale-110');
             
-            if (lang === 'ar') { btnAr.classList.add('border-green-500'); btnTr.classList.add('border-transparent'); } 
-            else { btnTr.classList.add('border-green-500'); btnAr.classList.add('border-transparent'); }
+            if (lang === 'ar') { 
+                btnAr.classList.add('border-green-500', 'scale-110'); 
+                btnTr.classList.add('border-transparent'); 
+            } else { 
+                btnTr.classList.add('border-green-500', 'scale-110'); 
+                btnAr.classList.add('border-transparent'); 
+            }
 
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -383,48 +368,42 @@
         function t(key) { return translations[currentLang][key] || key; }
 
         // ==========================================
-        // 2. إعدادات Firebase
+        // 2. إعدادات Firebase (الأصلية)
         // ==========================================
         let firebaseConfig;
-        let appId = 'cloud-shift-register';
+        let appId = 'cloud-shift-register'; 
 
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
             if(typeof __app_id !== 'undefined' && __app_id) appId = __app_id;
         } else {
-            // مفاتيح مشروعك الخاصة
             firebaseConfig = {
                 apiKey: "AIzaSyDzRczKA0tVr57TVFmnrr3F57REDTF4xHQ",
                 authDomain: "cloud-shift-register.firebaseapp.com",
                 projectId: "cloud-shift-register",
                 storageBucket: "cloud-shift-register.firebasestorage.app",
                 messagingSenderId: "823312208352",
-                appId: "1:823312208352:web:fc0889a737e58482ce1b85",
-                measurementId: "G-BTTC5LXB7S"
+                appId: "1:823312208352:web:0e9c6dbf7a568651ce1b85",
+                measurementId: "G-48TZGWPQ53"
             };
         }
 
-        let app, auth, dbFirestore;
-        try {
-            if (firebaseConfig.apiKey === "PASTE_YOUR_API_KEY_HERE" && typeof __firebase_config === 'undefined') {
-                throw new Error("PLACEHOLDER_KEYS_DETECTED");
-            }
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            dbFirestore = getFirestore(app);
-            detectLanguage();
-            initAuth();
-        } catch (e) {
-            showFatalError("Config Error: " + e.message);
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const dbFirestore = getFirestore(app);
 
-        let currentDataYear = new Date().getFullYear(); 
+        detectLanguage(); // تفعيل اللغة فوراً
+
+        // متغيرات التطبيق
+        const currentYear = new Date().getFullYear();
         let globalDb = {};
         let globalEmployees = [];
         let userRole = '';
-        const collectionPath = `attendance_data/${targetAppId}/years`;
-        let dataDocRef;
-        let unsubscribeFirestore = null; 
+        
+        // المسار الأصلي (للأمان)
+        const collectionPath = `artifacts/${appId}/public/data/attendance_app`;
+        const dataDocPath = `data_${currentYear}`;
+        const dataDocRef = doc(dbFirestore, collectionPath, dataDocPath);
 
         async function initAuth() {
             try {
@@ -434,53 +413,36 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                showFatalError(error.message, error.code);
+                console.error("Auth Error:", error);
+                alert("Auth Failed: " + error.message);
             }
-        }
-
-        function loadYearData(year, callback) {
-            if (!auth.currentUser) return;
-            if (year === currentDataYear && unsubscribeFirestore && !callback) return;
-            if (unsubscribeFirestore) unsubscribeFirestore();
-
-            currentDataYear = parseInt(year);
-            const dataDocPath = `data_${currentDataYear}`;
-            dataDocRef = doc(dbFirestore, collectionPath, dataDocPath);
-
-            document.getElementById('loadingScreen').classList.remove('hidden');
-
-            unsubscribeFirestore = onSnapshot(dataDocRef, (docSnap) => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    globalDb = data.records || {};
-                    globalEmployees = data.employees || [];
-                } else {
-                    globalDb = {};
-                    globalEmployees = [];
-                }
-                if (!document.getElementById('appContainer').classList.contains('hidden')) {
-                    renderDailyTable();
-                }
-                if (callback) callback();
-            }, (error) => {
-                showFatalError(error.message, error.code);
-            });
         }
 
         if(auth) {
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    const dateInput = document.getElementById('currentDateInput');
-                    const today = new Date().toISOString().split('T')[0];
-                    dateInput.value = today;
-                    loadYearData(new Date().getFullYear());
+                    document.getElementById('loadingScreen').classList.add('hidden');
                     document.getElementById('loginOverlay').classList.remove('hidden');
+                    
+                    onSnapshot(dataDocRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            globalDb = data.records || {};
+                            globalEmployees = data.employees || [];
+                            if (!document.getElementById('appContainer').classList.contains('hidden')) {
+                                renderDailyTable();
+                            }
+                        }
+                    });
                 }
             });
         }
+        initAuth();
 
-        // App Functions
+        // ==========================================
+        // 3. المنطق
+        // ==========================================
+
         window.checkLogin = function() {
             const code = document.getElementById('accessCode').value;
             if (code === '1111') { userRole = 'admin'; startApp(); }
@@ -500,42 +462,26 @@
                 style.innerHTML = '.delete-col { display: none; }';
                 document.head.appendChild(style);
             }
+            // ضبط التاريخ والتقرير
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            document.getElementById('currentDateInput').value = todayStr;
+            document.getElementById('repYearInput').value = today.getFullYear();
+            document.getElementById('repMonthSelect').value = String(today.getMonth() + 1).padStart(2, '0');
+            
             renderDailyTable();
         };
 
         window.changeDate = function() {
-            const dateStr = document.getElementById('currentDateInput').value;
-            if(!dateStr) return;
-            const newYear = new Date(dateStr).getFullYear();
-            if (newYear !== currentDataYear) { loadYearData(newYear); } else { renderDailyTable(); }
-            document.getElementById('employeeStatsCard').classList.add('hidden');
+            renderDailyTable();
         };
 
-        // Reports Logic
-        let currentReportType = 'monthly'; 
+        // --- تقارير (محسنة) ---
+        let currentReportType = 'monthly';
 
         window.openReportModal = function() {
-            const today = new Date();
-            document.getElementById('repYearInput').value = currentDataYear; 
-            document.getElementById('repMonthSelect').value = String(today.getMonth() + 1).padStart(2, '0');
-            
             toggleModal('monthlyReportOverlay', true);
-            // توليد التقرير تلقائياً عند الفتح
-            generateReport('monthly'); 
-        };
-
-        window.handleReportYearChange = function() {
-            const selectedYear = parseInt(document.getElementById('repYearInput').value);
-            if (selectedYear && selectedYear !== currentDataYear) {
-                document.getElementById('reportLoader').classList.remove('hidden');
-                loadYearData(selectedYear, () => {
-                    document.getElementById('reportLoader').classList.add('hidden');
-                    const currentMonthDay = document.getElementById('currentDateInput').value.slice(5);
-                    document.getElementById('currentDateInput').value = `${selectedYear}-${currentMonthDay}`;
-                    renderDailyTable(); 
-                    generateReport(currentReportType);
-                });
-            }
+            generateReport('monthly'); // توليد تلقائي
         };
 
         window.generateReport = function(type) {
@@ -549,8 +495,10 @@
             let titleText = '';
             if (type === 'monthly') {
                 titleText = `${t('monthly_report')} - ${year}/${month}`;
+                document.getElementById('repMonthSelect').disabled = false;
             } else {
                 titleText = `${t('annual_report')} - ${year}`;
+                document.getElementById('repMonthSelect').disabled = true;
             }
             document.getElementById('reportTitleDisplay').innerText = titleText;
 
@@ -572,7 +520,7 @@
                 });
 
                 const tr = document.createElement('tr');
-                // Added data-label for mobile view in reports
+                // Added Data Labels for Mobile
                 tr.innerHTML = `
                     <td class="p-3 border border-gray-300 font-bold text-start bg-gray-50" data-label-type="name">${empName}</td>
                     <td class="p-3 border border-gray-300 text-center text-green-700 font-bold" data-label="${t('th_present')}">${present}</td>
@@ -595,7 +543,6 @@
             csvContent += `${t('th_name')},${t('th_present')},${t('th_absent')},${t('th_vacation')},${t('th_total_overtime')},${t('th_total_delay')}\n`;
             
             const prefix = currentReportType === 'monthly' ? `${year}-${month}` : `${year}`;
-
             globalEmployees.forEach(empName => {
                 let present = 0, absent = 0, vacation = 0, totalOvertime = 0, totalDelay = 0;
                 const empData = globalDb[empName] || {};
@@ -618,71 +565,6 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        };
-
-        window.toggleModal = function(id, show) {
-            const el = document.getElementById(id);
-            if(show) { 
-                el.classList.remove('hidden'); 
-                document.body.style.overflow = 'hidden'; 
-                if(id === 'addEmployeeOverlay') document.getElementById('newEmployeeName').focus(); 
-            } else { 
-                el.classList.add('hidden'); 
-                document.body.style.overflow = ''; 
-            }
-        };
-
-        // --- باقي دوال العرض والمنطق (كما هي) ---
-        // ... (showEmployeeSummary, handleSmartTimeInput, confirmAddEmployee, deleteEmployee, saveDataToCloud, renderDailyTable) ...
-        // (تم الاحتفاظ بجميع الدوال السابقة)
-
-        window.showEmployeeSummary = function(empName) {
-            const dateStr = document.getElementById('currentDateInput').value;
-            const currentMonth = dateStr.slice(0, 7); 
-            const monthName = dateStr.slice(5, 7); 
-            let present = 0, absent = 0, totalOvertime = 0, totalShortage = 0;
-            const empData = globalDb[empName] || {};
-            Object.keys(empData).forEach(dateKey => {
-                if (dateKey.startsWith(currentMonth)) {
-                    const d = empData[dateKey];
-                    if (d.status === 'present') present++;
-                    if (d.status === 'absent') absent++;
-                    totalOvertime += parseFloat(d.overtime) || 0;
-                    totalShortage += parseFloat(d.shortage) || 0;
-                }
-            });
-            const statsContainer = document.getElementById('employeeStatsCard');
-            statsContainer.classList.remove('hidden');
-            statsContainer.innerHTML = `
-                <div class="flex flex-wrap justify-between items-center gap-4">
-                    <div>
-                        <h3 class="font-bold text-xl text-blue-900 flex items-center gap-2">
-                            <span class="bg-blue-100 p-1 rounded text-blue-600">👤</span>
-                            ${t('sum_title')} (${monthName}) ${t('sum_emp')} <span class="text-indigo-600 underline decoration-indigo-300 mx-1">${empName}</span>
-                        </h3>
-                    </div>
-                    <div class="flex flex-wrap gap-4 text-sm font-bold">
-                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-green-500 mb-1">${t('th_present')}</span>
-                            <span class="text-lg">${present} ${t('sum_days')}</span>
-                        </div>
-                        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-red-500 mb-1">${t('th_absent')}</span>
-                            <span class="text-lg">${absent} ${t('sum_days')}</span>
-                        </div>
-                        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-blue-500 mb-1">${t('th_overtime')}</span>
-                            <span class="text-lg">${totalOvertime} ${t('sum_hrs')}</span>
-                        </div>
-                        <div class="bg-orange-50 border border-orange-200 text-orange-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-orange-500 mb-1">${t('th_delay')}</span>
-                            <span class="text-lg" dir="ltr">${totalShortage} ${t('sum_hrs')}</span>
-                        </div>
-                    </div>
-                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-red-500 w-8 h-8 rounded-full flex items-center justify-center transition-colors font-bold text-lg">×</button>
-                </div>
-            `;
-            statsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
         window.handleSmartTimeInput = function(input, empName, dateStr, field) {
@@ -794,7 +676,7 @@
 
                 tr.innerHTML = `
                     <td class="p-3 text-center text-gray-500" data-label="#" data-label-type="index">${index + 1}</td>
-                    <td class="p-3 font-bold text-gray-800 cursor-pointer hover:text-blue-600 hover:bg-blue-50 transition-colors select-none" onclick="showEmployeeSummary('${empName}')" data-label="${t('th_name')}" data-label-type="name">${empName}</td>
+                    <td class="p-3 font-bold text-gray-800" data-label="${t('th_name')}" data-label-type="name">${empName}</td>
                     <td class="p-3" data-label="${t('th_status')}">
                         <select onchange="saveDataToCloud('${empName}', '${dateStr}', 'status', this.value)" ${isDisabled}
                                 class="w-full p-2 border rounded bg-white text-sm focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer">
@@ -824,6 +706,16 @@
                 `;
                 tbody.appendChild(tr);
             });
+        };
+
+        window.toggleModal = function(id, show) {
+            const el = document.getElementById(id);
+            if(show) { 
+                el.classList.remove('hidden'); 
+                if(id === 'addEmployeeOverlay') document.getElementById('newEmployeeName').focus(); 
+            } else { 
+                el.classList.add('hidden'); 
+            }
         };
 
         document.getElementById('accessCode').addEventListener('keypress', (e) => {

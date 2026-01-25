@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloud Shift Register</title>
+    <title>Cloud Shift Register V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         
-        /* تحسينات عامة */
+        /* --- تنسيقات الجدول --- */
         .table-container { overflow-x: auto; max-height: 70vh; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         thead th { position: sticky; top: 0; z-index: 10; background-color: #1e3a8a; color: white; }
         
-        /* منع تحديد النصوص للأزرار */
         .select-none { user-select: none; -webkit-user-select: none; }
 
         /* ألوان الحالات */
@@ -22,118 +21,82 @@
         .status-vacation { background-color: #fef3c7; color: #92400e; }
         .status-holiday { background-color: #f3e8ff; color: #6b21a8; }
         
-        /* --- [تعديل جذري] توسيط النصوص وإخفاء أسهم الأرقام --- */
+        /* تنسيقات الإدخال */
+        td input, td select { text-align: center !important; text-align-last: center !important; }
+        /* إخفاء الأسهم في الجدول */
+        td input[type=number]::-webkit-inner-spin-button, 
+        td input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        td input[type=number] { -moz-appearance: textfield; }
+
+        /* إظهار الأسهم في خانة السنة في التقارير */
+        #repYearInput::-webkit-inner-spin-button, 
+        #repYearInput::-webkit-outer-spin-button { -webkit-appearance: inner-spin-button !important; opacity: 1 !important; }
         
-        /* 1. إجبار التوسيط لجميع الحقول داخل الجدول */
-        td input, td select {
-            text-align: center !important;
-            text-align-last: center !important;
-        }
-
-        /* 2. إخفاء أسهم زيادة ونقصان الأرقام (Spinners) لضمان التوسيط التام */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] {
-            -moz-appearance: textfield; /* لمتصفح فايرفوكس */
-        }
-
-        /* --- تحسينات وضع القراءة (المحاسب) --- */
+        /* وضع القراءة */
         input:disabled, select:disabled { 
-            background-color: #f8fafc; 
-            cursor: default; 
-            color: #000000 !important; /* أسود غامق */
-            border-color: #cbd5e1;
-            opacity: 1 !important; 
-            -webkit-text-fill-color: #000000 !important; 
-            font-weight: 700; 
+            background-color: #f8fafc; cursor: default; color: #000000 !important; 
+            border-color: #cbd5e1; opacity: 1 !important; -webkit-text-fill-color: #000000 !important; font-weight: 700; 
         }
-
-        /* --- إخفاء سهم القائمة المنسدلة فقط للمحاسب (عند التجميد) --- */
-        select:disabled {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: none !important;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
+        select:disabled { appearance: none; background-image: none !important; }
         
-        /* النوافذ المنبثقة */
+        /* النوافذ */
         .overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, 0.95); z-index: 50; display: flex; justify-content: center; align-items: center; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 40; display: flex; justify-content: center; align-items: center; padding: 1rem; }
         .hidden { display: none !important; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* إعدادات */
-        .setup-guide { background: white; padding: 2rem; border-radius: 1rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; text-align: start; }
-        .setup-step { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
-        .setup-step:last-child { border-bottom: none; }
-        code { background: #f1f1f1; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #d63384; direction: ltr; display: inline-block; }
         .fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ========================================= */
-        /* تنسيقات الجوال (نظام البطاقات) */
-        /* ========================================= */
-        @media (max-width: 768px) {
-            .table-container, .overflow-auto { 
-                background: transparent; box-shadow: none; overflow: visible !important; max-height: none !important; border: none; 
-            }
-            
-            /* الحل الجذري للسكرول في الموبايل */
-            #monthlyReportOverlay .overflow-auto {
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch;
-                max-height: 70vh !important; /* ارتفاع محدد للمحتوى الداخلي */
-            }
+        /* السحب والإفلات */
+        .draggable-row { cursor: grab; }
+        .draggable-row.dragging { opacity: 0.5; background-color: #e0f2fe; }
+        .drag-handle { cursor: grab; color: #9ca3af; font-size: 1.2rem; margin-left: 0.5rem; }
+        .drag-handle:hover { color: #2563eb; }
+        .drag-over { border-top: 2px solid #2563eb; }
 
-            table { width: 100% !important; min-width: 0 !important; display: block; }
-            thead, tbody, th, td, tr { display: block; width: 100%; }
+        /* تحسين أزرار اللغة */
+        .lang-btn {
+            transition: all 0.3s ease;
+            filter: grayscale(100%);
+            opacity: 0.6;
+            border: 2px solid transparent;
+            transform: scale(0.9);
+        }
+        .lang-btn:hover {
+            filter: grayscale(0%);
+            opacity: 0.8;
+            transform: scale(1);
+        }
+        .lang-active {
+            filter: grayscale(0%) !important;
+            opacity: 1 !important;
+            border-color: #22c55e !important; /* Green-500 */
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
+            animation: pulse-green 2s infinite;
+            transform: scale(1.1) !important;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* موبايل (Card View) */
+        @media (max-width: 768px) {
+            .table-container, .overflow-auto { background: transparent; box-shadow: none; overflow: visible !important; max-height: none !important; border: none; }
+            #monthlyReportOverlay .overflow-auto { overflow-y: auto !important; -webkit-overflow-scrolling: touch; max-height: 70vh !important; }
+            table, thead, tbody, th, td, tr { display: block; width: 100%; }
             thead { display: none; }
-            
             tr { background: white; margin-bottom: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); padding: 0; border: 1px solid #e5e7eb; overflow: hidden; }
-            
             td { padding: 0.8rem 1.2rem; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between; align-items: center; text-align: start; min-height: 50px; }
             td:last-child { border-bottom: none; }
-            
-            td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #6b7280;
-                font-size: 0.9rem;
-                flex-basis: 40%;
-                text-align: start; 
-            }
-            
-            td[data-label-type="name"] {
-                background: linear-gradient(to left, #eff6ff, #ffffff);
-                padding: 1rem;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                color: #1e40af;
-                font-size: 1.1rem;
-                font-weight: 800;
-                border-bottom: 2px solid #dbeafe;
-                border-top: 4px solid #3b82f6;
-            }
+            td::before { content: attr(data-label); font-weight: 600; color: #6b7280; font-size: 0.9rem; flex-basis: 40%; text-align: start; }
+            td[data-label-type="name"] { background: linear-gradient(to left, #eff6ff, #ffffff); padding: 1rem; justify-content: center; color: #1e40af; font-size: 1.1rem; font-weight: 800; border-bottom: 2px solid #dbeafe; border-top: 4px solid #3b82f6; }
             td[data-label-type="name"]::before { display: none; } 
             td[data-label-type="index"] { display: none; }
-
-            td input, td select {
-                width: 55% !important;
-                max-width: none !important;
-                padding: 0.6rem;
-                border-radius: 0.5rem;
-                border: 1px solid #d1d5db;
-                text-align: center !important; /* تأكيد التوسيط في الجوال */
-                background-color: #fff;
-            }
-            
+            td input, td select { width: 55% !important; max-width: none !important; padding: 0.6rem; background-color: #fff; }
             td.delete-col { background: #fef2f2; justify-content: center; padding: 0.8rem; }
             td.delete-col button { width: 100%; color: #ef4444; font-weight: bold; }
             td.delete-col::before { display: none; }
@@ -142,70 +105,107 @@
 </head>
 <body class="p-4 md:p-6 text-gray-800 transition-all duration-300">
 
-    <div id="loadingScreen" class="overlay" style="z-index: 60; background: white;">
+    <!-- شاشة التحميل -->
+    <div id="loadingScreen" class="overlay hidden" style="z-index: 60; background: rgba(255,255,255,0.9);">
         <div class="flex flex-col items-center">
-            <div class="loader mb-4"></div>
-            <p class="text-gray-600 font-bold" data-i18n="connecting">جاري الاتصال بقاعدة البيانات...</p>
+            <div class="loader mb-4 border-t-blue-600"></div>
+            <p class="text-blue-900 font-bold" id="loadingText" data-i18n="loading_processing">جاري معالجة البيانات...</p>
         </div>
     </div>
 
-    <div id="setupOverlay" class="overlay hidden" style="z-index: 70; background: rgba(0,0,0,0.9);">
-        <div class="setup-guide shadow-2xl">
-            <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ Setup Required</h2>
-            <div class="setup-step bg-yellow-50 p-3 rounded border border-yellow-200">
-                <code class="mt-2 block w-full text-center">const firebaseConfig = { ... }</code>
-            </div>
-            <button onclick="location.reload()" class="w-full bg-blue-600 text-white py-3 rounded font-bold mt-4 hover:bg-blue-700">Reload</button>
-        </div>
-    </div>
-
-    <div id="loginOverlay" class="overlay hidden">
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginOverlay" class="overlay">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative">
-            <div class="absolute top-4 right-4 flex gap-3">
-                <button id="btn-tr" onclick="changeLanguage('tr')" class="w-10 h-10 rounded-full overflow-hidden border-4 border-transparent transition-all duration-200 shadow-md">
-                    <img src="https://flagcdn.com/w40/tr.png" alt="Turkish" class="w-full h-full object-cover">
+            <!-- أعلام اللغة داخل المربع -->
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="btn-tr" onclick="changeLanguage('tr')" class="lang-btn w-10 h-10 rounded-full bg-white p-0.5 overflow-hidden" title="Türkçe">
+                    <img src="https://flagcdn.com/w80/tr.png" class="w-full h-full object-cover rounded-full">
                 </button>
-                <button id="btn-ar" onclick="changeLanguage('ar')" class="w-10 h-10 rounded-full overflow-hidden border-4 border-transparent transition-all duration-200 shadow-md">
-                    <img src="https://flagcdn.com/w40/sy.png" alt="Arabic" class="w-full h-full object-cover">
+                <button id="btn-ar" onclick="changeLanguage('ar')" class="lang-btn lang-active w-10 h-10 rounded-full bg-white p-0.5 overflow-hidden" title="العربية">
+                    <img src="https://flagcdn.com/w80/sy.png" class="w-full h-full object-cover rounded-full">
                 </button>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2 mt-8" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 mb-6 text-sm" data-i18n="app_title">نظام إدارة الورديات</p>
-            <input type="password" id="accessCode" class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none">
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="login_title">تسجيل الدخول</h2>
+            <p class="text-gray-500 mb-6 text-sm">Cloud Shift Register <span class="text-xs bg-blue-100 text-blue-800 px-1 rounded">V3</span></p>
+            <input type="password" id="accessCode" class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4" data-i18n="login_btn">دخول</button>
             
-            <div class="text-xs text-gray-400 bg-gray-50 p-2 rounded border text-start">
-                <p><strong data-i18n="viewer_role">المحاسب:</strong> 3838</p>
+            <div class="text-xs text-gray-400 bg-gray-50 p-3 rounded border text-start space-y-2">
+                <p data-i18n="role_admin">المدير العام: 56401</p>
+                <p data-i18n="role_shift_b_man">مدير الوردية B فقط: 2222</p>
+                <p data-i18n="role_accountant">المحاسب: 3838</p>
             </div>
-            
             <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="wrong_code">رمز خاطئ</p>
         </div>
     </div>
 
+    <!-- نافذة إضافة موظف -->
     <div id="addEmployeeOverlay" class="modal-overlay hidden">
         <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
-            <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="add_emp_title">إضافة موظف</h3>
-            <input type="text" id="newEmployeeName" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+            <h3 class="text-xl font-bold text-gray-800 mb-4" id="empModalTitle" data-i18n="add_emp_title">إضافة موظف</h3>
+            <input type="hidden" id="editEmployeeId">
+            <input type="text" id="newEmployeeName" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="الاسم الثلاثي" data-i18n-ph="ph_employee_name">
+            
+            <div class="mb-4">
+                <label class="text-xs font-bold text-gray-500 mb-1 block" data-i18n="lbl_shift">الوردية</label>
+                <select id="newEmployeeShift" class="w-full p-2 border border-gray-300 rounded-lg">
+                    <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
+                    <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
+                </select>
+            </div>
+
             <div class="flex gap-2">
-                <button onclick="confirmAddEmployee()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition" data-i18n="save">حفظ</button>
+                <button onclick="saveEmployeeToMasterList()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition" data-i18n="save">حفظ</button>
                 <button onclick="toggleModal('addEmployeeOverlay', false)" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg transition" data-i18n="cancel">إلغاء</button>
             </div>
         </div>
     </div>
 
+    <!-- نافذة إدارة البيانات (Backup/Restore) -->
+    <div id="dataManagerOverlay" class="modal-overlay hidden">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span>💾</span> <span data-i18n="data_management">إدارة البيانات</span>
+            </h3>
+            
+            <!-- قسم الاستيراد القديم -->
+            <div class="mb-6 bg-orange-50 p-3 rounded border border-orange-200">
+                <h4 class="font-bold text-orange-800 text-sm mb-2" data-i18n="legacy_import_title">📥 الانتقال من النظام القديم (V2)</h4>
+                <p class="text-xs text-orange-600 mb-3" data-i18n="legacy_import_desc">اضغط هنا فقط إذا كنت تريد جلب الموظفين وبيانات الحضور من ملفات السنة الماضية.</p>
+                <button onclick="importLegacyEmployees()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded text-sm shadow" data-i18n="btn_import_legacy">استيراد الموظفين والسجلات</button>
+            </div>
+
+            <!-- قسم النسخ الاحتياطي -->
+            <div class="space-y-3">
+                <button onclick="exportBackup()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded flex justify-center items-center gap-2">
+                    <span>⬇️</span> <span data-i18n="btn_backup_download">تحميل نسخة احتياطية (JSON)</span>
+                </button>
+                
+                <div class="relative">
+                    <input type="file" id="restoreFile" class="hidden" onchange="restoreBackup(this)">
+                    <button onclick="document.getElementById('restoreFile').click()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded flex justify-center items-center gap-2">
+                        <span>⬆️</span> <span data-i18n="btn_restore_upload">استعادة نسخة محفوظة</span>
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="toggleModal('dataManagerOverlay', false)" class="w-full mt-4 text-gray-500 hover:bg-gray-100 py-2 rounded" data-i18n="close">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة التقارير -->
     <div id="monthlyReportOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] md:h-[90vh]">
-            
             <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-xl font-bold text-gray-800" data-i18n="reports_title">التقارير</h3>
                 <button onclick="toggleModal('monthlyReportOverlay', false)" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
             </div>
-            
-            <div class="flex flex-wrap gap-3 p-4 bg-gray-50 border-b">
+            <div class="flex flex-wrap gap-3 p-4 bg-gray-50 border-b items-center">
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
-                        <input type="number" id="repYearInput" onchange="handleReportYearChange()" class="p-2 border rounded w-20 text-center font-bold">
+                        <input type="number" id="repYearInput" class="p-2 border rounded w-20 text-center font-bold">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_month">الشهر</label>
@@ -217,21 +217,14 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="flex gap-2 flex-grow justify-end">
-                    <button onclick="generateReport('monthly')" class="bg-blue-600 text-white px-3 py-2 rounded text-xs md:text-sm hover:bg-blue-700 transition font-bold" data-i18n="btn_monthly_report">شهري</button>
-                    <button onclick="generateReport('annual')" class="bg-indigo-600 text-white px-3 py-2 rounded text-xs md:text-sm hover:bg-indigo-700 transition font-bold" data-i18n="btn_annual_report">سنوي</button>
-                    <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-3 py-2 rounded text-xs md:text-sm hover:bg-green-700 transition font-bold" data-i18n="export_excel">Excel</button>
+                    <button onclick="generateReport('monthly')" class="bg-blue-600 text-white px-3 py-2 rounded text-xs md:text-sm font-bold hover:bg-blue-700" data-i18n="btn_monthly_report">شهري</button>
+                    <button onclick="generateReport('annual')" class="bg-indigo-600 text-white px-3 py-2 rounded text-xs md:text-sm font-bold hover:bg-indigo-700" data-i18n="btn_annual_report">سنوي</button>
+                    <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-3 py-2 rounded text-xs md:text-sm font-bold hover:bg-green-700" data-i18n="export_excel">Excel</button>
                 </div>
             </div>
-
             <div id="reportTitleDisplay" class="text-center font-bold text-lg text-blue-900 py-2 border-b bg-blue-50/50"></div>
-
             <div class="flex-1 overflow-auto p-2 relative bg-gray-50">
-                <div id="reportLoader" class="hidden absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
-                    <div class="loader"></div>
-                </div>
-
                 <table class="w-full text-start text-sm border-collapse bg-white shadow-sm rounded-lg">
                     <thead class="bg-blue-100 text-gray-800 sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -239,7 +232,7 @@
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_present">أيام الحضور</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_absent">أيام الغياب</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_vacation">أيام الإجازة</th>
-                            <th class="p-3 border border-gray-200 text-center text-purple-700" data-i18n="th_holiday">أيام العطل</th>
+                            <th class="p-3 border border-gray-200 text-center text-purple-700" data-i18n="th_holiday">عطل</th>
                             <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
                             <th class="p-3 border border-gray-200 text-center text-red-600" data-i18n="th_total_delay">إجمالي التأخير</th>
                         </tr>
@@ -250,17 +243,25 @@
         </div>
     </div>
 
+    <!-- التطبيق الرئيسي -->
     <div id="appContainer" class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-4 md:p-6 hidden h-full md:h-auto min-h-screen md:min-h-0">
         
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900" data-i18n="app_title">سجل الورديات</h1>
+                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                    <span data-i18n="app_title">سجل الورديات</span>
+                    <span id="shiftBadge" class="hidden text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full" data-i18n="badge_shift_b">الوردية B</span>
+                </h1>
                 <div class="flex items-center gap-2 mt-1">
                     <span id="connectionDot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <p id="connectionText" class="text-green-600 text-xs font-bold" data-i18n="status_online">متصل بالسيرفر</p>
+                    <p id="connectionText" class="text-green-600 text-xs font-bold" data-i18n="status_online">متصل وجاهز للعمل</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                 <!-- زر البيانات الجديد -->
+                 <button id="dataBtn" onclick="toggleModal('dataManagerOverlay', true)" class="hidden bg-gray-700 hover:bg-gray-800 text-white px-3 py-2 rounded shadow flex items-center gap-2 transition text-sm">
+                    <span>💾</span> <span class="hidden md:inline" data-i18n="data_btn">بيانات</span>
+                </button>
                  <button onclick="openReportModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                     <span data-i18n="reports_title">التقارير</span>
                 </button>
@@ -269,19 +270,32 @@
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 gap-4 bg-blue-50 p-4 rounded-lg border border-blue-100">
-            <div class="flex flex-col gap-1 w-full md:w-auto">
-                <label class="text-xs font-bold text-blue-800" data-i18n="shift_date">تاريخ الوردية:</label>
-                <input type="date" id="currentDateInput" onchange="changeDate()" class="p-2 border border-blue-300 rounded-lg text-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex flex-wrap gap-4 items-end w-full md:w-auto">
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-blue-800" data-i18n="shift_date">تاريخ الوردية:</label>
+                    <input type="date" id="currentDateInput" onchange="changeDate()" class="p-2 border border-blue-300 rounded-lg text-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- قائمة الورديات الجديدة -->
+                <div id="shiftSelectorContainer" class="flex flex-col gap-1 hidden">
+                    <label class="text-xs font-bold text-blue-800" data-i18n="lbl_shift">الوردية:</label>
+                    <select id="shiftFilter" onchange="applyShiftFilter()" class="p-2 border border-blue-300 rounded-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="all" data-i18n="val_all_shifts">الكل</option>
+                        <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
+                        <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
+                    </select>
+                </div>
             </div>
+
             <div id="dayInfo" class="text-center hidden md:block">
                 <span id="dayNameDisplay" class="text-xl font-bold text-blue-900 block">--</span>
                 <span id="dateDisplay" class="text-sm text-blue-600">--</span>
             </div>
+
             <div id="adminControls" class="flex gap-2">
-                <button onclick="toggleModal('addEmployeeOverlay', true)" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded shadow text-sm transition flex items-center gap-1">
+                <button onclick="openAddEmployeeModal()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded shadow text-sm transition flex items-center gap-1">
                     <span data-i18n="new_employee">+ موظف</span>
                 </button>
-                <div id="viewerBadge" class="hidden bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm" data-i18n="viewer_mode">مشاهدة</div>
             </div>
         </div>
 
@@ -305,54 +319,40 @@
                 </thead>
                 <tbody id="dailyTableBody" class="text-gray-700 text-sm font-medium"></tbody>
             </table>
-            <div id="emptyState" class="hidden text-center p-8 text-gray-400" data-i18n="no_data">لا يوجد بيانات.</div>
+            <div id="emptyState" class="hidden text-center p-8 text-gray-400" data-i18n="no_data">لا يوجد موظفين.</div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, collection, writeBatch, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- إعدادات الترجمة ---
         const translations = {
             ar: {
-                app_title: "نظام إدارة الورديات والموظفين",
+                app_title: "سجل الورديات",
                 login_title: "تسجيل الدخول",
                 login_btn: "دخول",
-                login_placeholder: "رمز الدخول",
-                admin_role: "المدير (تعديل):",
-                viewer_role: "المحاسب (عرض):",
-                wrong_code: "رمز خاطئ",
-                connecting: "جاري الاتصال بقاعدة البيانات...",
-                
-                status_online: "متصل بالسيرفر",
-                status_offline: "غير متصل بالسيرفر",
-                
+                status_online: "متصل وجاهز للعمل",
+                status_offline: "غير متصل",
                 reports_title: "التقارير",
                 logout: "خروج",
                 shift_date: "تاريخ الوردية:",
-                new_employee: "+ موظف جديد",
-                viewer_mode: "وضع المشاهدة (للقراءة فقط)",
-                add_emp_title: "إضافة موظف جديد",
-                emp_placeholder: "الاسم الثلاثي",
+                new_employee: "+ موظف",
+                viewer_mode: "وضع المشاهدة",
+                add_emp_title: "إضافة / تعديل موظف",
                 save: "حفظ",
                 cancel: "إلغاء",
                 monthly_report: "التقرير الشهري",
-                annual_report: "التقرير السنوي الشامل",
+                annual_report: "التقرير السنوي",
                 btn_monthly_report: "شهري",
                 btn_annual_report: "سنوي",
                 lbl_year: "السنة",
                 lbl_month: "الشهر",
                 close: "إغلاق",
-                select_month: "اختر الفترة:",
                 export_excel: "تصدير Excel",
                 th_name: "اسم الموظف",
-                th_present: "أيام الحضور",
-                th_absent: "أيام الغياب",
-                th_vacation: "أيام الإجازة",
-                th_holiday: "عطل رسمية",
-                th_total_overtime: "إجمالي الإضافي (ساعة)",
-                th_total_delay: "إجمالي التأخير (ساعة)",
                 th_status: "الحالة",
                 th_entry: "دخول",
                 th_exit: "خروج",
@@ -361,174 +361,170 @@
                 th_overtime: "إضافي",
                 th_notes: "ملاحظات",
                 th_delete: "حذف",
-                no_data: "لا يوجد موظفين مسجلين حالياً.",
-                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_holiday: "عطلة رسمية", val_choose: "-- اختر --",
-                sum_title: "ملخص شهر", sum_emp: "للموظف:", sum_days: "يوم", sum_hrs: "س",
-                day_sunday: "الأحد", day_monday: "الإثنين", day_tuesday: "الثلاثاء", day_wednesday: "الأربعاء", day_thursday: "الخميس", day_friday: "الجمعة", day_saturday: "السبت"
+                no_data: "لا يوجد موظفين مسجلين.",
+                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_holiday: "عطلة", val_choose: "--",
+                th_present: "حضور", th_absent: "غياب", th_vacation: "إجازة", th_holiday: "عطلة", th_total_overtime: "س.إضافي", th_total_delay: "س.تأخير",
+                sum_title: "ملخص", sum_emp: "لـ", sum_days: "يوم", sum_hrs: "س",
+                day_sunday: "الأحد", day_monday: "الإثنين", day_tuesday: "الثلاثاء", day_wednesday: "الأربعاء", day_thursday: "الخميس", day_friday: "الجمعة", day_saturday: "السبت",
+                lbl_shift: "الوردية", val_all_shifts: "الكل",
+                val_shift_a: "الوردية A", val_shift_b: "الوردية B",
+                role_admin: "المدير العام: 56401", role_shift_b_man: "مدير الوردية B فقط: 2222", role_accountant: "المحاسب: 3838",
+                data_btn: "بيانات", data_management: "إدارة البيانات",
+                legacy_import_title: "📥 الانتقال من النظام القديم (V2)",
+                legacy_import_desc: "اضغط هنا فقط إذا كنت تريد جلب الموظفين وبيانات الحضور من ملفات السنة الماضية.",
+                btn_import_legacy: "استيراد الموظفين والسجلات",
+                btn_backup_download: "تحميل نسخة احتياطية (JSON)",
+                btn_restore_upload: "استعادة نسخة محفوظة",
+                loading_processing: "جاري معالجة البيانات...",
+                msg_wrong_code: "رمز خاطئ",
+                msg_confirm_delete: "هل أنت متأكد من حذف هذا الموظف نهائياً؟",
+                msg_confirm_restore: "تحذير: هذه العملية ستستبدل البيانات الحالية بالبيانات الموجودة في الملف. هل أنت متأكد؟",
+                msg_restore_success: "تمت الاستعادة بنجاح! سيتم إعادة تحميل الصفحة.",
+                msg_file_error: "خطأ في الملف: ",
+                msg_import_confirm: "سيتم نقل الأسماء وسجلات الحضور من النظام القديم (2026) إلى النظام الجديد. العملية قد تأخذ ثوانٍ. هل أنت متأكد؟",
+                msg_no_legacy_data: "لم يتم العثور على بيانات في النظام القديم لهذا العام.",
+                msg_import_success: "تم استيراد موظفين جدد وتحديث السجلات بنجاح!",
+                loading_importing: "جاري استيراد الأسماء والبيانات...",
+                loading_backup: "جاري تحضير النسخة الاحتياطية...",
+                loading_restoring: "جاري استعادة البيانات...",
+                badge_shift_b: "الوردية B",
+                ph_employee_name: "الاسم الثلاثي"
             },
             tr: {
-                app_title: "Vardiya ve Personel Yönetim Sistemi",
-                login_title: "Giriş Yap",
+                app_title: "Vardiya Sistemi",
+                login_title: "Giriş",
                 login_btn: "Giriş",
-                login_placeholder: "Giriş Kodu",
-                admin_role: "Yönetici (Düzenle):",
-                viewer_role: "Muhasebe (İzle):",
-                wrong_code: "Hatalı Kod",
-                connecting: "Veritabanına bağlanılıyor...",
-                
-                status_online: "Sunucuya Bağlı",
-                status_offline: "Sunucu Bağlantısı Yok",
-                
+                status_online: "Bağlı ve Hazır",
+                status_offline: "Bağlantı Yok",
                 reports_title: "Raporlar",
                 logout: "Çıkış",
-                shift_date: "Vardiya Tarihi:",
-                new_employee: "+ Yeni Personel",
-                viewer_mode: "İzleme Modu (Sadece Okuma)",
-                add_emp_title: "Yeni Personel Ekle",
-                emp_placeholder: "Ad Soyad",
+                shift_date: "Tarih:",
+                new_employee: "+ Personel",
+                viewer_mode: "İzleme",
+                add_emp_title: "Personel Ekle/Düzenle",
                 save: "Kaydet",
                 cancel: "İptal",
                 monthly_report: "Aylık Rapor",
-                annual_report: "Kapsamlı Yıllık Rapor",
+                annual_report: "Yıllık Rapor",
                 btn_monthly_report: "Aylık",
                 btn_annual_report: "Yıllık",
                 lbl_year: "Yıl",
                 lbl_month: "Ay",
                 close: "Kapat",
-                select_month: "Dönem Seçin:",
-                export_excel: "Excel İndir",
-                th_name: "Personel Adı",
-                th_present: "Geldiği Günler",
-                th_absent: "Gelmediği Günler",
-                th_vacation: "İzin Günleri",
-                th_holiday: "Resmi Tatil",
-                th_total_overtime: "Toplam Mesai (Saat)",
-                th_total_delay: "Toplam Gecikme (Saat)",
+                export_excel: "Excel",
+                th_name: "Personel",
                 th_status: "Durum",
                 th_entry: "Giriş",
                 th_exit: "Çıkış",
                 th_break: "Mola",
                 th_delay: "Gecikme",
                 th_overtime: "Mesai",
-                th_notes: "Notlar",
+                th_notes: "Not",
                 th_delete: "Sil",
-                no_data: "Henüz kayıtlı personel yok.",
-                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_holiday: "Resmi Tatil", val_choose: "-- Seç --",
-                sum_title: "Ay Özeti", sum_emp: "Personel:", sum_days: "Gün", sum_hrs: "S",
-                day_sunday: "Pazar", day_monday: "Pazartesi", day_tuesday: "Salı", day_wednesday: "Çarşamba", day_thursday: "Perşembe", day_friday: "Cuma", day_saturday: "Cumartesi"
+                no_data: "Kayıt yok.",
+                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_holiday: "Tatil", val_choose: "--",
+                th_present: "Geldi", th_absent: "Gelmedi", th_vacation: "İzin", th_holiday: "Tatil", th_total_overtime: "Mesai", th_total_delay: "Gecikme",
+                sum_title: "Özet", sum_emp: "Personel:", sum_days: "Gün", sum_hrs: "S",
+                day_sunday: "Pazar", day_monday: "Pazartesi", day_tuesday: "Salı", day_wednesday: "Çarşamba", day_thursday: "Perşembe", day_friday: "Cuma", day_saturday: "Cumartesi",
+                lbl_shift: "Vardiya", val_all_shifts: "Tümü",
+                val_shift_a: "Vardiya A", val_shift_b: "Vardiya B",
+                role_admin: "Genel Müdür: 56401", role_shift_b_man: "Sadece B Vardiya Müdürü: 2222", role_accountant: "Muhasebeci: 3838",
+                data_btn: "Veri", data_management: "Veri Yönetimi",
+                legacy_import_title: "📥 Eski Sistemden Geçiş (V2)",
+                legacy_import_desc: "Bu butonu sadece geçen yılın dosyalarından personel ve devam verilerini getirmek istiyorsanız kullanın.",
+                btn_import_legacy: "Personel ve Kayıtları İçe Aktar",
+                btn_backup_download: "Yedek İndir (JSON)",
+                btn_restore_upload: "Yedeği Geri Yükle",
+                loading_processing: "Veriler işleniyor...",
+                msg_wrong_code: "Hatalı Kod",
+                msg_confirm_delete: "Bu personeli kalıcı olarak silmek istediğinizden emin misiniz?",
+                msg_confirm_restore: "Uyarı: Bu işlem mevcut verileri dosyadaki verilerle değiştirecektir. Emin misiniz?",
+                msg_restore_success: "Geri yükleme başarılı! Sayfa yenilenecek.",
+                msg_file_error: "Dosya hatası: ",
+                msg_import_confirm: "İsimler ve devam kayıtları eski sistemden (2026) yeni sisteme aktarılacak. İşlem birkaç saniye sürebilir. Emin misiniz?",
+                msg_no_legacy_data: "Bu yıl için eski sistemde veri bulunamadı.",
+                msg_import_success: "Yeni personeller içe aktarıldı ve kayıtlar başarıyla güncellendi!",
+                loading_importing: "İsimler ve veriler içe aktarılıyor...",
+                loading_backup: "Yedek hazırlanıyor...",
+                loading_restoring: "Veriler geri yükleniyor...",
+                badge_shift_b: "Vardiya B",
+                ph_employee_name: "Ad Soyad"
             }
         };
 
-        let currentLang = 'tr'; 
-
-        function detectLanguage() {
-            const userLang = navigator.language || navigator.userLanguage;
-            if (userLang.startsWith('ar')) { setLanguage('ar'); } else { setLanguage('tr'); }
-        }
-
+        let currentLang = 'ar';
+        function t(key) { return translations[currentLang][key] || key; }
         window.changeLanguage = function(lang) {
-            setLanguage(lang);
-            if (!document.getElementById('appContainer').classList.contains('hidden')) { renderDailyTable(); }
-            updateConnectionUI(); 
-        };
-
-        function setLanguage(lang) {
             currentLang = lang;
-            const dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = lang;
-            document.documentElement.dir = dir;
-
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
             const btnAr = document.getElementById('btn-ar');
             const btnTr = document.getElementById('btn-tr');
-            btnAr.classList.remove('border-green-500', 'border-transparent');
-            btnTr.classList.remove('border-green-500', 'border-transparent');
             
-            if (lang === 'ar') { btnAr.classList.add('border-green-500'); btnTr.classList.add('border-transparent'); } 
-            else { btnTr.classList.add('border-green-500'); btnAr.classList.add('border-transparent'); }
-
+            if (lang === 'ar') { 
+                btnAr.classList.add('lang-active');
+                btnTr.classList.remove('lang-active');
+            } else { 
+                btnTr.classList.add('lang-active');
+                btnAr.classList.remove('lang-active');
+            }
+            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (key !== 'status_online' && key !== 'status_offline' && translations[lang][key]) { 
-                    el.innerText = translations[lang][key]; 
-                }
+                if (translations[lang][key]) el.innerText = translations[lang][key];
             });
-            document.getElementById('accessCode').placeholder = translations[lang].login_placeholder;
-            document.getElementById('newEmployeeName').placeholder = translations[lang].emp_placeholder;
-        }
 
-        function t(key) { return translations[currentLang][key] || key; }
+            // Handle placeholders
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
 
+            renderDailyTable();
+        };
+
+        // --- تهيئة Firebase ---
         let firebaseConfig;
         let appId = 'cloud-shift-register';
-
+        
+        // استخدام المفاتيح الموجودة أو المتغيرات البيئية
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
             if(typeof __app_id !== 'undefined' && __app_id) appId = __app_id;
         } else {
+             // Fallback for preview if needed, normally this would be your hardcoded keys
             firebaseConfig = {
                 apiKey: "AIzaSyDzRczKA0tVr57TVFmnrr3F57REDTF4xHQ",
                 authDomain: "cloud-shift-register.firebaseapp.com",
                 projectId: "cloud-shift-register",
                 storageBucket: "cloud-shift-register.firebasestorage.app",
                 messagingSenderId: "823312208352",
-                appId: "1:823312208352:web:fc0889a737e58482ce1b85",
-                measurementId: "G-BTTC5LXB7S"
+                appId: "1:823312208352:web:fc0889a737e58482ce1b85"
             };
         }
 
-        let app, auth, dbFirestore;
-        try {
-            if (firebaseConfig.apiKey === "PASTE_YOUR_API_KEY_HERE" && typeof __firebase_config === 'undefined') {
-                throw new Error("PLACEHOLDER_KEYS_DETECTED");
-            }
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            dbFirestore = getFirestore(app);
-            initAuth();
-            detectLanguage();
-        } catch (e) {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('setupOverlay').classList.remove('hidden');
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        let currentDataYear = new Date().getFullYear(); 
-        let globalDb = {};
-        let globalEmployees = [];
-        let userRole = '';
-        const targetAppId = (firebaseConfig.projectId === 'YOUR_PROJECT_ID') ? 'demo-app' : firebaseConfig.projectId;
-        const collectionPath = `attendance_data/${targetAppId}/years`;
-        let dataDocRef;
-        let unsubscribeFirestore = null; 
+        // --- المتغيرات العامة (State) ---
+        let userRole = ''; // 'admin', 'shift_b_manager', 'viewer'
+        let currentUserShift = 'all'; // 'all', 'shift_b'
+        let currentSelectedShift = 'all'; // للفلترة في الجدول
+        
+        let masterEmployees = {}; // { "id1": {name: "Ali", shift: "shift_A"}, ... }
+        let currentMonthData = {}; // { "id1": { "2026-01-01": { status: ... } } }
+        let loadedYearMonth = ''; 
 
-        function updateConnectionUI() {
-            const isOnline = navigator.onLine;
-            const dot = document.getElementById('connectionDot');
-            const text = document.getElementById('connectionText');
-            
-            if (isOnline) {
-                dot.classList.remove('bg-red-500');
-                dot.classList.add('bg-green-500');
-                
-                text.classList.remove('text-red-600');
-                text.classList.add('text-green-600');
-                
-                text.innerText = t('status_online');
-            } else {
-                dot.classList.remove('bg-green-500');
-                dot.classList.add('bg-red-500');
-                
-                text.classList.remove('text-green-600');
-                text.classList.add('text-red-600');
-                
-                text.innerText = t('status_offline');
-            }
-            dot.classList.add('animate-pulse');
-        }
+        // مسارات قاعدة البيانات (V3 Structure)
+        // Public Data: /artifacts/{appId}/public/data/...
+        const EMPLOYEES_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'employees');
+        const getMonthDoc = (year, month) => doc(db, 'artifacts', appId, 'public', 'data', 'months', `data_${year}_${month}`);
+        // مسار القديم للاستيراد (Legacy)
+        const getLegacyYearDoc = (year) => doc(db, 'attendance_data', firebaseConfig.projectId === 'YOUR_PROJECT_ID' ? 'demo-app' : firebaseConfig.projectId, 'years', `data_${year}`);
 
-        window.addEventListener('online', updateConnectionUI);
-        window.addEventListener('offline', updateConnectionUI);
-        updateConnectionUI();
-
+        // --- المصادقة ---
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -537,389 +533,291 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                console.error(error);
-                alert("Auth Error: " + error.message);
+                console.error("Auth Error:", error);
+                document.getElementById('loadingText').innerText = "خطأ في الاتصال: " + error.message;
             }
         }
+        initAuth();
 
-        function loadYearData(year, callback) {
-            if (!auth.currentUser) return;
-            if (year === currentDataYear && unsubscribeFirestore && !callback) return;
-            if (unsubscribeFirestore) unsubscribeFirestore();
-
-            currentDataYear = parseInt(year);
-            const dataDocPath = `data_${currentDataYear}`;
-            dataDocRef = doc(dbFirestore, collectionPath, dataDocPath);
-
-            document.getElementById('loadingScreen').classList.remove('hidden');
-
-            unsubscribeFirestore = onSnapshot(dataDocRef, (docSnap) => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    globalDb = data.records || {};
-                    globalEmployees = data.employees || [];
-                } else {
-                    globalDb = {};
-                    globalEmployees = [];
-                }
-                if (!document.getElementById('appContainer').classList.contains('hidden')) {
-                    renderDailyTable();
-                }
-                if (callback) callback();
-            }, (error) => {
-                console.error("Sync Error:", error);
-                document.getElementById('loadingScreen').classList.add('hidden');
-            });
-        }
-
-        if(auth) {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    const dateInput = document.getElementById('currentDateInput');
-                    const today = new Date().toISOString().split('T')[0];
-                    dateInput.value = today;
-                    loadYearData(new Date().getFullYear());
-                    document.getElementById('loginOverlay').classList.remove('hidden');
-                }
-            });
-        }
-
+        // --- تسجيل الدخول ---
         window.checkLogin = function() {
             const code = document.getElementById('accessCode').value;
-            if (code === '56401') { userRole = 'admin'; startApp(); }
-            else if (code === '3838') { userRole = 'viewer'; startApp(); }
-            else { document.getElementById('loginError').classList.remove('hidden'); }
+            const errorMsg = document.getElementById('loginError');
+            
+            // إعادة تعيين الواجهة
+            document.getElementById('shiftSelectorContainer').classList.add('hidden');
+            document.getElementById('dataBtn').classList.add('hidden');
+            document.getElementById('shiftBadge').classList.add('hidden');
+            
+            if (code === '56401') {
+                userRole = 'admin';
+                currentUserShift = 'all';
+                document.getElementById('shiftSelectorContainer').classList.remove('hidden'); // يرى قائمة الورديات
+                document.getElementById('dataBtn').classList.remove('hidden'); // يرى زر البيانات
+            } else if (code === '2222') {
+                userRole = 'shift_b_manager';
+                currentUserShift = 'shift_B';
+                document.getElementById('shiftBadge').classList.remove('hidden');
+                document.getElementById('shiftBadge').innerText = t('badge_shift_b'); // استخدام الترجمة
+            } else if (code === '3838') {
+                userRole = 'viewer';
+                currentUserShift = 'all';
+                setupViewerUI();
+                // المحاسب يرى القائمة المنسدلة للورديات الآن
+                document.getElementById('shiftSelectorContainer').classList.remove('hidden'); 
+            } else {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // بدء التطبيق
+            document.getElementById('loadingScreen').classList.remove('hidden');
+            
+            // 1. تحميل قائمة الموظفين (الأساس)
+            const unsubEmp = onSnapshot(EMPLOYEES_DOC, (snap) => {
+                if (snap.exists()) {
+                    masterEmployees = snap.data().list || {};
+                } else {
+                    masterEmployees = {};
+                }
+                renderDailyTable();
+            });
+
+            // 2. تحميل بيانات الشهر الحالي
+            const today = new Date();
+            const dateInput = document.getElementById('currentDateInput');
+            dateInput.value = today.toISOString().split('T')[0];
+            
+            changeDate(); // سيقوم بتحميل بيانات الشهر وإخفاء اللودر عند الانتهاء
+
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
         };
+
+        function setupViewerUI() {
+            document.getElementById('adminControls').innerHTML = 
+                `<div class="bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm">${t('viewer_mode')}</div>`;
+            const style = document.createElement('style');
+            style.innerHTML = '.delete-col { display: none; }'; // إخفاء زر الحذف
+            document.head.appendChild(style);
+        }
 
         window.logout = function() { location.reload(); };
 
-        window.startApp = function() {
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('appContainer').classList.remove('hidden');
-            if (userRole === 'viewer') {
-                document.getElementById('adminControls').innerHTML = 
-                    `<div class="bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm">${t('viewer_mode')}</div>`;
-                const style = document.createElement('style');
-                style.innerHTML = '.delete-col { display: none; }';
-                document.head.appendChild(style);
-            }
-            renderDailyTable();
-        };
+        // --- إدارة التواريخ والبيانات الشهرية ---
+        let unsubscribeMonth = null;
 
         window.changeDate = function() {
             const dateStr = document.getElementById('currentDateInput').value;
             if(!dateStr) return;
-            const newYear = new Date(dateStr).getFullYear();
-            if (newYear !== currentDataYear) { loadYearData(newYear); } else { renderDailyTable(); }
-            document.getElementById('employeeStatsCard').classList.add('hidden');
-        };
-
-        let currentReportType = 'monthly'; 
-
-        window.openReportModal = function() {
-            const today = new Date();
-            document.getElementById('repYearInput').value = currentDataYear; 
-            document.getElementById('repMonthSelect').value = String(today.getMonth() + 1).padStart(2, '0');
             
-            toggleModal('monthlyReportOverlay', true);
-            generateReport('monthly'); 
-        };
-
-        window.handleReportYearChange = function() {
-            const selectedYear = parseInt(document.getElementById('repYearInput').value);
-            if (selectedYear && selectedYear !== currentDataYear) {
-                document.getElementById('reportLoader').classList.remove('hidden');
-                loadYearData(selectedYear, () => {
-                    document.getElementById('reportLoader').classList.add('hidden');
-                    const dateInput = document.getElementById('currentDateInput');
-                    const currentMonthDay = dateInput.value ? dateInput.value.slice(5) : '01-01';
-                    dateInput.value = `${selectedYear}-${currentMonthDay}`;
-                    renderDailyTable(); 
-                    generateReport(currentReportType);
-                });
-            } else {
-                generateReport(currentReportType);
-            }
-        };
-
-        window.generateReport = function(type) {
-            currentReportType = type;
-            const year = document.getElementById('repYearInput').value;
-            const month = document.getElementById('repMonthSelect').value;
-            
-            const tbody = document.getElementById('reportTableBody');
-            tbody.innerHTML = '';
-
-            let titleText = '';
-            if (type === 'monthly') {
-                titleText = `${t('monthly_report')} - ${year}/${month}`;
-            } else {
-                titleText = `${t('annual_report')} - ${year}`;
-            }
-            document.getElementById('reportTitleDisplay').innerText = titleText;
-
-            const prefix = type === 'monthly' ? `${year}-${month}` : `${year}`;
-
-            globalEmployees.forEach(empName => {
-                let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalDelay = 0;
-                const empData = globalDb[empName] || {};
-                
-                Object.keys(empData).forEach(dateKey => {
-                    if (dateKey.startsWith(prefix)) {
-                        const d = empData[dateKey];
-                        if (d.status === 'present') present++;
-                        if (d.status === 'absent') absent++;
-                        if (d.status === 'vacation') vacation++;
-                        if (d.status === 'holiday') holiday++;
-                        if (d.overtime) totalOvertime += parseFloat(d.overtime) || 0;
-                        if (d.shortage) totalDelay += parseFloat(d.shortage) || 0;
-                    }
-                });
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3 border border-gray-300 font-bold text-start bg-gray-50" data-label-type="name">${empName}</td>
-                    <td class="p-3 border border-gray-300 text-center text-green-700 font-bold" data-label="${t('th_present')}">${present}</td>
-                    <td class="p-3 border border-gray-300 text-center text-red-700 font-bold" data-label="${t('th_absent')}">${absent}</td>
-                    <td class="p-3 border border-gray-300 text-center text-yellow-700 font-bold" data-label="${t('th_vacation')}">${vacation}</td>
-                    <td class="p-3 border border-gray-300 text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${holiday}</td>
-                    <td class="p-3 border border-gray-300 text-center text-blue-700 font-bold" data-label="${t('th_total_overtime')}">${totalOvertime}</td>
-                    <td class="p-3 border border-gray-300 text-center text-red-600 font-bold" data-label="${t('th_total_delay')}">${totalDelay}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        };
-
-        window.exportReportToCSV = function() {
-            const year = document.getElementById('repYearInput').value;
-            const month = document.getElementById('repMonthSelect').value;
-            const title = document.getElementById('reportTitleDisplay').innerText || 'Report';
-            
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += `${title}\n`;
-            csvContent += `${t('th_name')},${t('th_present')},${t('th_absent')},${t('th_vacation')},${t('th_holiday')},${t('th_total_overtime')},${t('th_total_delay')}\n`;
-            
-            const prefix = currentReportType === 'monthly' ? `${year}-${month}` : `${year}`;
-
-            globalEmployees.forEach(empName => {
-                let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalDelay = 0;
-                const empData = globalDb[empName] || {};
-                Object.keys(empData).forEach(dateKey => {
-                    if (dateKey.startsWith(prefix)) {
-                        const d = empData[dateKey];
-                        if (d.status === 'present') present++;
-                        if (d.status === 'absent') absent++;
-                        if (d.status === 'vacation') vacation++;
-                        if (d.status === 'holiday') holiday++;
-                        if (d.overtime) totalOvertime += parseFloat(d.overtime) || 0;
-                        if (d.shortage) totalDelay += parseFloat(d.shortage) || 0;
-                    }
-                });
-                csvContent += `"${empName}",${present},${absent},${vacation},${holiday},${totalOvertime},${totalDelay}\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Report_${prefix}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-
-        window.toggleModal = function(id, show) {
-            const el = document.getElementById(id);
-            if(show) { 
-                el.classList.remove('hidden'); 
-                document.body.style.overflow = 'hidden'; 
-                if(id === 'addEmployeeOverlay') document.getElementById('newEmployeeName').focus(); 
-            } else { 
-                el.classList.add('hidden'); 
-                document.body.style.overflow = ''; 
-            }
-        };
-
-        window.showEmployeeSummary = function(empName) {
-            const dateStr = document.getElementById('currentDateInput').value;
-            const currentMonth = dateStr.slice(0, 7); 
-            const monthName = dateStr.slice(5, 7); 
-            let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalShortage = 0; 
-            const empData = globalDb[empName] || {};
-            Object.keys(empData).forEach(dateKey => {
-                if (dateKey.startsWith(currentMonth)) {
-                    const d = empData[dateKey];
-                    if (d.status === 'present') present++;
-                    if (d.status === 'absent') absent++;
-                    if (d.status === 'vacation') vacation++;
-                    if (d.status === 'holiday') holiday++; 
-                    totalOvertime += parseFloat(d.overtime) || 0;
-                    totalShortage += parseFloat(d.shortage) || 0;
-                }
-            });
-            const statsContainer = document.getElementById('employeeStatsCard');
-            statsContainer.classList.remove('hidden');
-            statsContainer.innerHTML = `
-                <div class="flex flex-wrap justify-between items-center gap-4">
-                    <div>
-                        <h3 class="font-bold text-xl text-blue-900 flex items-center gap-2">
-                            <span class="bg-blue-100 p-1 rounded text-blue-600">👤</span>
-                            ${t('sum_title')} (${monthName}) ${t('sum_emp')} <span class="text-indigo-600 underline decoration-indigo-300 mx-1">${empName}</span>
-                        </h3>
-                    </div>
-                    <div class="flex flex-wrap gap-4 text-sm font-bold">
-                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-green-500 mb-1">${t('th_present')}</span>
-                            <span class="text-lg">${present} ${t('sum_days')}</span>
-                        </div>
-                        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-red-500 mb-1">${t('th_absent')}</span>
-                            <span class="text-lg">${absent} ${t('sum_days')}</span>
-                        </div>
-                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-yellow-600 mb-1">${t('th_vacation')}</span>
-                            <span class="text-lg">${vacation} ${t('sum_days')}</span>
-                        </div>
-                        <div class="bg-purple-50 border border-purple-200 text-purple-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-purple-600 mb-1">${t('th_holiday')}</span>
-                            <span class="text-lg">${holiday} ${t('sum_days')}</span>
-                        </div>
-                        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-blue-500 mb-1">${t('th_overtime')}</span>
-                            <span class="text-lg">${totalOvertime} ${t('sum_hrs')}</span>
-                        </div>
-                        <div class="bg-orange-50 border border-orange-200 text-orange-800 px-4 py-2 rounded-lg flex flex-col items-center">
-                            <span class="text-xs text-orange-500 mb-1">${t('th_delay')}</span>
-                            <span class="text-lg" dir="ltr">${totalShortage} ${t('sum_hrs')}</span>
-                        </div>
-                    </div>
-                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-red-500 w-8 h-8 rounded-full flex items-center justify-center transition-colors font-bold text-lg">×</button>
-                </div>
-            `;
-            statsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-
-        window.handleSmartTimeInput = function(input, empName, dateStr, field) {
-            let val = input.value.trim();
-            if(!val) { saveDataToCloud(empName, dateStr, field, ''); return; }
-            val = val.replace(/[^0-9:]/g, '');
-            if (val.indexOf(':') === -1) {
-                if (val.length === 1 || val.length === 2) {
-                    let hour = parseInt(val);
-                    if (hour >= 0 && hour <= 23) val = val.padStart(2, '0') + ":00";
-                } else if (val.length === 3) {
-                    val = "0" + val.substring(0, 1) + ":" + val.substring(1);
-                } else if (val.length === 4) {
-                    val = val.substring(0, 2) + ":" + val.substring(2);
-                }
-            }
-            const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-            if (timeRegex.test(val)) {
-                input.value = val;
-                saveDataToCloud(empName, dateStr, field, val);
-            }
-        };
-
-        window.confirmAddEmployee = async function() {
-            const name = document.getElementById('newEmployeeName').value.trim();
-            if (!name) return;
-            if (globalEmployees.includes(name)) { alert("Exists / موجود"); return; }
-            try {
-                await setDoc(dataDocRef, { employees: arrayUnion(name) }, { merge: true });
-                document.getElementById('newEmployeeName').value = '';
-                toggleModal('addEmployeeOverlay', false);
-            } catch (e) { console.error(e); }
-        };
-
-        window.deleteEmployee = async function(name) {
-            if (userRole !== 'admin') return;
-            if (!confirm(t('th_delete') + " ?")) return;
-            try {
-                await updateDoc(dataDocRef, { employees: arrayRemove(name) });
-            } catch (e) { console.error(e); }
-        };
-
-        window.saveDataToCloud = async function(empName, date, field, value) {
-            if (userRole !== 'admin') return;
-            const updatePath = `records.${empName}.${date}`;
-            let updates = {};
-            updates[`${updatePath}.${field}`] = value;
-
-            if (field === 'status' && (value === 'absent' || value === 'vacation')) {
-                updates[`${updatePath}.entry`] = '';
-                updates[`${updatePath}.exit`] = '';
-                updates[`${updatePath}.breakDuration`] = '0';
-                updates[`${updatePath}.shortage`] = '';
-                updates[`${updatePath}.overtime`] = '';
-            }
-            
-            if (field === 'status' && value === 'present') {
-                updates[`${updatePath}.breakDuration`] = '0.5';
-            }
-
-            if ((field === 'entry' || field === 'exit') && value) {
-                const currentStatus = globalDb[empName]?.[date]?.status;
-                if (!currentStatus) updates[`${updatePath}.status`] = 'present';
-            }
-            try {
-                await updateDoc(dataDocRef, updates);
-            } catch (e) {
-                let deepObject = {};
-                if(!deepObject[empName]) deepObject[empName] = {};
-                if(!deepObject[empName][date]) deepObject[empName][date] = {};
-                deepObject[empName][date][field] = value;
-                if (field === 'status' && value === 'present') {
-                    deepObject[empName][date]['breakDuration'] = '0.5';
-                }
-                await setDoc(dataDocRef, { records: deepObject }, { merge: true });
-            }
-        };
-
-        window.renderDailyTable = function() {
-            const dateStr = document.getElementById('currentDateInput').value;
-            if(!dateStr) return;
-
+            // تحديث عرض اليوم
             const dateObj = new Date(dateStr);
             const daysKey = ['day_sunday', 'day_monday', 'day_tuesday', 'day_wednesday', 'day_thursday', 'day_friday', 'day_saturday'];
             document.getElementById('dayNameDisplay').innerText = t(daysKey[dateObj.getDay()]);
             document.getElementById('dateDisplay').innerText = dateStr;
 
+            const year = dateStr.split('-')[0];
+            const month = dateStr.split('-')[1];
+            const yearMonth = `${year}_${month}`;
+
+            // تحميل ملف الشهر إذا تغير
+            if (loadedYearMonth !== yearMonth) {
+                loadMonthData(year, month);
+            } else {
+                renderDailyTable();
+            }
+        };
+
+        function loadMonthData(year, month) {
+            if (unsubscribeMonth) unsubscribeMonth();
+            
+            document.getElementById('loadingText').innerText = t('loading_processing');
+            document.getElementById('loadingScreen').classList.remove('hidden');
+            loadedYearMonth = `${year}_${month}`;
+            
+            const monthDocRef = getMonthDoc(year, month);
+            
+            unsubscribeMonth = onSnapshot(monthDocRef, (snap) => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                if (snap.exists()) {
+                    currentMonthData = snap.data().records || {};
+                } else {
+                    currentMonthData = {};
+                }
+                renderDailyTable();
+            });
+        }
+
+        // --- منطق الورديات ---
+        window.applyShiftFilter = function() {
+            currentSelectedShift = document.getElementById('shiftFilter').value;
+            renderDailyTable();
+        };
+
+        // --- منطق السحب والإفلات (جديد) ---
+        let dragSrcEl = null;
+
+        window.handleDragStart = function(e) {
+            if (userRole !== 'admin') return;
+            this.classList.add('dragging');
+            dragSrcEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.getAttribute('data-emp-id'));
+        };
+
+        window.handleDragOver = function(e) {
+            if (e.preventDefault) e.preventDefault();
+            if (userRole !== 'admin') return;
+            this.classList.add('drag-over');
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        };
+
+        window.handleDragLeave = function(e) {
+            this.classList.remove('drag-over');
+        };
+
+        window.handleDrop = function(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            if (dragSrcEl === this || userRole !== 'admin') return;
+
+            this.classList.remove('drag-over');
+            dragSrcEl.classList.remove('dragging');
+
+            const sourceId = e.dataTransfer.getData('text/plain');
+            const targetId = this.getAttribute('data-emp-id');
+            
+            // Reorder Logic
+            reorderEmployees(sourceId, targetId);
+
+            return false;
+        };
+
+        async function reorderEmployees(sourceId, targetId) {
+            // تحويل Map إلى Array للترتيب
+            let empArray = Object.entries(masterEmployees).map(([id, data]) => ({
+                id: id,
+                ...data,
+                order: data.order || 9999
+            })).sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name));
+
+            const sourceIndex = empArray.findIndex(e => e.id === sourceId);
+            const targetIndex = empArray.findIndex(e => e.id === targetId);
+
+            if (sourceIndex > -1 && targetIndex > -1) {
+                // Move item in array
+                const [movedItem] = empArray.splice(sourceIndex, 1);
+                empArray.splice(targetIndex, 0, movedItem);
+
+                // Re-assign order numbers
+                const updates = {};
+                empArray.forEach((emp, index) => {
+                    const newOrder = index + 1;
+                    masterEmployees[emp.id].order = newOrder; // Update local state immediately
+                    updates[`list.${emp.id}.order`] = newOrder;
+                });
+
+                renderDailyTable(); // Re-render immediately for responsiveness
+                
+                // Save to cloud
+                try {
+                    await updateDoc(EMPLOYEES_DOC, updates);
+                } catch (e) {
+                    console.error("Order save failed", e);
+                }
+            }
+        }
+
+        // --- عرض الجدول (Core UI Logic) ---
+        window.renderDailyTable = function() {
             const tbody = document.getElementById('dailyTableBody');
             tbody.innerHTML = '';
+            
+            const dateStr = document.getElementById('currentDateInput').value;
+            if (!dateStr) return;
 
-            if (!globalEmployees || globalEmployees.length === 0) {
+            // 1. تحويل القائمة (Map) إلى مصفوفة للفرز
+            let empArray = Object.entries(masterEmployees).map(([id, data]) => ({
+                id: id,
+                name: data.name,
+                shift: data.shift || 'shift_A', // الافتراضي A
+                order: data.order || 9999
+            }));
+
+            // 2. الفلترة حسب الوردية
+            if (userRole === 'shift_b_manager') {
+                empArray = empArray.filter(e => e.shift === 'shift_B');
+            } else if ((userRole === 'admin' || userRole === 'viewer') && currentSelectedShift !== 'all') {
+                empArray = empArray.filter(e => e.shift === currentSelectedShift);
+            }
+
+            // 3. الترتيب: الاعتماد الأساسي على Order، والثانوي أبجدي
+            empArray.sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name));
+
+            if (empArray.length === 0) {
                 document.getElementById('emptyState').classList.remove('hidden');
                 return;
             }
             document.getElementById('emptyState').classList.add('hidden');
 
-            globalEmployees.forEach((empName, index) => {
-                const empRecords = globalDb[empName] || {};
-                const dayData = empRecords[dateStr] || { status: '', entry: '', exit: '', breakDuration: '0', shortage: '', overtime: '', notes: '' };
+            // 4. رسم الصفوف
+            empArray.forEach((emp, index) => {
+                const empId = emp.id;
+                const empName = emp.name;
+                
+                // جلب بيانات هذا الموظف لهذا اليوم من ملف الشهر
+                const empMonthRecord = currentMonthData[empId] || {};
+                const dayData = empMonthRecord[dateStr] || { status: '', entry: '', exit: '', breakDuration: '0', shortage: '', overtime: '', notes: '' };
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 border-b transition duration-150";
-
-                const isFrozen = (dayData.status === 'absent' || dayData.status === 'vacation');
-                const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday');
                 
-                const isDisabled = (userRole === 'viewer') ? 'disabled' : '';
-                const inputsDisabled = isInputsFrozen || userRole === 'viewer' ? 'disabled' : '';
+                // إعدادات السحب والإفلات للمدير
+                if (userRole === 'admin') {
+                    tr.setAttribute('draggable', 'true');
+                    tr.classList.add('draggable-row');
+                    tr.setAttribute('data-emp-id', empId);
+                    tr.addEventListener('dragstart', handleDragStart);
+                    tr.addEventListener('dragover', handleDragOver);
+                    tr.addEventListener('dragleave', handleDragLeave);
+                    tr.addEventListener('drop', handleDrop);
+                }
 
-                let rowBg = '';
-                if(dayData.status === 'absent') rowBg = 'bg-red-50';
-                if(dayData.status === 'vacation') rowBg = 'bg-yellow-50';
-                if(dayData.status === 'present') rowBg = 'bg-green-50';
-                if(dayData.status === 'holiday') rowBg = 'status-holiday'; 
-                if(rowBg) tr.classList.add(rowBg);
+                // تلوين الخلفية حسب الحالة
+                if(dayData.status === 'absent') tr.classList.add('bg-red-50');
+                if(dayData.status === 'vacation') tr.classList.add('bg-yellow-50');
+                if(dayData.status === 'present') tr.classList.add('bg-green-50');
+                if(dayData.status === 'holiday') tr.classList.add('status-holiday');
 
-                const breakVal = dayData.breakDuration || '0';
-                const shortageVal = dayData.shortage || '';
+                // تجميد الحقول
+                const isViewer = userRole === 'viewer';
+                const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday');
+                const inputsDisabled = isInputsFrozen || isViewer ? 'disabled' : '';
+                const isDisabled = isViewer ? 'disabled' : '';
+
+                // أيقونة السحب
+                const dragIcon = userRole === 'admin' ? '<span class="drag-handle" title="اسحب لإعادة الترتيب">☰</span>' : '';
 
                 tr.innerHTML = `
-                    <td class="p-3 text-center text-gray-500" data-label="#" data-label-type="index">${index + 1}</td>
-                    <td class="p-3 font-bold text-gray-800 cursor-pointer hover:text-blue-600 hover:bg-blue-50 transition-colors select-none" onclick="showEmployeeSummary('${empName}')" data-label="${t('th_name')}" data-label-type="name">${empName}</td>
+                    <td class="p-3 text-center text-gray-500 flex justify-center items-center" data-label="#" data-label-type="index">
+                        ${index + 1} ${dragIcon}
+                    </td>
+                    <td class="p-3 font-bold text-gray-800 cursor-pointer hover:bg-blue-50 transition-colors select-none group" 
+                        onclick="showEmployeeSummary('${empId}')" 
+                        data-label="${t('th_name')}" data-label-type="name">
+                        <div class="flex items-center justify-between">
+                            <span class="hover:text-blue-600">${empName}</span>
+                            ${userRole === 'admin' ? `
+                            <button onclick="event.stopPropagation(); openEditEmployeeModal('${empId}')" class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity px-1 text-lg" title="تعديل">
+                                ✎
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                    
                     <td class="p-3" data-label="${t('th_status')}">
-                        <select onchange="saveDataToCloud('${empName}', '${dateStr}', 'status', this.value)" ${isDisabled}
+                        <select onchange="saveData('${empId}', '${dateStr}', 'status', this.value)" ${isDisabled}
                                 class="w-full p-2 border rounded bg-white text-sm focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer">
                             <option value="">${t('val_choose')}</option>
                             <option value="present" ${dayData.status === 'present' ? 'selected' : ''}>${t('val_present')}</option>
@@ -928,28 +826,563 @@
                             <option value="holiday" ${dayData.status === 'holiday' ? 'selected' : ''}>${t('val_holiday')}</option>
                         </select>
                     </td>
+
                     <td class="p-3" data-label="${t('th_entry')}">
-                        <input type="text" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empName}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center placeholder-gray-300 focus:ring-2 focus:ring-blue-400 outline-none ltr" style="direction: ltr;">
+                        <input type="text" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center ltr placeholder-gray-300">
                     </td>
                     <td class="p-3" data-label="${t('th_exit')}">
-                        <input type="text" value="${dayData.exit || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empName}', '${dateStr}', 'exit')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center placeholder-gray-300 focus:ring-2 focus:ring-blue-400 outline-none ltr" style="direction: ltr;">
+                        <input type="text" value="${dayData.exit || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'exit')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center ltr placeholder-gray-300">
                     </td>
                     <td class="p-3" data-label="${t('th_break')}">
-                        <input type="number" step="0.5" min="0" value="${breakVal}" onchange="saveDataToCloud('${empName}', '${dateStr}', 'breakDuration', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center focus:ring-2 focus:ring-blue-400 outline-none">
+                        <input type="number" step="0.5" min="0" value="${dayData.breakDuration || '0'}" onchange="saveData('${empId}', '${dateStr}', 'breakDuration', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center">
                     </td>
                     <td class="p-3" data-label="${t('th_delay')}">
-                        <input type="number" step="0.5" max="0" value="${shortageVal}" onchange="if(this.value > 0) this.value = -this.value; saveDataToCloud('${empName}', '${dateStr}', 'shortage', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center text-red-600 focus:ring-2 focus:ring-red-400 outline-none placeholder-red-300" placeholder="-">
+                        <input type="number" step="0.5" max="0" value="${dayData.shortage || ''}" onchange="if(this.value > 0) this.value = -this.value; saveData('${empId}', '${dateStr}', 'shortage', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center text-red-600 placeholder-red-300" placeholder="-">
                     </td>
-                    <td class="p-3" data-label="${t('th_overtime')}"><input type="number" step="0.5" value="${dayData.overtime || ''}" onchange="saveDataToCloud('${empName}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center" placeholder="0"></td>
-                    <td class="p-3" data-label="${t('th_notes')}"><input type="text" value="${dayData.notes || ''}" onchange="saveDataToCloud('${empName}', '${dateStr}', 'notes', this.value)" ${isDisabled} class="w-full p-2 border rounded bg-white text-sm" placeholder="..."></td>
+                    <td class="p-3" data-label="${t('th_overtime')}">
+                        <input type="number" step="0.5" value="${dayData.overtime || ''}" onchange="saveData('${empId}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center" placeholder="0">
+                    </td>
+                    <td class="p-3" data-label="${t('th_notes')}">
+                        <input type="text" value="${dayData.notes || ''}" onchange="saveData('${empId}', '${dateStr}', 'notes', this.value)" ${isDisabled} class="w-full p-2 border rounded bg-white text-sm" placeholder="...">
+                    </td>
+                    
                     ${userRole === 'admin' ? 
-                    `<td class="p-3 text-center delete-col" data-label="${t('th_delete')}"><button onclick="deleteEmployee('${empName}')" class="text-red-400 hover:text-red-700 font-bold px-2">×</button></td>` 
+                    `<td class="p-3 text-center delete-col" data-label="${t('th_delete')}"><button onclick="deleteEmployee('${empId}')" class="text-red-400 hover:text-red-700 font-bold px-2">×</button></td>` 
                     : '<td class="p-3"></td>'}
                 `;
                 tbody.appendChild(tr);
             });
         };
 
+        // --- حفظ البيانات (Transactions) ---
+        window.saveData = async function(empId, date, field, value) {
+            if (userRole === 'viewer') return;
+            const year = date.split('-')[0];
+            const month = date.split('-')[1];
+            
+            // تحديث محلي سريع (Optimistic UI)
+            if (!currentMonthData[empId]) currentMonthData[empId] = {};
+            if (!currentMonthData[empId][date]) currentMonthData[empId][date] = {};
+            currentMonthData[empId][date][field] = value;
+
+            // منطق أوتوماتيكي
+            const record = currentMonthData[empId][date];
+            if (field === 'status') {
+                if (value === 'absent' || value === 'vacation') {
+                    record.entry = ''; record.exit = ''; record.breakDuration = '0'; record.shortage = ''; record.overtime = '';
+                }
+                if (value === 'present') {
+                    record.breakDuration = '0.5';
+                }
+            }
+
+            const updatePath = `records.${empId}.${date}`;
+            const updates = {};
+            // تحديث الحقول في المسار الصحيح
+            updates[`records.${empId}.${date}.${field}`] = value;
+            if (field === 'status' && (value === 'absent' || value === 'vacation')) {
+                updates[`records.${empId}.${date}.entry`] = '';
+                updates[`records.${empId}.${date}.exit`] = '';
+                updates[`records.${empId}.${date}.breakDuration`] = '0';
+                updates[`records.${empId}.${date}.shortage`] = '';
+                updates[`records.${empId}.${date}.overtime`] = '';
+            }
+            if (field === 'status' && value === 'present') {
+                updates[`records.${empId}.${date}.breakDuration`] = '0.5';
+            }
+            // إذا أدخل وقت دخول/خروج بدون حالة، حوّلها لحضور
+            if ((field === 'entry' || field === 'exit') && value && !record.status) {
+                updates[`records.${empId}.${date}.status`] = 'present';
+            }
+
+            try {
+                const docRef = getMonthDoc(year, month);
+                await updateDoc(docRef, updates);
+            } catch (e) {
+                // إذا الملف غير موجود (أول سجل في الشهر)، نستخدم setDoc مع merge
+                const docRef = getMonthDoc(year, month);
+                // يجب بناء الكائن الكامل لـ setDoc
+                const deepObj = { records: { [empId]: { [date]: record } } };
+                await setDoc(docRef, deepObj, { merge: true });
+            }
+        };
+
+        // --- إدارة الموظفين (CRUD) ---
+        window.openAddEmployeeModal = function() {
+            document.getElementById('empModalTitle').innerText = t('add_emp_title');
+            document.getElementById('editEmployeeId').value = '';
+            document.getElementById('newEmployeeName').value = '';
+            
+            const shiftSelect = document.getElementById('newEmployeeShift');
+            if (userRole === 'shift_b_manager') {
+                shiftSelect.value = 'shift_B';
+                shiftSelect.disabled = true;
+            } else {
+                shiftSelect.value = 'shift_A';
+                shiftSelect.disabled = false;
+            }
+            
+            toggleModal('addEmployeeOverlay', true);
+        };
+
+        window.openEditEmployeeModal = function(empId) {
+            const emp = masterEmployees[empId];
+            if(!emp) return;
+            document.getElementById('empModalTitle').innerText = t('add_emp_title');
+            document.getElementById('editEmployeeId').value = empId;
+            document.getElementById('newEmployeeName').value = emp.name;
+            
+            const shiftSelect = document.getElementById('newEmployeeShift');
+            shiftSelect.value = emp.shift || 'shift_A';
+            
+            if (userRole === 'shift_b_manager') {
+                shiftSelect.disabled = true;
+            } else {
+                shiftSelect.disabled = false;
+            }
+
+            toggleModal('addEmployeeOverlay', true);
+        };
+
+        window.saveEmployeeToMasterList = async function() {
+            const id = document.getElementById('editEmployeeId').value;
+            const name = document.getElementById('newEmployeeName').value.trim();
+            const shift = document.getElementById('newEmployeeShift').value;
+
+            if (!name) return;
+
+            // تحديد الترتيب الجديد
+            let newOrder = 9999;
+            if (!id) { // إذا كان موظف جديد
+                 const orders = Object.values(masterEmployees).map(e => e.order || 0);
+                 const maxOrder = Math.max(...orders, 0);
+                 newOrder = maxOrder + 1;
+            }
+
+            const updates = {};
+            if (id) {
+                // تعديل
+                updates[`list.${id}.name`] = name;
+                updates[`list.${id}.shift`] = shift;
+            } else {
+                // إضافة جديد (Generate ID)
+                const newId = 'emp_' + Date.now();
+                updates[`list.${newId}`] = { name: name, shift: shift, order: newOrder };
+            }
+
+            try {
+                await updateDoc(EMPLOYEES_DOC, updates);
+            } catch (e) {
+                // إذا الملف غير موجود
+                const deepObj = { list: {} };
+                const newId = id || 'emp_' + Date.now();
+                deepObj.list[newId] = { name: name, shift: shift, order: newOrder };
+                await setDoc(EMPLOYEES_DOC, deepObj, { merge: true });
+            }
+            toggleModal('addEmployeeOverlay', false);
+        };
+
+        window.deleteEmployee = async function(empId) {
+            if (!confirm(t('msg_confirm_delete'))) return;
+            const newMap = { ...masterEmployees };
+            delete newMap[empId];
+            await setDoc(EMPLOYEES_DOC, { list: newMap });
+        };
+
+        // --- أدوات البيانات والنسخ الاحتياطي (Advanced Logic) ---
+        
+        // 1. استيراد الموظفين القدامى (محدث لجلب البيانات أيضاً)
+        window.importLegacyEmployees = async function() {
+            if(!confirm(t('msg_import_confirm'))) return;
+            
+            document.getElementById('loadingText').innerText = t('loading_importing');
+            document.getElementById('loadingScreen').classList.remove('hidden');
+
+            const currentYear = new Date().getFullYear(); // 2026
+
+            try {
+                // 1. Fetch Legacy Data
+                const legacyDocRef = getLegacyYearDoc(currentYear);
+                const snap = await getDoc(legacyDocRef);
+                
+                if (!snap.exists()) {
+                    alert(t('msg_no_legacy_data'));
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                    return;
+                }
+
+                const legacyData = snap.data();
+                const legacyEmployees = legacyData.employees || []; // ["Ahmed", "Ali"]
+                const legacyRecords = legacyData.records || {}; // { "Ahmed": { "2026-01-01": {...} } }
+
+                // 2. Map Legacy Names to New IDs
+                const nameToIdMap = {};
+                const empUpdates = {};
+                let newEmpCount = 0;
+                
+                // حساب أعلى ترتيب حالي
+                const orders = Object.values(masterEmployees).map(e => e.order || 0);
+                let currentMaxOrder = Math.max(...orders, 0);
+
+                // First, check existing master employees
+                // masterEmployees = { "emp_123": {name: "Ahmed", ...} }
+                Object.entries(masterEmployees).forEach(([id, data]) => {
+                    nameToIdMap[data.name] = id;
+                });
+
+                // Create IDs for missing employees
+                legacyEmployees.forEach(name => {
+                    if (!nameToIdMap[name]) {
+                        const newId = 'emp_legacy_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                        nameToIdMap[name] = newId;
+                        currentMaxOrder++;
+                        empUpdates[`list.${newId}`] = { name: name, shift: 'shift_A', order: currentMaxOrder }; // Default to A
+                        newEmpCount++;
+                    }
+                });
+
+                // Save new employees if any
+                if (newEmpCount > 0) {
+                     await updateDoc(EMPLOYEES_DOC, empUpdates).catch(async () => {
+                         // Fallback if doc doesn't exist
+                         const deepObj = { list: {} };
+                         Object.keys(empUpdates).forEach(k => {
+                             const key = k.split('.')[1];
+                             deepObj.list[key] = empUpdates[k];
+                         });
+                         await setDoc(EMPLOYEES_DOC, deepObj, { merge: true });
+                     });
+                     // Update local masterEmployees to include new ones immediately for this session
+                     Object.keys(empUpdates).forEach(k => {
+                         const id = k.split('.')[1];
+                         masterEmployees[id] = empUpdates[k];
+                     });
+                }
+
+                // 3. Process Records and Group by Month
+                // Structure: { "01": { records: { "empId": { "2026-01-01": ... } } }, "02": ... }
+                const monthlyUpdates = {}; 
+
+                Object.keys(legacyRecords).forEach(empName => {
+                    const empId = nameToIdMap[empName];
+                    if (!empId) return; // Should not happen
+
+                    const empDates = legacyRecords[empName];
+                    Object.keys(empDates).forEach(date => {
+                        // date = "2026-01-01"
+                        const [y, m, d] = date.split('-');
+                        if (y != currentYear) return;
+
+                        if (!monthlyUpdates[m]) monthlyUpdates[m] = {};
+                        if (!monthlyUpdates[m][empId]) monthlyUpdates[m][empId] = {};
+
+                        monthlyUpdates[m][empId][date] = empDates[date];
+                    });
+                });
+
+                // 4. Write to Monthly Docs
+                const monthsToUpdate = Object.keys(monthlyUpdates);
+                let recordsCount = 0;
+
+                for (const m of monthsToUpdate) {
+                    const monthDocRef = getMonthDoc(currentYear, m);
+                    // We use setDoc with merge: true to avoid overwriting existing V3 data if any
+                    // Structure to write: { records: { empId: { date: data } } }
+                    await setDoc(monthDocRef, { records: monthlyUpdates[m] }, { merge: true });
+                    recordsCount += Object.keys(monthlyUpdates[m]).length; // Rough count of employees updated in that month
+                }
+
+                alert(t('msg_import_success'));
+                
+                // Refresh view
+                changeDate(); 
+
+            } catch (e) {
+                console.error(e);
+                alert(t('msg_file_error') + e.message);
+            } finally {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                toggleModal('dataManagerOverlay', false);
+            }
+        };
+
+        // 2. تصدير نسخة احتياطية (JSON)
+        window.exportBackup = async function() {
+            document.getElementById('loadingText').innerText = t('loading_backup');
+            document.getElementById('loadingScreen').classList.remove('hidden');
+            
+            const backupData = {
+                version: "3.0",
+                date: new Date().toISOString(),
+                employees: masterEmployees,
+                months: {}
+            };
+
+            // Loop through months of current year
+            const year = new Date().getFullYear();
+            for (let m = 1; m <= 12; m++) {
+                const mm = String(m).padStart(2, '0');
+                try {
+                    const snap = await getDoc(getMonthDoc(year, mm));
+                    if (snap.exists()) {
+                        backupData.months[`${year}_${mm}`] = snap.data();
+                    }
+                } catch(e) {}
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "backup_shift_register_v3.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+
+            document.getElementById('loadingScreen').classList.add('hidden');
+        };
+
+        // 3. استعادة نسخة
+        window.restoreBackup = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const content = e.target.result;
+                try {
+                    const data = JSON.parse(content);
+                    if (!data.employees) throw new Error("Invalid File");
+
+                    if (!confirm(t('msg_confirm_restore'))) return;
+
+                    document.getElementById('loadingText').innerText = t('loading_restoring');
+                    document.getElementById('loadingScreen').classList.remove('hidden');
+
+                    // 1. استعادة الموظفين
+                    await setDoc(EMPLOYEES_DOC, { list: data.employees });
+
+                    // 2. استعادة الشهور
+                    const batch = writeBatch(db); // استخدام Batch للكفاءة
+                    let opCount = 0;
+                    
+                    for (const [key, monthData] of Object.entries(data.months)) {
+                        // key is YYYY_MM
+                        const [y, m] = key.split('_');
+                        const docRef = getMonthDoc(y, m);
+                        batch.set(docRef, monthData);
+                        opCount++;
+                    }
+                    
+                    if(opCount > 0) await batch.commit();
+
+                    alert(t('msg_restore_success'));
+                    location.reload();
+
+                } catch (err) {
+                    alert(t('msg_file_error') + err.message);
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        // --- دوال مساعدة ---
+        window.toggleModal = function(id, show) {
+            const el = document.getElementById(id);
+            if(show) { 
+                el.classList.remove('hidden'); 
+                document.body.style.overflow = 'hidden'; 
+            } else { 
+                el.classList.add('hidden'); 
+                document.body.style.overflow = ''; 
+            }
+        };
+
+        window.handleSmartTimeInput = function(input, empId, dateStr, field) {
+            let val = input.value.trim();
+            if(!val) { saveData(empId, dateStr, field, ''); return; }
+            val = val.replace(/[^0-9:]/g, '');
+            if (val.indexOf(':') === -1) {
+                if (val.length <= 2) {
+                    let hour = parseInt(val);
+                    if (hour >= 0 && hour <= 23) val = val.padStart(2, '0') + ":00";
+                } else if (val.length === 3) {
+                    val = "0" + val.substring(0, 1) + ":" + val.substring(1);
+                } else if (val.length === 4) {
+                    val = val.substring(0, 2) + ":" + val.substring(2);
+                }
+            }
+            // Validate time format HH:MM
+            if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(val)) {
+                input.value = val;
+                saveData(empId, dateStr, field, val);
+            }
+        };
+
+        // --- التقارير (محدثة لدعم IDs) ---
+        window.openReportModal = function() {
+            const today = new Date();
+            document.getElementById('repYearInput').value = today.getFullYear();
+            document.getElementById('repMonthSelect').value = String(today.getMonth() + 1).padStart(2, '0');
+            toggleModal('monthlyReportOverlay', true);
+            generateReport('monthly');
+        };
+
+        let currentReportType = 'monthly';
+
+        window.generateReport = async function(type) {
+            currentReportType = type;
+            const year = document.getElementById('repYearInput').value;
+            const month = document.getElementById('repMonthSelect').value;
+            const tbody = document.getElementById('reportTableBody');
+            
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4"><div class="loader mx-auto"></div></td></tr>';
+            
+            // جلب البيانات المطلوبة
+            let reportData = {}; // { empId: { present: 0, ... } }
+            
+            // تهيئة بيانات الموظفين
+            Object.keys(masterEmployees).forEach(id => {
+                reportData[id] = { 
+                    name: masterEmployees[id].name, 
+                    shift: masterEmployees[id].shift,
+                    order: masterEmployees[id].order || 9999,
+                    present: 0, absent: 0, vacation: 0, holiday: 0, overtime: 0, delay: 0 
+                };
+            });
+
+            // تحديد الأشهر المطلوب جلبها
+            let monthsToFetch = [];
+            if (type === 'monthly') {
+                monthsToFetch.push(month);
+            } else {
+                monthsToFetch = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+            }
+
+            // جلب البيانات ومعالجتها
+            for (const m of monthsToFetch) {
+                // ملاحظة: هذا قد يكون بطيئاً للتقرير السنوي، في النسخة الاحترافية يمكن استخدام التجميع (Aggregation)
+                try {
+                    const snap = await getDoc(getMonthDoc(year, m));
+                    if (snap.exists()) {
+                        const records = snap.data().records || {};
+                        Object.keys(records).forEach(empId => {
+                            if (!reportData[empId]) return; // تجاهل الموظفين المحذوفين من القائمة الرئيسية
+                            const days = records[empId];
+                            Object.values(days).forEach(day => {
+                                if (day.status === 'present') reportData[empId].present++;
+                                if (day.status === 'absent') reportData[empId].absent++;
+                                if (day.status === 'vacation') reportData[empId].vacation++;
+                                if (day.status === 'holiday') reportData[empId].holiday++;
+                                reportData[empId].overtime += parseFloat(day.overtime) || 0;
+                                reportData[empId].delay += parseFloat(day.shortage) || 0; // القيم مخزنة بالسالب للتأخير، نجمعها كما هي أو نعكسها للعرض
+                            });
+                        });
+                    }
+                } catch(e) {}
+            }
+
+            // عرض النتائج
+            tbody.innerHTML = '';
+            document.getElementById('reportTitleDisplay').innerText = 
+                type === 'monthly' ? `${t('monthly_report')} (${year}-${month})` : `${t('annual_report')} (${year})`;
+
+            // فرز البيانات قبل العرض بناءً على الترتيب والاسم
+            const sortedReportData = Object.values(reportData).sort((a, b) => {
+                return (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name);
+            });
+
+            sortedReportData.forEach(d => {
+                // تصفية حسب الوردية للمديرين (محدثة لتشمل اختيار المدير العام للقائمة المنسدلة)
+                if (userRole === 'shift_b_manager' && d.shift !== 'shift_B') return;
+                if ((userRole === 'admin' || userRole === 'viewer') && currentSelectedShift !== 'all' && d.shift !== currentSelectedShift) return;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 border font-bold bg-gray-50">${d.name}</td>
+                    <td class="p-3 border text-center text-green-700 font-bold">${d.present}</td>
+                    <td class="p-3 border text-center text-red-700 font-bold">${d.absent}</td>
+                    <td class="p-3 border text-center text-yellow-700 font-bold">${d.vacation}</td>
+                    <td class="p-3 border text-center text-purple-700 font-bold">${d.holiday}</td>
+                    <td class="p-3 border text-center text-blue-700 font-bold">${d.overtime}</td>
+                    <td class="p-3 border text-center text-red-600 font-bold" dir="ltr">${Math.abs(d.delay)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.exportReportToCSV = function() {
+            // بسيطة: نعتمد على الجدول الموجود حالياً في DOM
+            const rows = document.querySelectorAll('#reportTableBody tr');
+            if (rows.length === 0) return;
+            
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += `${t('th_name')},${t('th_present')},${t('th_absent')},${t('th_vacation')},${t('th_holiday')},${t('th_total_overtime')},${t('th_total_delay')}\n`;
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                const rowData = Array.from(cols).map(c => `"${c.innerText}"`).join(",");
+                csvContent += rowData + "\n";
+            });
+
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "report.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        
+        window.showEmployeeSummary = function(empId) {
+            const empName = masterEmployees[empId]?.name || 'Unknown';
+            const dateStr = document.getElementById('currentDateInput').value;
+            const currentMonth = dateStr.slice(0, 7); 
+            
+            let present = 0, absent = 0, vacation = 0, holiday = 0, totalOvertime = 0, totalShortage = 0;
+            const empData = currentMonthData[empId] || {};
+            
+            Object.values(empData).forEach(d => {
+                if (d.status === 'present') present++;
+                if (d.status === 'absent') absent++;
+                if (d.status === 'vacation') vacation++;
+                if (d.status === 'holiday') holiday++; 
+                totalOvertime += parseFloat(d.overtime) || 0;
+                totalShortage += parseFloat(d.shortage) || 0;
+            });
+            
+            const statsContainer = document.getElementById('employeeStatsCard');
+            statsContainer.classList.remove('hidden');
+            statsContainer.innerHTML = `
+                <div class="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h3 class="font-bold text-xl text-blue-900 flex items-center gap-2">
+                            <span class="bg-blue-100 p-1 rounded text-blue-600">👤</span>
+                            ${t('sum_title')} ${t('sum_emp')} <span class="text-indigo-600 underline">${empName}</span>
+                        </h3>
+                    </div>
+                    <div class="flex flex-wrap gap-4 text-sm font-bold">
+                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-green-500">${t('th_present')}</span> ${present}
+                        </div>
+                        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-red-500">${t('th_absent')}</span> ${absent}
+                        </div>
+                         <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-yellow-600">${t('th_vacation')}</span> ${vacation}
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-blue-500">${t('th_overtime')}</span> ${totalOvertime}
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 text-orange-800 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-orange-500">${t('th_delay')}</span> <span dir="ltr">${Math.abs(totalShortage)}</span>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 px-3 py-1 rounded">×</button>
+                </div>
+            `;
+        };
+
+        // مفتاح الدخول بالضغط على Enter
         document.getElementById('accessCode').addEventListener('keypress', (e) => {
             if(e.key === 'Enter') window.checkLogin();
         });

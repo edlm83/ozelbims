@@ -452,8 +452,12 @@
             }
         };
 
-        let currentLang = 'ar';
+        // تحديد لغة المتصفح: العربية للعربية، والتركية للتركية أو الإنجليزية أو غيرها
+        const browserLang = navigator.language || navigator.userLanguage || 'ar';
+        let currentLang = browserLang.startsWith('ar') ? 'ar' : 'tr';
+
         function t(key) { return translations[currentLang][key] || key; }
+        
         window.changeLanguage = function(lang) {
             currentLang = lang;
             document.documentElement.lang = lang;
@@ -1411,6 +1415,9 @@
         document.getElementById('accessCode').addEventListener('keypress', (e) => {
             if(e.key === 'Enter') window.checkLogin();
         });
+
+        // Initialize language
+        changeLanguage(currentLang);
 
     </script>
 </body>

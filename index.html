@@ -31,7 +31,7 @@
         td input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         td input[type=number] { -moz-appearance: textfield; }
 
-        /* إظهار الأسهم في خانة السنة في التقارير */
+        /* إظهار الأسهم في خانة السنة في التقارير (احتياط) */
         #repYearInput::-webkit-inner-spin-button, 
         #repYearInput::-webkit-outer-spin-button { -webkit-appearance: inner-spin-button !important; opacity: 1 !important; }
         
@@ -215,23 +215,46 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* موبايل (Card View) */
+        /* موبايل (Card View) - تحسينات التقارير */
         @media (max-width: 768px) {
             .table-container, .overflow-auto { background: transparent; box-shadow: none; overflow: visible !important; max-height: none !important; border: none; }
             #monthlyReportOverlay .overflow-auto { overflow-y: auto !important; -webkit-overflow-scrolling: touch; max-height: 70vh !important; }
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
             thead { display: none; }
+            
+            /* البطاقة العامة */
             tr { background: white; margin-bottom: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); padding: 0; border: 1px solid #e5e7eb; overflow: hidden; }
+            
+            /* خلايا الجدول */
             td { padding: 0.8rem 1.2rem; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between; align-items: center; text-align: start; min-height: 50px; }
             td:last-child { border-bottom: none; }
-            td::before { content: attr(data-label); font-weight: 600; color: #6b7280; font-size: 0.9rem; flex-basis: 40%; text-align: start; }
+            
+            /* العنوان (Label) */
+            td::before { 
+                content: attr(data-label); 
+                font-weight: 600; 
+                color: #6b7280; 
+                font-size: 0.9rem; 
+                flex-basis: 40%; 
+                text-align: start; 
+            }
+            
+            /* اسم الموظف (عنوان البطاقة) */
             td[data-label-type="name"] { background: linear-gradient(to left, #eff6ff, #ffffff); padding: 1rem; justify-content: center; color: #1e40af; font-size: 1.1rem; font-weight: 800; border-bottom: 2px solid #dbeafe; border-top: 4px solid #3b82f6; }
             td[data-label-type="name"]::before { display: none; } 
+            
             td[data-label-type="index"] { display: none; }
             td input, td select { width: 55% !important; max-width: none !important; padding: 0.6rem; background-color: #fff; }
             td.delete-col { background: #fef2f2; justify-content: center; padding: 0.8rem; }
             td.delete-col button { width: 100%; color: #ef4444; font-weight: bold; }
             td.delete-col::before { display: none; }
+
+            /* --- تحسينات خاصة لجدول التقارير في الموبايل --- */
+            /* تلوين العناوين في التقارير لسهولة القراءة */
+            #reportTableBody td[data-label*="الحضور"]::before, #reportTableBody td[data-label*="Present"]::before { color: #15803d; } /* أخضر */
+            #reportTableBody td[data-label*="الغياب"]::before, #reportTableBody td[data-label*="Absent"]::before { color: #b91c1c; } /* أحمر */
+            #reportTableBody td[data-label*="الإجازة"]::before, #reportTableBody td[data-label*="Vacation"]::before { color: #a16207; } /* أصفر غامق */
+            #reportTableBody td[data-label*="التأخير"]::before, #reportTableBody td[data-label*="Delay"]::before { color: #dc2626; } /* أحمر فاتح */
         }
     </style>
 </head>
@@ -345,7 +368,12 @@
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
-                        <input type="number" id="repYearInput" class="p-2 border rounded w-20 text-center font-bold">
+                         <!-- تم استبدال حقل الإدخال العادي بأزرار تحكم + و - لسهولة الاستخدام على الموبايل -->
+                        <div class="flex items-center">
+                            <button onclick="adjustRepYear(1)" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 rounded-r-md transition">+</button>
+                            <input type="number" id="repYearInput" class="p-2 border-y w-16 text-center font-bold outline-none border-gray-200" style="border-radius: 0;">
+                            <button onclick="adjustRepYear(-1)" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 rounded-l-md transition">-</button>
+                        </div>
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_month">الشهر</label>
@@ -1396,6 +1424,13 @@
             }
         };
 
+        // وظيفة مساعدة لضبط السنة في التقارير
+        window.adjustRepYear = function(delta) {
+            const input = document.getElementById('repYearInput');
+            let val = parseInt(input.value) || new Date().getFullYear();
+            input.value = val + delta;
+        };
+
         // --- التقارير (محدثة لدعم IDs) ---
         window.openReportModal = function() {
             const today = new Date();
@@ -1476,13 +1511,13 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="p-3 border font-bold bg-gray-50">${d.name}</td>
-                    <td class="p-3 border text-center text-green-700 font-bold">${d.present}</td>
-                    <td class="p-3 border text-center text-red-700 font-bold">${d.absent}</td>
-                    <td class="p-3 border text-center text-yellow-700 font-bold">${d.vacation}</td>
-                    <td class="p-3 border text-center text-purple-700 font-bold">${d.holiday}</td>
-                    <td class="p-3 border text-center text-blue-700 font-bold">${d.overtime}</td>
-                    <td class="p-3 border text-center text-red-600 font-bold" dir="ltr">${Math.abs(d.delay)}</td>
+                    <td class="p-3 border font-bold bg-gray-50" data-label="${t('th_name')}" data-label-type="name">${d.name}</td>
+                    <td class="p-3 border text-center text-green-700 font-bold" data-label="${t('th_present')}">${d.present}</td>
+                    <td class="p-3 border text-center text-red-700 font-bold" data-label="${t('th_absent')}">${d.absent}</td>
+                    <td class="p-3 border text-center text-yellow-700 font-bold" data-label="${t('th_vacation')}">${d.vacation}</td>
+                    <td class="p-3 border text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${d.holiday}</td>
+                    <td class="p-3 border text-center text-blue-700 font-bold" data-label="${t('th_total_overtime')}">${d.overtime}</td>
+                    <td class="p-3 border text-center text-red-600 font-bold" data-label="${t('th_total_delay')}"><span dir="ltr">${Math.abs(d.delay)}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1557,6 +1592,8 @@
                     <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 px-3 py-1 rounded">×</button>
                 </div>
             `;
+            // إضافة خاصية التمرير التلقائي للبطاقة
+            statsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
         // مفتاح الدخول بالضغط على Enter

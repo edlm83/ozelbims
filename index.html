@@ -452,6 +452,20 @@
                         <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
                     </select>
                 </div>
+                
+                <!-- عناصر التحكم الجماعي (جديد) -->
+                <div id="bulkControls" class="flex flex-wrap gap-2 items-end hidden">
+                    <!-- دخول جماعي -->
+                    <div class="flex flex-col items-center">
+                        <button onclick="applyBulkAction('entry')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_entry">دخول جماعي</button>
+                        <input type="text" id="bulkEntryInput" placeholder="--:--" class="p-1 border border-green-300 rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-green-500 outline-none" onchange="validateBulkInput(this)">
+                    </div>
+                    <!-- خروج جماعي -->
+                    <div class="flex flex-col items-center">
+                        <button onclick="applyBulkAction('exit')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_exit">خروج جماعي</button>
+                        <input type="text" id="bulkExitInput" placeholder="--:--" class="p-1 border border-blue-300 rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none" onchange="validateBulkInput(this)">
+                    </div>
+                </div>
             </div>
 
             <div id="dayInfo" class="text-center hidden md:block">
@@ -563,7 +577,9 @@
                 loading_backup: "جاري تحضير النسخة الاحتياطية...",
                 loading_restoring: "جاري استعادة البيانات...",
                 badge_shift_b: "الوردية B",
-                ph_employee_name: "الاسم الثلاثي"
+                ph_employee_name: "الاسم الثلاثي",
+                bulk_entry: "دخول جماعي",
+                bulk_exit: "خروج جماعي"
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -623,7 +639,9 @@
                 loading_backup: "Yedek hazırlanıyor...",
                 loading_restoring: "Veriler geri yükleniyor...",
                 badge_shift_b: "Vardiya B",
-                ph_employee_name: "Ad Soyad"
+                ph_employee_name: "Ad Soyad",
+                bulk_entry: "Toplu Giriş",
+                bulk_exit: "Toplu Çıkış"
             }
         };
 
@@ -719,15 +737,10 @@
         initAuth();
 
         // --- نظام التشفير (Hashing) ---
-        // دالة مساعدة لتحويل النص إلى بصمة SHA-256
         async function sha256(message) {
-            // تشفير النص إلى بايتات
             const msgBuffer = new TextEncoder().encode(message);
-            // حساب البصمة (Hash)
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            // تحويل البايتات إلى مصفوفة
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            // تحويل المصفوفة إلى نص سداسي عشري (Hex)
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             return hashHex;
         }
@@ -753,8 +766,6 @@
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
-        
-        // Initial check
         updateOnlineStatus();
 
         // --- تسجيل الدخول ---
@@ -762,48 +773,41 @@
             const code = document.getElementById('accessCode').value;
             const errorMsg = document.getElementById('loginError');
             
-            // حساب البصمة للكود المدخل
             const hashedCode = await sha256(code);
             
-            // --- البصمات المشفرة ---
-            // 56401 = c4a23934ebf78c703d11dae9ecb3bef502d930d585f53a2547d87e5099887729 (Admin)
             const HASH_ADMIN = "c4a23934ebf78c703d11dae9ecb3bef502d930d585f53a2547d87e5099887729"; 
-            // 2222 = edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9 (Shift B)
             const HASH_SHIFT_B = "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9";
-            // 3838 = d9cf8835e2a75f03b59e0371aacb3cdf2b71e0a471dc478742987f366cabeccc (Viewer/Accountant)
             const HASH_VIEWER = "d9cf8835e2a75f03b59e0371aacb3cdf2b71e0a471dc478742987f366cabeccc";
 
-            // إعادة تعيين الواجهة
             document.getElementById('shiftSelectorContainer').classList.add('hidden');
             document.getElementById('dataBtn').classList.add('hidden');
             document.getElementById('shiftBadge').classList.add('hidden');
+            document.getElementById('bulkControls').classList.add('hidden'); // إعادة تعيين إخفاء التحكم الجماعي
             
-            // التحقق (بالمقارنة مع البصمة فقط)
             if (hashedCode === HASH_ADMIN) {
                 userRole = 'admin';
                 currentUserShift = 'all';
-                document.getElementById('shiftSelectorContainer').classList.remove('hidden'); // يرى قائمة الورديات
-                document.getElementById('dataBtn').classList.remove('hidden'); // يرى زر البيانات
+                document.getElementById('shiftSelectorContainer').classList.remove('hidden');
+                document.getElementById('dataBtn').classList.remove('hidden');
+                document.getElementById('bulkControls').classList.remove('hidden'); // إظهار التحكم الجماعي للمدير
             } else if (hashedCode === HASH_SHIFT_B) {
                 userRole = 'shift_b_manager';
                 currentUserShift = 'shift_B';
                 document.getElementById('shiftBadge').classList.remove('hidden');
-                document.getElementById('shiftBadge').innerText = t('badge_shift_b'); // استخدام الترجمة
+                document.getElementById('shiftBadge').innerText = t('badge_shift_b');
+                document.getElementById('bulkControls').classList.remove('hidden'); // إظهار التحكم الجماعي لمدير الوردية B
             } else if (hashedCode === HASH_VIEWER) {
                 userRole = 'viewer';
                 currentUserShift = 'all';
                 setupViewerUI();
-                // المحاسب يرى القائمة المنسدلة للورديات الآن
                 document.getElementById('shiftSelectorContainer').classList.remove('hidden'); 
             } else {
                 errorMsg.classList.remove('hidden');
                 return;
             }
 
-            // بدء التطبيق
             document.getElementById('loadingScreen').classList.remove('hidden');
             
-            // 1. تحميل قائمة الموظفين (الأساس)
             const unsubEmp = onSnapshot(EMPLOYEES_DOC, (snap) => {
                 if (snap.exists()) {
                     masterEmployees = snap.data().list || {};
@@ -813,12 +817,11 @@
                 renderDailyTable();
             });
 
-            // 2. تحميل بيانات الشهر الحالي
             const today = new Date();
             const dateInput = document.getElementById('currentDateInput');
             dateInput.value = today.toISOString().split('T')[0];
             
-            changeDate(); // سيقوم بتحميل بيانات الشهر وإخفاء اللودر عند الانتهاء
+            changeDate();
 
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
@@ -828,20 +831,18 @@
             document.getElementById('adminControls').innerHTML = 
                 `<div class="bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm">${t('viewer_mode')}</div>`;
             const style = document.createElement('style');
-            style.innerHTML = '.delete-col { display: none; }'; // إخفاء زر الحذف
+            style.innerHTML = '.delete-col { display: none; }';
             document.head.appendChild(style);
         }
 
         window.logout = function() { location.reload(); };
 
-        // --- إدارة التواريخ والبيانات الشهرية ---
         let unsubscribeMonth = null;
 
         window.changeDate = function() {
             const dateStr = document.getElementById('currentDateInput').value;
             if(!dateStr) return;
             
-            // تحديث عرض اليوم
             const dateObj = new Date(dateStr);
             const daysKey = ['day_sunday', 'day_monday', 'day_tuesday', 'day_wednesday', 'day_thursday', 'day_friday', 'day_saturday'];
             document.getElementById('dayNameDisplay').innerText = t(daysKey[dateObj.getDay()]);
@@ -851,7 +852,6 @@
             const month = dateStr.split('-')[1];
             const yearMonth = `${year}_${month}`;
 
-            // تحميل ملف الشهر إذا تغير
             if (loadedYearMonth !== yearMonth) {
                 loadMonthData(year, month);
             } else {
@@ -879,13 +879,131 @@
             });
         }
 
-        // --- منطق الورديات ---
         window.applyShiftFilter = function() {
             currentSelectedShift = document.getElementById('shiftFilter').value;
             renderDailyTable();
         };
 
-        // --- منطق السحب والإفلات (جديد) ---
+        // --- التحقق الذكي من حقول الإدخال الجماعي ---
+        window.validateBulkInput = function(input) {
+            let val = input.value.trim();
+            if (!val) return;
+            val = val.replace(/[^0-9:]/g, '');
+            if (val.indexOf(':') === -1) {
+                if (val.length <= 2) {
+                    let hour = parseInt(val);
+                    if (hour >= 0 && hour <= 23) val = val.padStart(2, '0') + ":00";
+                } else if (val.length === 3) {
+                    val = "0" + val.substring(0, 1) + ":" + val.substring(1);
+                } else if (val.length === 4) {
+                    val = val.substring(0, 2) + ":" + val.substring(2);
+                }
+            }
+            if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(val)) {
+                input.value = val;
+            } else {
+                input.value = ''; // مسح إذا كان التنسيق خطأ
+            }
+        };
+
+        // --- تنفيذ الإجراء الجماعي ---
+        window.applyBulkAction = async function(actionType) {
+            const dateStr = document.getElementById('currentDateInput').value;
+            const year = dateStr.split('-')[0];
+            const month = dateStr.split('-')[1];
+            
+            let timeValue = '';
+            if (actionType === 'entry') {
+                timeValue = document.getElementById('bulkEntryInput').value;
+            } else {
+                timeValue = document.getElementById('bulkExitInput').value;
+            }
+
+            if (!timeValue) {
+                alert("الرجاء إدخال توقيت صحيح أولاً");
+                return;
+            }
+
+            // تحديد الموظفين المستهدفين (نفس المنطق المستخدم في عرض الجدول)
+            let targetEmployees = [];
+            
+            Object.entries(masterEmployees).forEach(([id, data]) => {
+                let shouldInclude = false;
+                // تصفية حسب صلاحية المستخدم والفلتر المختار
+                if (userRole === 'shift_b_manager') {
+                    if (data.shift === 'shift_B') shouldInclude = true;
+                } else if (userRole === 'admin') {
+                    if (currentSelectedShift === 'all') shouldInclude = true;
+                    else if (data.shift === currentSelectedShift) shouldInclude = true;
+                }
+
+                if (shouldInclude) {
+                    targetEmployees.push(id);
+                }
+            });
+
+            if (targetEmployees.length === 0) return;
+
+            document.getElementById('loadingText').innerText = "جاري تنفيذ الإجراء الجماعي...";
+            document.getElementById('loadingScreen').classList.remove('hidden');
+
+            const updates = {};
+            
+            targetEmployees.forEach(empId => {
+                const recordPath = `records.${empId}.${dateStr}`;
+                
+                // التأكد من وجود سجل للحفاظ على البيانات القديمة إن وجدت
+                if (!currentMonthData[empId]) currentMonthData[empId] = {};
+                if (!currentMonthData[empId][dateStr]) currentMonthData[empId][dateStr] = {};
+                
+                // تحديث الحالة دائماً إلى "حضور"
+                updates[`${recordPath}.status`] = 'present';
+                currentMonthData[empId][dateStr].status = 'present';
+
+                if (actionType === 'entry') {
+                    updates[`${recordPath}.entry`] = timeValue;
+                    updates[`${recordPath}.breakDuration`] = '0.5'; // تعيين الاستراحة الافتراضية عند تسجيل الدخول
+                    currentMonthData[empId][dateStr].entry = timeValue;
+                    currentMonthData[empId][dateStr].breakDuration = '0.5';
+                } else {
+                    updates[`${recordPath}.exit`] = timeValue;
+                    currentMonthData[empId][dateStr].exit = timeValue;
+                }
+            });
+
+            try {
+                const docRef = getMonthDoc(year, month);
+                await updateDoc(docRef, updates);
+                // إعادة رسم الجدول لتحديث الواجهة
+                renderDailyTable();
+            } catch (e) {
+                // في حال عدم وجود المستند أصلاً (أول مرة في الشهر)، نستخدم setDoc مع merge
+                // لكن بما أن التحديث معقد هنا، الأفضل أن يكون المستند موجوداً. 
+                // كحل احتياطي بسيط: نحاول إنشاء المستند ثم التحديث
+                try {
+                    const docRef = getMonthDoc(year, month);
+                    // تحويل التحديثات المسطحة إلى كائن عميق (Deep Object) صعب قليلاً يدوياً هنا
+                    // لذا سنعتمد على أن saveData الفردي ينشئ المستند، أو أن bulk action يستخدم setDoc مع merge للكائن الكامل
+                    // الحل الأبسط:
+                    const deepObj = { records: {} };
+                    targetEmployees.forEach(empId => {
+                        deepObj.records[empId] = { [dateStr]: currentMonthData[empId][dateStr] };
+                    });
+                    await setDoc(docRef, deepObj, { merge: true });
+                    renderDailyTable();
+                } catch (err) {
+                    console.error("Bulk update failed", err);
+                    alert("حدث خطأ أثناء التحديث الجماعي");
+                }
+            } finally {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                // تفريغ الحقول بعد العملية
+                if (actionType === 'entry') document.getElementById('bulkEntryInput').value = '';
+                else document.getElementById('bulkExitInput').value = '';
+            }
+        };
+
+        // --- باقي الكود (السحب والإفلات، الجدول، إلخ) ---
         let dragSrcEl = null;
 
         window.handleDragStart = function(e) {
@@ -918,14 +1036,12 @@
             const sourceId = e.dataTransfer.getData('text/plain');
             const targetId = this.getAttribute('data-emp-id');
             
-            // Reorder Logic
             reorderEmployees(sourceId, targetId);
 
             return false;
         };
 
         async function reorderEmployees(sourceId, targetId) {
-            // تحويل Map إلى Array للترتيب
             let empArray = Object.entries(masterEmployees).map(([id, data]) => ({
                 id: id,
                 ...data,
@@ -936,21 +1052,18 @@
             const targetIndex = empArray.findIndex(e => e.id === targetId);
 
             if (sourceIndex > -1 && targetIndex > -1) {
-                // Move item in array
                 const [movedItem] = empArray.splice(sourceIndex, 1);
                 empArray.splice(targetIndex, 0, movedItem);
 
-                // Re-assign order numbers
                 const updates = {};
                 empArray.forEach((emp, index) => {
                     const newOrder = index + 1;
-                    masterEmployees[emp.id].order = newOrder; // Update local state immediately
+                    masterEmployees[emp.id].order = newOrder;
                     updates[`list.${emp.id}.order`] = newOrder;
                 });
 
-                renderDailyTable(); // Re-render immediately for responsiveness
+                renderDailyTable();
                 
-                // Save to cloud
                 try {
                     await updateDoc(EMPLOYEES_DOC, updates);
                 } catch (e) {
@@ -959,7 +1072,6 @@
             }
         }
 
-        // --- عرض الجدول (Core UI Logic) ---
         window.renderDailyTable = function() {
             const tbody = document.getElementById('dailyTableBody');
             tbody.innerHTML = '';
@@ -967,22 +1079,19 @@
             const dateStr = document.getElementById('currentDateInput').value;
             if (!dateStr) return;
 
-            // 1. تحويل القائمة (Map) إلى مصفوفة للفرز
             let empArray = Object.entries(masterEmployees).map(([id, data]) => ({
                 id: id,
                 name: data.name,
-                shift: data.shift || 'shift_A', // الافتراضي A
+                shift: data.shift || 'shift_A',
                 order: data.order || 9999
             }));
 
-            // 2. الفلترة حسب الوردية
             if (userRole === 'shift_b_manager') {
                 empArray = empArray.filter(e => e.shift === 'shift_B');
             } else if ((userRole === 'admin' || userRole === 'viewer') && currentSelectedShift !== 'all') {
                 empArray = empArray.filter(e => e.shift === currentSelectedShift);
             }
 
-            // 3. الترتيب: الاعتماد الأساسي على Order، والثانوي أبجدي
             empArray.sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name));
 
             if (empArray.length === 0) {
@@ -991,19 +1100,16 @@
             }
             document.getElementById('emptyState').classList.add('hidden');
 
-            // 4. رسم الصفوف
             empArray.forEach((emp, index) => {
                 const empId = emp.id;
                 const empName = emp.name;
                 
-                // جلب بيانات هذا الموظف لهذا اليوم من ملف الشهر
                 const empMonthRecord = currentMonthData[empId] || {};
                 const dayData = empMonthRecord[dateStr] || { status: '', entry: '', exit: '', breakDuration: '0', shortage: '', overtime: '', notes: '' };
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 border-b transition duration-150";
                 
-                // إعدادات السحب والإفلات للمدير
                 if (userRole === 'admin') {
                     tr.setAttribute('draggable', 'true');
                     tr.classList.add('draggable-row');
@@ -1014,19 +1120,16 @@
                     tr.addEventListener('drop', handleDrop);
                 }
 
-                // تلوين الخلفية حسب الحالة
                 if(dayData.status === 'absent') tr.classList.add('bg-red-50');
                 if(dayData.status === 'vacation') tr.classList.add('bg-yellow-50');
                 if(dayData.status === 'present') tr.classList.add('bg-green-50');
                 if(dayData.status === 'holiday') tr.classList.add('status-holiday');
 
-                // تجميد الحقول
                 const isViewer = userRole === 'viewer';
                 const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday');
                 const inputsDisabled = isInputsFrozen || isViewer ? 'disabled' : '';
                 const isDisabled = isViewer ? 'disabled' : '';
 
-                // أيقونة السحب
                 const dragIcon = userRole === 'admin' ? '<span class="drag-handle" title="اسحب لإعادة الترتيب">☰</span>' : '';
 
                 tr.innerHTML = `
@@ -1084,18 +1187,15 @@
             });
         };
 
-        // --- حفظ البيانات (Transactions) ---
         window.saveData = async function(empId, date, field, value) {
             if (userRole === 'viewer') return;
             const year = date.split('-')[0];
             const month = date.split('-')[1];
             
-            // تحديث محلي سريع (Optimistic UI)
             if (!currentMonthData[empId]) currentMonthData[empId] = {};
             if (!currentMonthData[empId][date]) currentMonthData[empId][date] = {};
             currentMonthData[empId][date][field] = value;
 
-            // منطق أوتوماتيكي
             const record = currentMonthData[empId][date];
             if (field === 'status') {
                 if (value === 'absent' || value === 'vacation') {
@@ -1106,9 +1206,7 @@
                 }
             }
 
-            const updatePath = `records.${empId}.${date}`;
             const updates = {};
-            // تحديث الحقول في المسار الصحيح
             updates[`records.${empId}.${date}.${field}`] = value;
             if (field === 'status' && (value === 'absent' || value === 'vacation')) {
                 updates[`records.${empId}.${date}.entry`] = '';
@@ -1120,7 +1218,6 @@
             if (field === 'status' && value === 'present') {
                 updates[`records.${empId}.${date}.breakDuration`] = '0.5';
             }
-            // إذا أدخل وقت دخول/خروج بدون حالة، حوّلها لحضور
             if ((field === 'entry' || field === 'exit') && value && !record.status) {
                 updates[`records.${empId}.${date}.status`] = 'present';
             }
@@ -1129,15 +1226,12 @@
                 const docRef = getMonthDoc(year, month);
                 await updateDoc(docRef, updates);
             } catch (e) {
-                // إذا الملف غير موجود (أول سجل في الشهر)، نستخدم setDoc مع merge
                 const docRef = getMonthDoc(year, month);
-                // يجب بناء الكائن الكامل لـ setDoc
                 const deepObj = { records: { [empId]: { [date]: record } } };
                 await setDoc(docRef, deepObj, { merge: true });
             }
         };
 
-        // --- إدارة الموظفين (CRUD) ---
         window.openAddEmployeeModal = function() {
             document.getElementById('empModalTitle').innerText = t('add_emp_title');
             document.getElementById('editEmployeeId').value = '';
@@ -1181,9 +1275,8 @@
 
             if (!name) return;
 
-            // تحديد الترتيب الجديد
             let newOrder = 9999;
-            if (!id) { // إذا كان موظف جديد
+            if (!id) {
                  const orders = Object.values(masterEmployees).map(e => e.order || 0);
                  const maxOrder = Math.max(...orders, 0);
                  newOrder = maxOrder + 1;
@@ -1191,11 +1284,9 @@
 
             const updates = {};
             if (id) {
-                // تعديل
                 updates[`list.${id}.name`] = name;
                 updates[`list.${id}.shift`] = shift;
             } else {
-                // إضافة جديد (Generate ID)
                 const newId = 'emp_' + Date.now();
                 updates[`list.${newId}`] = { name: name, shift: shift, order: newOrder };
             }
@@ -1203,7 +1294,6 @@
             try {
                 await updateDoc(EMPLOYEES_DOC, updates);
             } catch (e) {
-                // إذا الملف غير موجود
                 const deepObj = { list: {} };
                 const newId = id || 'emp_' + Date.now();
                 deepObj.list[newId] = { name: name, shift: shift, order: newOrder };
@@ -1219,19 +1309,15 @@
             await setDoc(EMPLOYEES_DOC, { list: newMap });
         };
 
-        // --- أدوات البيانات والنسخ الاحتياطي (Advanced Logic) ---
-        
-        // 1. استيراد الموظفين القدامى (محدث لجلب البيانات أيضاً)
         window.importLegacyEmployees = async function() {
             if(!confirm(t('msg_import_confirm'))) return;
             
             document.getElementById('loadingText').innerText = t('loading_importing');
             document.getElementById('loadingScreen').classList.remove('hidden');
 
-            const currentYear = new Date().getFullYear(); // 2026
+            const currentYear = new Date().getFullYear(); 
 
             try {
-                // 1. Fetch Legacy Data
                 const legacyDocRef = getLegacyYearDoc(currentYear);
                 const snap = await getDoc(legacyDocRef);
                 
@@ -1242,39 +1328,32 @@
                 }
 
                 const legacyData = snap.data();
-                const legacyEmployees = legacyData.employees || []; // ["Ahmed", "Ali"]
-                const legacyRecords = legacyData.records || {}; // { "Ahmed": { "2026-01-01": {...} } }
+                const legacyEmployees = legacyData.employees || [];
+                const legacyRecords = legacyData.records || {};
 
-                // 2. Map Legacy Names to New IDs
                 const nameToIdMap = {};
                 const empUpdates = {};
                 let newEmpCount = 0;
                 
-                // حساب أعلى ترتيب حالي
                 const orders = Object.values(masterEmployees).map(e => e.order || 0);
                 let currentMaxOrder = Math.max(...orders, 0);
 
-                // First, check existing master employees
-                // masterEmployees = { "emp_123": {name: "Ahmed", ...} }
                 Object.entries(masterEmployees).forEach(([id, data]) => {
                     nameToIdMap[data.name] = id;
                 });
 
-                // Create IDs for missing employees
                 legacyEmployees.forEach(name => {
                     if (!nameToIdMap[name]) {
                         const newId = 'emp_legacy_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
                         nameToIdMap[name] = newId;
                         currentMaxOrder++;
-                        empUpdates[`list.${newId}`] = { name: name, shift: 'shift_A', order: currentMaxOrder }; // Default to A
+                        empUpdates[`list.${newId}`] = { name: name, shift: 'shift_A', order: currentMaxOrder };
                         newEmpCount++;
                     }
                 });
 
-                // Save new employees if any
                 if (newEmpCount > 0) {
                      await updateDoc(EMPLOYEES_DOC, empUpdates).catch(async () => {
-                         // Fallback if doc doesn't exist
                          const deepObj = { list: {} };
                          Object.keys(empUpdates).forEach(k => {
                              const key = k.split('.')[1];
@@ -1282,24 +1361,20 @@
                          });
                          await setDoc(EMPLOYEES_DOC, deepObj, { merge: true });
                      });
-                     // Update local masterEmployees to include new ones immediately for this session
                      Object.keys(empUpdates).forEach(k => {
                          const id = k.split('.')[1];
                          masterEmployees[id] = empUpdates[k];
                      });
                 }
 
-                // 3. Process Records and Group by Month
-                // Structure: { "01": { records: { "empId": { "2026-01-01": ... } } }, "02": ... }
                 const monthlyUpdates = {}; 
 
                 Object.keys(legacyRecords).forEach(empName => {
                     const empId = nameToIdMap[empName];
-                    if (!empId) return; // Should not happen
+                    if (!empId) return;
 
                     const empDates = legacyRecords[empName];
                     Object.keys(empDates).forEach(date => {
-                        // date = "2026-01-01"
                         const [y, m, d] = date.split('-');
                         if (y != currentYear) return;
 
@@ -1310,21 +1385,17 @@
                     });
                 });
 
-                // 4. Write to Monthly Docs
                 const monthsToUpdate = Object.keys(monthlyUpdates);
                 let recordsCount = 0;
 
                 for (const m of monthsToUpdate) {
                     const monthDocRef = getMonthDoc(currentYear, m);
-                    // We use setDoc with merge: true to avoid overwriting existing V3 data if any
-                    // Structure to write: { records: { empId: { date: data } } }
                     await setDoc(monthDocRef, { records: monthlyUpdates[m] }, { merge: true });
-                    recordsCount += Object.keys(monthlyUpdates[m]).length; // Rough count of employees updated in that month
+                    recordsCount += Object.keys(monthlyUpdates[m]).length;
                 }
 
                 alert(t('msg_import_success'));
                 
-                // Refresh view
                 changeDate(); 
 
             } catch (e) {
@@ -1336,7 +1407,6 @@
             }
         };
 
-        // 2. تصدير نسخة احتياطية (JSON)
         window.exportBackup = async function() {
             document.getElementById('loadingText').innerText = t('loading_backup');
             document.getElementById('loadingScreen').classList.remove('hidden');
@@ -1348,7 +1418,6 @@
                 months: {}
             };
 
-            // Loop through months of current year
             const year = new Date().getFullYear();
             for (let m = 1; m <= 12; m++) {
                 const mm = String(m).padStart(2, '0');
@@ -1362,7 +1431,6 @@
 
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
             
-            // توليد اسم ملف مع التاريخ والوقت
             const now = new Date();
             const yyyy = now.getFullYear();
             const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -1381,7 +1449,6 @@
             document.getElementById('loadingScreen').classList.add('hidden');
         };
 
-        // 3. استعادة نسخة
         window.restoreBackup = function(input) {
             const file = input.files[0];
             if (!file) return;
@@ -1398,15 +1465,12 @@
                     document.getElementById('loadingText').innerText = t('loading_restoring');
                     document.getElementById('loadingScreen').classList.remove('hidden');
 
-                    // 1. استعادة الموظفين
                     await setDoc(EMPLOYEES_DOC, { list: data.employees });
 
-                    // 2. استعادة الشهور
-                    const batch = writeBatch(db); // استخدام Batch للكفاءة
+                    const batch = writeBatch(db);
                     let opCount = 0;
                     
                     for (const [key, monthData] of Object.entries(data.months)) {
-                        // key is YYYY_MM
                         const [y, m] = key.split('_');
                         const docRef = getMonthDoc(y, m);
                         batch.set(docRef, monthData);
@@ -1426,7 +1490,6 @@
             reader.readAsText(file);
         };
 
-        // --- دوال مساعدة ---
         window.toggleModal = function(id, show) {
             const el = document.getElementById(id);
             if(show) { 
@@ -1452,21 +1515,18 @@
                     val = val.substring(0, 2) + ":" + val.substring(2);
                 }
             }
-            // Validate time format HH:MM
             if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(val)) {
                 input.value = val;
                 saveData(empId, dateStr, field, val);
             }
         };
 
-        // وظيفة مساعدة لضبط السنة في التقارير
         window.adjustRepYear = function(delta) {
             const input = document.getElementById('repYearInput');
             let val = parseInt(input.value) || new Date().getFullYear();
             input.value = val + delta;
         };
 
-        // --- التقارير (محدثة لدعم IDs) ---
         window.openReportModal = function() {
             const today = new Date();
             document.getElementById('repYearInput').value = today.getFullYear();
@@ -1485,10 +1545,8 @@
             
             tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4"><div class="loader mx-auto"></div></td></tr>';
             
-            // جلب البيانات المطلوبة
-            let reportData = {}; // { empId: { present: 0, ... } }
+            let reportData = {};
             
-            // تهيئة بيانات الموظفين
             Object.keys(masterEmployees).forEach(id => {
                 reportData[id] = { 
                     name: masterEmployees[id].name, 
@@ -1498,7 +1556,6 @@
                 };
             });
 
-            // تحديد الأشهر المطلوب جلبها
             let monthsToFetch = [];
             if (type === 'monthly') {
                 monthsToFetch.push(month);
@@ -1506,15 +1563,13 @@
                 monthsToFetch = ['01','02','03','04','05','06','07','08','09','10','11','12'];
             }
 
-            // جلب البيانات ومعالجتها
             for (const m of monthsToFetch) {
-                // ملاحظة: هذا قد يكون بطيئاً للتقرير السنوي، في النسخة الاحترافية يمكن استخدام التجميع (Aggregation)
                 try {
                     const snap = await getDoc(getMonthDoc(year, m));
                     if (snap.exists()) {
                         const records = snap.data().records || {};
                         Object.keys(records).forEach(empId => {
-                            if (!reportData[empId]) return; // تجاهل الموظفين المحذوفين من القائمة الرئيسية
+                            if (!reportData[empId]) return;
                             const days = records[empId];
                             Object.values(days).forEach(day => {
                                 if (day.status === 'present') reportData[empId].present++;
@@ -1522,25 +1577,22 @@
                                 if (day.status === 'vacation') reportData[empId].vacation++;
                                 if (day.status === 'holiday') reportData[empId].holiday++;
                                 reportData[empId].overtime += parseFloat(day.overtime) || 0;
-                                reportData[empId].delay += parseFloat(day.shortage) || 0; // القيم مخزنة بالسالب للتأخير، نجمعها كما هي أو نعكسها للعرض
+                                reportData[empId].delay += parseFloat(day.shortage) || 0;
                             });
                         });
                     }
                 } catch(e) {}
             }
 
-            // عرض النتائج
             tbody.innerHTML = '';
             document.getElementById('reportTitleDisplay').innerText = 
                 type === 'monthly' ? `${t('monthly_report')} (${year}-${month})` : `${t('annual_report')} (${year})`;
 
-            // فرز البيانات قبل العرض بناءً على الترتيب والاسم
             const sortedReportData = Object.values(reportData).sort((a, b) => {
                 return (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name);
             });
 
             sortedReportData.forEach(d => {
-                // تصفية حسب الوردية للمديرين (محدثة لتشمل اختيار المدير العام للقائمة المنسدلة)
                 if (userRole === 'shift_b_manager' && d.shift !== 'shift_B') return;
                 if ((userRole === 'admin' || userRole === 'viewer') && currentSelectedShift !== 'all' && d.shift !== currentSelectedShift) return;
 
@@ -1559,7 +1611,6 @@
         };
 
         window.exportReportToCSV = function() {
-            // بسيطة: نعتمد على الجدول الموجود حالياً في DOM
             const rows = document.querySelectorAll('#reportTableBody tr');
             if (rows.length === 0) return;
             
@@ -1627,16 +1678,13 @@
                     <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 px-3 py-1 rounded">×</button>
                 </div>
             `;
-            // إضافة خاصية التمرير التلقائي للبطاقة
             statsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
-        // مفتاح الدخول بالضغط على Enter
         document.getElementById('accessCode').addEventListener('keypress', (e) => {
             if(e.key === 'Enter') window.checkLogin();
         });
 
-        // Initialize language
         changeLanguage(currentLang);
 
     </script>

@@ -539,6 +539,31 @@
         }
         initAuth();
 
+        // --- مراقبة حالة الاتصال ---
+        function updateOnlineStatus() {
+            const isOnline = navigator.onLine;
+            const dot = document.getElementById('connectionDot');
+            const text = document.getElementById('connectionText');
+            
+            if (isOnline) {
+                dot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
+                text.className = "text-green-600 text-xs font-bold";
+                text.innerText = t('status_online');
+                text.setAttribute('data-i18n', 'status_online');
+            } else {
+                dot.className = "w-2 h-2 rounded-full bg-red-500";
+                text.className = "text-red-600 text-xs font-bold";
+                text.innerText = t('status_offline');
+                text.setAttribute('data-i18n', 'status_offline');
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Initial check
+        updateOnlineStatus();
+
         // --- تسجيل الدخول ---
         window.checkLogin = function() {
             const code = document.getElementById('accessCode').value;

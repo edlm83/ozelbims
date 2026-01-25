@@ -26,14 +26,10 @@
         
         /* تنسيقات الإدخال */
         td input, td select { text-align: center !important; text-align-last: center !important; }
-        /* إخفاء الأسهم في الجدول */
-        td input[type=number]::-webkit-inner-spin-button, 
-        td input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        td input[type=number] { -moz-appearance: textfield; }
-
-        /* إظهار الأسهم في خانة السنة في التقارير (احتياط) */
-        #repYearInput::-webkit-inner-spin-button, 
-        #repYearInput::-webkit-outer-spin-button { -webkit-appearance: inner-spin-button !important; opacity: 1 !important; }
+        /* إخفاء الأسهم في الجدول وفي حقل السنة لتوحيد الشكل */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
         
         /* وضع القراءة */
         input:disabled, select:disabled { 
@@ -368,11 +364,17 @@
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col">
                         <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
-                         <!-- تم استبدال حقل الإدخال العادي بأزرار تحكم + و - لسهولة الاستخدام على الموبايل -->
-                        <div class="flex items-center">
-                            <button onclick="adjustRepYear(1)" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 rounded-r-md transition">+</button>
-                            <input type="number" id="repYearInput" class="p-2 border-y w-16 text-center font-bold outline-none border-gray-200" style="border-radius: 0;">
-                            <button onclick="adjustRepYear(-1)" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 rounded-l-md transition">-</button>
+                        <!-- تم إضافة حاوية نسبية للحقل لإضافة أسهم مخصصة تظهر في الموبايل والكمبيوتر بشكل موحد -->
+                        <div class="relative flex items-center">
+                            <input type="number" id="repYearInput" class="p-2 pl-6 border rounded w-24 text-center font-bold" style="-moz-appearance: textfield;">
+                            <div class="absolute left-0 inset-y-0 flex flex-col border-r w-6 rounded-l overflow-hidden">
+                                <button onclick="adjustRepYear(1)" class="h-1/2 hover:bg-gray-100 text-gray-600 flex items-center justify-center border-b border-gray-200 transition-colors bg-gray-50">
+                                    <i class="fa-solid fa-caret-up text-[10px]"></i>
+                                </button>
+                                <button onclick="adjustRepYear(-1)" class="h-1/2 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors bg-gray-50">
+                                    <i class="fa-solid fa-caret-down text-[10px]"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="flex flex-col">

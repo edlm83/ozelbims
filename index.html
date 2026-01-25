@@ -282,11 +282,8 @@
             <input type="password" id="accessCode" class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4" data-i18n="login_btn">دخول</button>
             
-            <div class="text-xs text-gray-400 bg-gray-50 p-3 rounded border text-start space-y-2">
-                <p data-i18n="role_admin">المدير العام: 56401</p>
-                <p data-i18n="role_shift_b_man">مدير الوردية B فقط: 2222</p>
-                <p data-i18n="role_accountant">المحاسب: 3838</p>
-            </div>
+            <!-- تم حذف قائمة كلمات المرور من هنا لزيادة الأمان -->
+            
             <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="wrong_code">رمز خاطئ</p>
         </div>
 
@@ -721,6 +718,20 @@
         }
         initAuth();
 
+        // --- نظام التشفير (Hashing) ---
+        // دالة مساعدة لتحويل النص إلى بصمة SHA-256
+        async function sha256(message) {
+            // تشفير النص إلى بايتات
+            const msgBuffer = new TextEncoder().encode(message);
+            // حساب البصمة (Hash)
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            // تحويل البايتات إلى مصفوفة
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            // تحويل المصفوفة إلى نص سداسي عشري (Hex)
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
         // --- مراقبة حالة الاتصال ---
         function updateOnlineStatus() {
             const isOnline = navigator.onLine;
@@ -747,26 +758,38 @@
         updateOnlineStatus();
 
         // --- تسجيل الدخول ---
-        window.checkLogin = function() {
+        window.checkLogin = async function() {
             const code = document.getElementById('accessCode').value;
             const errorMsg = document.getElementById('loginError');
             
+            // حساب البصمة للكود المدخل
+            const hashedCode = await sha256(code);
+            
+            // --- البصمات المشفرة ---
+            // 56401 = c4a23934ebf78c703d11dae9ecb3bef502d930d585f53a2547d87e5099887729 (Admin)
+            const HASH_ADMIN = "c4a23934ebf78c703d11dae9ecb3bef502d930d585f53a2547d87e5099887729"; 
+            // 2222 = edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9 (Shift B)
+            const HASH_SHIFT_B = "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9";
+            // 3838 = d9cf8835e2a75f03b59e0371aacb3cdf2b71e0a471dc478742987f366cabeccc (Viewer/Accountant)
+            const HASH_VIEWER = "d9cf8835e2a75f03b59e0371aacb3cdf2b71e0a471dc478742987f366cabeccc";
+
             // إعادة تعيين الواجهة
             document.getElementById('shiftSelectorContainer').classList.add('hidden');
             document.getElementById('dataBtn').classList.add('hidden');
             document.getElementById('shiftBadge').classList.add('hidden');
             
-            if (code === '56401') {
+            // التحقق (بالمقارنة مع البصمة فقط)
+            if (hashedCode === HASH_ADMIN) {
                 userRole = 'admin';
                 currentUserShift = 'all';
                 document.getElementById('shiftSelectorContainer').classList.remove('hidden'); // يرى قائمة الورديات
                 document.getElementById('dataBtn').classList.remove('hidden'); // يرى زر البيانات
-            } else if (code === '2222') {
+            } else if (hashedCode === HASH_SHIFT_B) {
                 userRole = 'shift_b_manager';
                 currentUserShift = 'shift_B';
                 document.getElementById('shiftBadge').classList.remove('hidden');
                 document.getElementById('shiftBadge').innerText = t('badge_shift_b'); // استخدام الترجمة
-            } else if (code === '3838') {
+            } else if (hashedCode === HASH_VIEWER) {
                 userRole = 'viewer';
                 currentUserShift = 'all';
                 setupViewerUI();

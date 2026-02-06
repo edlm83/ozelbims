@@ -1,20 +1,41 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloud Shift Register V3</title>
+    <title>Cloud Shift Register V3.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#111827',
+                            card: '#1f2937',
+                            text: '#f3f4f6',
+                            border: '#374151',
+                            input: '#374151'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Tajawal', sans-serif; transition: background-color 0.3s, color 0.3s; }
         
         /* --- تنسيقات الجدول --- */
         .table-container { overflow-x: auto; max-height: 70vh; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         thead th { position: sticky; top: 0; z-index: 10; background-color: #1e3a8a; color: white; }
         
+        /* Dark Mode Table Header */
+        .dark thead th { background-color: #111827; border-bottom: 1px solid #374151; }
+
         .select-none { user-select: none; -webkit-user-select: none; }
 
         /* ألوان الحالات */
@@ -23,10 +44,16 @@
         .status-vacation { background-color: #fef3c7; color: #92400e; }
         .status-holiday { background-color: #f3e8ff; color: #6b21a8; }
         .status-sunday { background-color: #cffafe; color: #0891b2; }
+
+        /* Dark Mode Status Overrides */
+        .dark .status-present { background-color: #064e3b; color: #ecfccb; }
+        .dark .status-absent { background-color: #7f1d1d; color: #fecaca; }
+        .dark .status-vacation { background-color: #78350f; color: #fef3c7; }
+        .dark .status-holiday { background-color: #581c87; color: #e9d5ff; }
+        .dark .status-sunday { background-color: #164e63; color: #cffafe; }
         
         /* تنسيقات الإدخال */
         td input, td select { text-align: center !important; text-align-last: center !important; }
-        /* إخفاء الأسهم في الجدول وفي حقل السنة لتوحيد الشكل */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -35,6 +62,9 @@
         input:disabled, select:disabled { 
             background-color: #f8fafc; cursor: default; color: #000000 !important; 
             border-color: #cbd5e1; opacity: 1 !important; -webkit-text-fill-color: #000000 !important; font-weight: 700; 
+        }
+        .dark input:disabled, .dark select:disabled {
+            background-color: #374151; color: #d1d5db !important; -webkit-text-fill-color: #d1d5db !important; border-color: #4b5563;
         }
         select:disabled { appearance: none; background-image: none !important; }
         
@@ -51,6 +81,7 @@
         /* السحب والإفلات */
         .draggable-row { cursor: grab; }
         .draggable-row.dragging { opacity: 0.5; background-color: #e0f2fe; }
+        .dark .draggable-row.dragging { background-color: #1e3a8a; }
         .drag-handle { cursor: grab; color: #9ca3af; font-size: 1.2rem; margin-left: 0.5rem; }
         .drag-handle:hover { color: #2563eb; }
         .drag-over { border-top: 2px solid #2563eb; }
@@ -71,7 +102,7 @@
         .lang-active {
             filter: grayscale(0%) !important;
             opacity: 1 !important;
-            border-color: #22c55e !important; /* Green-500 */
+            border-color: #22c55e !important;
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
             animation: pulse-green 2s infinite;
             transform: scale(1.1) !important;
@@ -92,8 +123,8 @@
             justify-content: center;
             gap: 15px;
             padding: 12px 28px;
-            background: rgba(255, 255, 255, 0.05); /* شفافية عالية */
-            border-radius: 50px; /* كبسولة كاملة */
+            background: rgba(255, 255, 255, 0.05); /* Default Dark Mode Glass */
+            border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -102,7 +133,7 @@
             position: relative;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
-            cursor: default; /* النص غير قابل للنقر */
+            cursor: default;
             direction: ltr;
         }
 
@@ -135,7 +166,7 @@
 
         .mega-icon-card i {
             font-size: 1.5rem;
-            color: #60a5fa; /* الأزرق */
+            color: #60a5fa; /* Blue in Dark Mode */
             transition: transform 0.3s ease;
         }
 
@@ -150,7 +181,7 @@
         }
 
         .fb-icon-link {
-            color: #60a5fa; /* الأزرق */
+            color: #60a5fa;
             font-size: 1.6rem;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -159,11 +190,12 @@
         }
 
         .fb-icon-link:hover {
-            color: #1877F2; /* فيسبوك الأصلي */
+            color: #1877F2;
             transform: scale(1.2) rotate(10deg);
             filter: drop-shadow(0 0 8px rgba(24, 119, 242, 0.6));
         }
 
+        /* Light Mode Overrides for Mega Card */
         .mega-icon-card.light-mode {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 242, 245, 0.4));
             border: 1px solid rgba(255, 255, 255, 0.9);
@@ -178,7 +210,7 @@
         }
         
         .mega-icon-card.light-mode span {
-            color: #475569; /* لون رمادي مزرق أنيق */
+            color: #475569;
             text-shadow: none;
             font-weight: 800;
         }
@@ -201,6 +233,12 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+        /* Custom Scrollbar for dark mode */
+        .dark ::-webkit-scrollbar { width: 8px; height: 8px; }
+        .dark ::-webkit-scrollbar-track { background: #1f2937; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
         @media (max-width: 768px) {
             .table-container, .overflow-auto { background: transparent; box-shadow: none; overflow: visible !important; max-height: none !important; border: none; }
             #monthlyReportOverlay .overflow-auto { overflow-y: auto !important; -webkit-overflow-scrolling: touch; max-height: 70vh !important; }
@@ -208,8 +246,10 @@
             thead { display: none; }
             
             tr { background: white; margin-bottom: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); padding: 0; border: 1px solid #e5e7eb; overflow: hidden; }
+            .dark tr { background: #1f2937; border-color: #374151; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
             
             td { padding: 0.8rem 1.2rem; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between; align-items: center; text-align: start; min-height: 50px; }
+            .dark td { border-bottom-color: #374151; color: #f3f4f6; }
             td:last-child { border-bottom: none; }
             
             td::before { 
@@ -220,13 +260,18 @@
                 flex-basis: 40%; 
                 text-align: start; 
             }
+            .dark td::before { color: #9ca3af; }
             
             td[data-label-type="name"] { background: linear-gradient(to left, #eff6ff, #ffffff); padding: 1rem; justify-content: center; color: #1e40af; font-size: 1.1rem; font-weight: 800; border-bottom: 2px solid #dbeafe; border-top: 4px solid #3b82f6; }
+            .dark td[data-label-type="name"] { background: linear-gradient(to left, #1e3a8a, #1f2937); color: #93c5fd; border-bottom-color: #1e40af; border-top-color: #60a5fa; }
             td[data-label-type="name"]::before { display: none; } 
             
             td[data-label-type="index"] { display: none; }
             td input, td select { width: 55% !important; max-width: none !important; padding: 0.6rem; background-color: #fff; }
+            .dark td input, .dark td select { background-color: #374151; color: white; border-color: #4b5563; }
+            
             td.delete-col { background: #fef2f2; justify-content: center; padding: 0.8rem; }
+            .dark td.delete-col { background: #450a0a; }
             td.delete-col button { width: 100%; color: #ef4444; font-weight: bold; }
             td.delete-col::before { display: none; }
 
@@ -234,10 +279,14 @@
             #reportTableBody td[data-label*="الغياب"]::before, #reportTableBody td[data-label*="Absent"]::before { color: #b91c1c; } 
             #reportTableBody td[data-label*="الإجازة"]::before, #reportTableBody td[data-label*="Vacation"]::before { color: #a16207; } 
             #reportTableBody td[data-label*="التأخير"]::before, #reportTableBody td[data-label*="Delay"]::before { color: #dc2626; } 
+            
+            /* Dark mode report labels */
+            .dark #reportTableBody td[data-label*="الحضور"]::before { color: #4ade80; }
+            .dark #reportTableBody td[data-label*="الغياب"]::before { color: #f87171; }
         }
     </style>
 </head>
-<body class="p-4 md:p-6 text-gray-800 transition-all duration-300">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-4 md:p-6 transition-colors duration-300">
 
     <div id="loadingScreen" class="overlay hidden" style="z-index: 60; background: rgba(255,255,255,0.9);">
         <div class="flex flex-col items-center">
@@ -245,27 +294,30 @@
             <p class="text-blue-900 font-bold" id="loadingText" data-i18n="loading_processing">جاري معالجة البيانات...</p>
         </div>
     </div>
+    <!-- Dark Mode Loading Override via JS or specific CSS needed if overlay is solid white. 
+         Inline style handles it, but for dark mode we might want dark overlay.
+         Let's rely on the simple overlay for now or adjust dynamically. -->
 
-    <div id="loginOverlay" class="overlay flex-col gap-10">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative">
+    <div id="loginOverlay" class="overlay flex-col gap-10 bg-gray-900">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative border border-gray-200 dark:border-gray-700">
             <div class="flex justify-center gap-4 mb-6">
-                <button id="btn-tr" onclick="changeLanguage('tr')" class="lang-btn w-10 h-10 rounded-full bg-white p-0.5 overflow-hidden" title="Türkçe">
+                <button id="btn-tr" onclick="changeLanguage('tr')" class="lang-btn w-10 h-10 rounded-full bg-white dark:bg-gray-700 p-0.5 overflow-hidden" title="Türkçe">
                     <img src="https://flagcdn.com/w80/tr.png" class="w-full h-full object-cover rounded-full">
                 </button>
-                <button id="btn-ar" onclick="changeLanguage('ar')" class="lang-btn lang-active w-10 h-10 rounded-full bg-white p-0.5 overflow-hidden" title="العربية">
+                <button id="btn-ar" onclick="changeLanguage('ar')" class="lang-btn lang-active w-10 h-10 rounded-full bg-white dark:bg-gray-700 p-0.5 overflow-hidden" title="العربية">
                     <img src="https://flagcdn.com/w80/sy.png" class="w-full h-full object-cover rounded-full">
                 </button>
             </div>
 
-            <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 mb-6 text-sm">Cloud Shift Register <span class="text-xs bg-blue-100 text-blue-800 px-1 rounded">V3</span></p>
-            <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Code">
-            <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4" data-i18n="login_btn">دخول</button>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Cloud Shift Register <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.1</span></p>
+            <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
+            <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
             <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="wrong_code">رمز خاطئ</p>
         </div>
 
-        <div class="mega-icon-card" data-aos="zoom-in">
+        <div id="devCardLogin" class="mega-icon-card" data-aos="zoom-in">
             <span>Developed by EMAD ALLAHAM</span>
             <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="fb-icon-link" title="Visit Facebook Page">
                 <i class="fa-brands fa-facebook"></i>
@@ -274,14 +326,14 @@
     </div>
 
     <div id="addEmployeeOverlay" class="modal-overlay hidden">
-        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
-            <h3 class="text-xl font-bold text-gray-800 mb-4" id="empModalTitle" data-i18n="add_emp_title">إضافة موظف</h3>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border dark:border-gray-700">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4" id="empModalTitle" data-i18n="add_emp_title">إضافة موظف</h3>
             <input type="hidden" id="editEmployeeId">
-            <input type="text" id="newEmployeeName" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="الاسم الثلاثي" data-i18n-ph="ph_employee_name">
+            <input type="text" id="newEmployeeName" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="الاسم الثلاثي" data-i18n-ph="ph_employee_name">
             
             <div class="mb-4">
-                <label class="text-xs font-bold text-gray-500 mb-1 block" data-i18n="lbl_shift">الوردية</label>
-                <select id="newEmployeeShift" class="w-full p-2 border border-gray-300 rounded-lg">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block" data-i18n="lbl_shift">الوردية</label>
+                <select id="newEmployeeShift" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
                     <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
                     <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
                 </select>
@@ -289,20 +341,20 @@
 
             <div class="flex gap-2">
                 <button onclick="saveEmployeeToMasterList()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition" data-i18n="save">حفظ</button>
-                <button onclick="toggleModal('addEmployeeOverlay', false)" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg transition" data-i18n="cancel">إلغاء</button>
+                <button onclick="toggleModal('addEmployeeOverlay', false)" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold py-2 rounded-lg transition" data-i18n="cancel">إلغاء</button>
             </div>
         </div>
     </div>
 
     <div id="dataManagerOverlay" class="modal-overlay hidden">
-        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
-            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-md w-full border dark:border-gray-700">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <span>💾</span> <span data-i18n="data_management">إدارة البيانات</span>
             </h3>
             
-            <div class="mb-6 bg-orange-50 p-3 rounded border border-orange-200">
-                <h4 class="font-bold text-orange-800 text-sm mb-2" data-i18n="legacy_import_title">📥 الانتقال من النظام القديم (V2)</h4>
-                <p class="text-xs text-orange-600 mb-3" data-i18n="legacy_import_desc">اضغط هنا فقط إذا كنت تريد جلب الموظفين وبيانات الحضور من ملفات السنة الماضية.</p>
+            <div class="mb-6 bg-orange-50 dark:bg-orange-900/30 p-3 rounded border border-orange-200 dark:border-orange-800">
+                <h4 class="font-bold text-orange-800 dark:text-orange-300 text-sm mb-2" data-i18n="legacy_import_title">📥 الانتقال من النظام القديم (V2)</h4>
+                <p class="text-xs text-orange-600 dark:text-orange-400 mb-3" data-i18n="legacy_import_desc">اضغط هنا فقط إذا كنت تريد جلب الموظفين وبيانات الحضور من ملفات السنة الماضية.</p>
                 <button onclick="importLegacyEmployees()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded text-sm shadow" data-i18n="btn_import_legacy">استيراد الموظفين والسجلات</button>
             </div>
 
@@ -319,35 +371,35 @@
                 </div>
             </div>
 
-            <button onclick="toggleModal('dataManagerOverlay', false)" class="w-full mt-4 text-gray-500 hover:bg-gray-100 py-2 rounded" data-i18n="close">إغلاق</button>
+            <button onclick="toggleModal('dataManagerOverlay', false)" class="w-full mt-4 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 py-2 rounded" data-i18n="close">إغلاق</button>
         </div>
     </div>
 
     <div id="monthlyReportOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] md:h-[90vh]">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-xl font-bold text-gray-800" data-i18n="reports_title">التقارير</h3>
-                <button onclick="toggleModal('monthlyReportOverlay', false)" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[90vh] md:h-[90vh] border dark:border-gray-700">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="reports_title">التقارير</h3>
+                <button onclick="toggleModal('monthlyReportOverlay', false)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
             </div>
-            <div class="flex flex-wrap gap-3 p-4 bg-gray-50 border-b items-center">
+            <div class="flex flex-wrap gap-3 p-4 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 items-center">
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col">
-                        <label class="text-xs font-bold text-gray-500" data-i18n="lbl_year">السنة</label>
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400" data-i18n="lbl_year">السنة</label>
                         <div class="relative flex items-center">
-                            <input type="number" id="repYearInput" class="p-2 pl-6 border rounded w-24 text-center font-bold" style="-moz-appearance: textfield;">
-                            <div class="absolute left-0 inset-y-0 flex flex-col border-r w-6 rounded-l overflow-hidden">
-                                <button onclick="adjustRepYear(1)" class="h-1/2 hover:bg-gray-100 text-gray-600 flex items-center justify-center border-b border-gray-200 transition-colors bg-gray-50">
+                            <input type="number" id="repYearInput" class="p-2 pl-6 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded w-24 text-center font-bold" style="-moz-appearance: textfield;">
+                            <div class="absolute left-0 inset-y-0 flex flex-col border-r dark:border-r-gray-600 w-6 rounded-l overflow-hidden">
+                                <button onclick="adjustRepYear(1)" class="h-1/2 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center border-b border-gray-200 dark:border-gray-600 transition-colors bg-gray-50 dark:bg-gray-700">
                                     <i class="fa-solid fa-caret-up text-[10px]"></i>
                                 </button>
-                                <button onclick="adjustRepYear(-1)" class="h-1/2 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors bg-gray-50">
+                                <button onclick="adjustRepYear(-1)" class="h-1/2 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center transition-colors bg-gray-50 dark:bg-gray-700">
                                     <i class="fa-solid fa-caret-down text-[10px]"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <label class="text-xs font-bold text-gray-500" data-i18n="lbl_month">الشهر</label>
-                        <select id="repMonthSelect" onchange="generateReport('monthly')" class="p-2 border rounded w-28 font-bold cursor-pointer">
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400" data-i18n="lbl_month">الشهر</label>
+                        <select id="repMonthSelect" onchange="generateReport('monthly')" class="p-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded w-28 font-bold cursor-pointer">
                             <option value="01">01</option> <option value="02">02</option> <option value="03">03</option>
                             <option value="04">04</option> <option value="05">05</option> <option value="06">06</option>
                             <option value="07">07</option> <option value="08">08</option> <option value="09">09</option>
@@ -361,61 +413,86 @@
                     <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-3 py-2 rounded text-xs md:text-sm font-bold hover:bg-green-700" data-i18n="export_excel">Excel</button>
                 </div>
             </div>
-            <div id="reportTitleDisplay" class="text-center font-bold text-lg text-blue-900 py-2 border-b bg-blue-50/50"></div>
-            <div class="flex-1 overflow-auto p-2 relative bg-gray-50">
-                <table class="w-full text-start text-sm border-collapse bg-white shadow-sm rounded-lg">
-                    <thead class="bg-blue-100 text-gray-800 sticky top-0 z-10 shadow-sm">
+            <div id="reportTitleDisplay" class="text-center font-bold text-lg text-blue-900 dark:text-blue-300 py-2 border-b dark:border-gray-700 bg-blue-50/50 dark:bg-blue-900/20"></div>
+            <div class="flex-1 overflow-auto p-2 relative bg-gray-50 dark:bg-gray-900/50">
+                <table class="w-full text-start text-sm border-collapse bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                    <thead class="bg-blue-100 dark:bg-gray-700 text-gray-800 dark:text-white sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th class="p-3 border border-gray-200 text-start" data-i18n="th_name">الموظف</th>
-                            <th class="p-3 border border-gray-200 text-center" data-i18n="th_present">أيام الحضور</th>
-                            <th class="p-3 border border-gray-200 text-center" data-i18n="th_absent">أيام الغياب</th>
-                            <th class="p-3 border border-gray-200 text-center" data-i18n="th_vacation">أيام الإجازة</th>
-                            <th class="p-3 border border-gray-200 text-center text-purple-700" data-i18n="th_holiday">رسمية</th>
-                            <th class="p-3 border border-gray-200 text-center text-cyan-700" data-i18n="th_sunday">الأحد</th>
-                            <th class="p-3 border border-gray-200 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
-                            <th class="p-3 border border-gray-200 text-center text-red-600" data-i18n="th_total_delay">إجمالي التأخير</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-start" data-i18n="th_name">الموظف</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_present">أيام الحضور</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_absent">أيام الغياب</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_vacation">أيام الإجازة</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center text-purple-700 dark:text-purple-300" data-i18n="th_holiday">رسمية</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center text-cyan-700 dark:text-cyan-300" data-i18n="th_sunday">الأحد</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_total_overtime">إجمالي الإضافي</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center text-red-600 dark:text-red-400" data-i18n="th_total_delay">إجمالي التأخير</th>
                         </tr>
                     </thead>
-                    <tbody id="reportTableBody"></tbody>
+                    <tbody id="reportTableBody" class="dark:text-gray-300"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="appContainer" class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-4 md:p-6 hidden h-full md:h-auto min-h-screen md:min-h-0 flex flex-col">
+    <div id="appContainer" class="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6 hidden h-full md:h-auto min-h-screen md:min-h-0 flex flex-col border dark:border-gray-700">
         
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b dark:border-gray-700 pb-4 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
                     <span data-i18n="app_title">سجل الورديات</span>
-                    <span id="shiftBadge" class="hidden text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full" data-i18n="badge_shift_b">الوردية B</span>
+                    <span id="shiftBadge" class="hidden text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-full" data-i18n="badge_shift_b">الوردية B</span>
                 </h1>
                 <div class="flex items-center gap-2 mt-1">
                     <span id="connectionDot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <p id="connectionText" class="text-green-600 text-xs font-bold" data-i18n="status_online">متصل وجاهز للعمل</p>
+                    <p id="connectionText" class="text-green-600 dark:text-green-400 text-xs font-bold" data-i18n="status_online">متصل وجاهز للعمل</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                 <button id="dataBtn" onclick="toggleModal('dataManagerOverlay', true)" class="hidden bg-gray-700 hover:bg-gray-800 text-white px-3 py-2 rounded shadow flex items-center gap-2 transition text-sm">
+                 <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition shadow-sm">
+                    <i id="darkModeIcon" class="fa-solid fa-moon"></i>
+                </button>
+
+                 <button id="dataBtn" onclick="toggleModal('dataManagerOverlay', true)" class="hidden bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 text-white px-3 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                     <span>💾</span> <span class="hidden md:inline" data-i18n="data_btn">بيانات</span>
                 </button>
                  <button onclick="openReportModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                     <span data-i18n="reports_title">التقارير</span>
                 </button>
-                <button onclick="logout()" class="text-gray-500 hover:text-red-600 text-sm underline px-2" data-i18n="logout">خروج</button>
+                <button onclick="logout()" class="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 text-sm underline px-2" data-i18n="logout">خروج</button>
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 gap-4 bg-blue-50 p-4 rounded-lg border border-blue-100">
+        <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 gap-4 bg-blue-50 dark:bg-gray-900 p-4 rounded-lg border border-blue-100 dark:border-gray-700">
             <div class="flex flex-wrap gap-4 items-end w-full md:w-auto">
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold text-blue-800" data-i18n="shift_date">تاريخ الوردية:</label>
-                    <input type="date" id="currentDateInput" onchange="changeDate()" class="p-2 border border-blue-300 rounded-lg text-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="text-xs font-bold text-blue-800 dark:text-blue-300" data-i18n="shift_date">تاريخ الوردية:</label>
+                    <div class="relative flex items-center">
+                        <input type="date" id="currentDateInput" onchange="changeDate()" class="p-2 pl-8 border border-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
+                         <!-- Up/Down arrows for date -->
+                        <div class="absolute left-0 inset-y-0 flex flex-col border-r dark:border-r-gray-600 w-6 rounded-l overflow-hidden">
+                            <button onclick="adjustDate(1)" class="h-1/2 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center border-b border-gray-300 dark:border-gray-600 transition-colors bg-white dark:bg-gray-700">
+                                <i class="fa-solid fa-caret-up text-[10px]"></i>
+                            </button>
+                            <button onclick="adjustDate(-1)" class="h-1/2 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center transition-colors bg-white dark:bg-gray-700">
+                                <i class="fa-solid fa-caret-down text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="shiftSelectorContainer" class="flex flex-col gap-1 hidden">
-                    <label class="text-xs font-bold text-blue-800" data-i18n="lbl_shift">الوردية:</label>
-                    <select id="shiftFilter" onchange="applyShiftFilter()" class="p-2 border border-blue-300 rounded-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <label class="text-xs font-bold text-blue-800 dark:text-blue-300" data-i18n="lbl_shift">الوردية (تصفية):</label>
+                    <select id="shiftFilter" onchange="applyShiftFilter()" class="p-2 border border-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="all" data-i18n="val_all_shifts">الكل</option>
+                        <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
+                        <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
+                    </select>
+                </div>
+
+                <!-- NEW: Admin Viewer Control -->
+                <div id="adminViewerControl" class="flex flex-col gap-1 hidden">
+                    <label class="text-xs font-bold text-purple-800 dark:text-purple-300" data-i18n="lbl_viewer_control">عرض المحاسب:</label>
+                    <select id="viewerPermission" onchange="updateViewerPermission(this.value)" class="p-2 border border-purple-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg font-bold text-purple-700 outline-none focus:ring-2 focus:ring-purple-500 bg-white">
                         <option value="all" data-i18n="val_all_shifts">الكل</option>
                         <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
                         <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
@@ -425,18 +502,18 @@
                 <div id="bulkControls" class="flex flex-wrap gap-2 items-end hidden">
                     <div class="flex flex-col items-center">
                         <button onclick="applyBulkAction('entry')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_entry">دخول جماعي</button>
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="bulkEntryInput" placeholder="--:--" class="p-1 border border-green-300 rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-green-500 outline-none" onchange="validateBulkInput(this)">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="bulkEntryInput" placeholder="--:--" class="p-1 border border-green-300 dark:border-green-800 dark:bg-gray-700 dark:text-white rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-green-500 outline-none" onchange="validateBulkInput(this)">
                     </div>
                     <div class="flex flex-col items-center">
                         <button onclick="applyBulkAction('exit')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_exit">خروج جماعي</button>
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="bulkExitInput" placeholder="--:--" class="p-1 border border-blue-300 rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none" onchange="validateBulkInput(this)">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="bulkExitInput" placeholder="--:--" class="p-1 border border-blue-300 dark:border-blue-800 dark:bg-gray-700 dark:text-white rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none" onchange="validateBulkInput(this)">
                     </div>
                 </div>
             </div>
 
             <div id="dayInfo" class="text-center hidden md:block">
-                <span id="dayNameDisplay" class="text-xl font-bold text-blue-900 block">--</span>
-                <span id="dateDisplay" class="text-sm text-blue-600">--</span>
+                <span id="dayNameDisplay" class="text-xl font-bold text-blue-900 dark:text-blue-300 block">--</span>
+                <span id="dateDisplay" class="text-sm text-blue-600 dark:text-blue-400">--</span>
             </div>
 
             <div id="adminControls" class="flex gap-2">
@@ -446,9 +523,9 @@
             </div>
         </div>
 
-        <div id="employeeStatsCard" class="hidden mb-4 bg-white border-r-4 ltr:border-r-0 ltr:border-l-4 border-indigo-500 shadow-lg p-5 rounded-lg fade-in-down border border-gray-100"></div>
+        <div id="employeeStatsCard" class="hidden mb-4 bg-white dark:bg-gray-700 border-r-4 ltr:border-r-0 ltr:border-l-4 border-indigo-500 shadow-lg p-5 rounded-lg fade-in-down border border-gray-100 dark:border-gray-600"></div>
 
-        <div class="table-container border bg-white relative flex-grow">
+        <div class="table-container border bg-white dark:bg-gray-800 relative flex-grow dark:border-gray-700">
             <table class="w-full text-start border-collapse md:min-w-[1000px]">
                 <thead>
                     <tr>
@@ -464,12 +541,12 @@
                         <th class="p-3 w-16 bg-blue-900 text-center delete-col" data-i18n="th_delete">حذف</th>
                     </tr>
                 </thead>
-                <tbody id="dailyTableBody" class="text-gray-700 text-sm font-medium"></tbody>
+                <tbody id="dailyTableBody" class="text-gray-700 dark:text-gray-300 text-sm font-medium"></tbody>
             </table>
-            <div id="emptyState" class="hidden text-center p-8 text-gray-400" data-i18n="no_data">لا يوجد موظفين.</div>
+            <div id="emptyState" class="hidden text-center p-8 text-gray-400 dark:text-gray-500" data-i18n="no_data">لا يوجد موظفين.</div>
         </div>
 
-        <div class="mega-icon-card light-mode" data-aos="zoom-in" style="margin-top: 4rem; align-self: center; margin-bottom: 2rem;">
+        <div id="devCardMain" class="mega-icon-card light-mode" data-aos="zoom-in" style="margin-top: 4rem; align-self: center; margin-bottom: 2rem;">
             <span>Developed by EMAD ALLAHAM</span>
             <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="fb-icon-link" title="Visit Facebook Page">
                 <i class="fa-brands fa-facebook"></i>
@@ -543,7 +620,8 @@
                 badge_shift_b: "الوردية B",
                 ph_employee_name: "الاسم الثلاثي",
                 bulk_entry: "دخول جماعي",
-                bulk_exit: "خروج جماعي"
+                bulk_exit: "خروج جماعي",
+                lbl_viewer_control: "عرض المحاسب"
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -605,7 +683,8 @@
                 badge_shift_b: "Vardiya B",
                 ph_employee_name: "Ad Soyad",
                 bulk_entry: "Toplu Giriş",
-                bulk_exit: "Toplu Çıkış"
+                bulk_exit: "Toplu Çıkış",
+                lbl_viewer_control: "Muhasebe Görünümü"
             }
         };
 
@@ -643,6 +722,43 @@
             renderDailyTable();
         };
 
+        // Dark Mode Logic
+        window.toggleDarkMode = function() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            const icon = document.getElementById('darkModeIcon');
+            const devCardMain = document.getElementById('devCardMain');
+            
+            if (isDark) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+                // Remove light-mode class to enable the dark glass effect
+                devCardMain.classList.remove('light-mode');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+                // Add light-mode class for white background
+                devCardMain.classList.add('light-mode');
+            }
+        };
+
+        // Init Dark Mode
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('darkModeIcon').classList.remove('fa-moon');
+            document.getElementById('darkModeIcon').classList.add('fa-sun');
+            document.getElementById('devCardMain').classList.remove('light-mode');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('darkModeIcon').classList.remove('fa-sun');
+            document.getElementById('darkModeIcon').classList.add('fa-moon');
+            document.getElementById('devCardMain').classList.add('light-mode');
+        }
+
+
         let firebaseConfig;
         let appId = 'cloud-shift-register';
         
@@ -667,12 +783,14 @@
         let userRole = '';
         let currentUserShift = 'all'; 
         let currentSelectedShift = 'all'; 
+        let viewerPermissionFilter = 'all'; // What the admin sets for the viewer
         
         let masterEmployees = {}; 
         let currentMonthData = {}; 
         let loadedYearMonth = ''; 
 
         const EMPLOYEES_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'employees');
+        const GLOBAL_SETTINGS_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global_config');
         const getMonthDoc = (year, month) => doc(db, 'artifacts', appId, 'public', 'data', 'months', `data_${year}_${month}`);
         const getLegacyYearDoc = (year) => doc(db, 'attendance_data', firebaseConfig.projectId === 'YOUR_PROJECT_ID' ? 'demo-app' : firebaseConfig.projectId, 'years', `data_${year}`);
 
@@ -705,12 +823,12 @@
             
             if (isOnline) {
                 dot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
-                text.className = "text-green-600 text-xs font-bold";
+                text.className = "text-green-600 dark:text-green-400 text-xs font-bold";
                 text.innerText = t('status_online');
                 text.setAttribute('data-i18n', 'status_online');
             } else {
                 dot.className = "w-2 h-2 rounded-full bg-red-500";
-                text.className = "text-red-600 text-xs font-bold";
+                text.className = "text-red-600 dark:text-red-400 text-xs font-bold";
                 text.innerText = t('status_offline');
                 text.setAttribute('data-i18n', 'status_offline');
             }
@@ -734,13 +852,23 @@
             document.getElementById('dataBtn').classList.add('hidden');
             document.getElementById('shiftBadge').classList.add('hidden');
             document.getElementById('bulkControls').classList.add('hidden'); 
+            document.getElementById('adminViewerControl').classList.add('hidden');
             
             if (hashedCode === HASH_ADMIN) {
                 userRole = 'admin';
                 currentUserShift = 'all';
                 document.getElementById('shiftSelectorContainer').classList.remove('hidden');
+                document.getElementById('adminViewerControl').classList.remove('hidden'); // Show Viewer Control for Admin
                 document.getElementById('dataBtn').classList.remove('hidden');
                 document.getElementById('bulkControls').classList.remove('hidden'); 
+                
+                // Fetch current viewer permission setting
+                getDoc(GLOBAL_SETTINGS_DOC).then(snap => {
+                    if (snap.exists() && snap.data().viewerPermission) {
+                        document.getElementById('viewerPermission').value = snap.data().viewerPermission;
+                    }
+                });
+
             } else if (hashedCode === HASH_SHIFT_B) {
                 userRole = 'shift_b_manager';
                 currentUserShift = 'shift_B';
@@ -751,7 +879,9 @@
                 userRole = 'viewer';
                 currentUserShift = 'all';
                 setupViewerUI();
-                document.getElementById('shiftSelectorContainer').classList.remove('hidden'); 
+                // Removed standard selector for viewer, they are controlled by DB now
+                // document.getElementById('shiftSelectorContainer').classList.remove('hidden'); 
+                listenToViewerPermission();
             } else {
                 errorMsg.classList.remove('hidden');
                 return;
@@ -780,10 +910,31 @@
 
         function setupViewerUI() {
             document.getElementById('adminControls').innerHTML = 
-                `<div class="bg-orange-100 text-orange-800 px-3 py-2 rounded border border-orange-200 font-bold text-sm">${t('viewer_mode')}</div>`;
+                `<div class="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-3 py-2 rounded border border-orange-200 dark:border-orange-800 font-bold text-sm">${t('viewer_mode')}</div>`;
             const style = document.createElement('style');
             style.innerHTML = '.delete-col { display: none; }';
             document.head.appendChild(style);
+        }
+
+        // Admin function to update viewer permission
+        window.updateViewerPermission = async function(val) {
+            try {
+                await setDoc(GLOBAL_SETTINGS_DOC, { viewerPermission: val }, { merge: true });
+            } catch (e) {
+                console.error("Error saving permission", e);
+            }
+        };
+
+        // Viewer function to listen to changes
+        function listenToViewerPermission() {
+             onSnapshot(GLOBAL_SETTINGS_DOC, (snap) => {
+                if (snap.exists()) {
+                    const perm = snap.data().viewerPermission || 'all';
+                    currentSelectedShift = perm;
+                    // Optionally update a UI element to show what they are viewing
+                    renderDailyTable();
+                }
+            });
         }
 
         window.logout = function() { location.reload(); };
@@ -808,6 +959,16 @@
             } else {
                 renderDailyTable();
             }
+        };
+
+        // New function for date arrows
+        window.adjustDate = function(days) {
+            const input = document.getElementById('currentDateInput');
+            if (!input.value) return;
+            const date = new Date(input.value);
+            date.setDate(date.getDate() + days);
+            input.value = date.toISOString().split('T')[0];
+            changeDate();
         };
 
         function loadMonthData(year, month) {
@@ -1044,7 +1205,7 @@
                 const dayData = empMonthRecord[dateStr] || { status: '', entry: '', exit: '', breakDuration: '0', shortage: '', overtime: '', notes: '' };
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50 border-b transition duration-150";
+                tr.className = "hover:bg-blue-50 dark:hover:bg-gray-700 border-b transition duration-150";
                 
                 if (userRole === 'admin') {
                     tr.setAttribute('draggable', 'true');
@@ -1056,9 +1217,9 @@
                     tr.addEventListener('drop', handleDrop);
                 }
 
-                if(dayData.status === 'absent') tr.classList.add('bg-red-50');
-                if(dayData.status === 'vacation') tr.classList.add('bg-yellow-50');
-                if(dayData.status === 'present') tr.classList.add('bg-green-50');
+                if(dayData.status === 'absent') tr.classList.add('bg-red-50', 'dark:bg-red-900/20');
+                if(dayData.status === 'vacation') tr.classList.add('bg-yellow-50', 'dark:bg-yellow-900/20');
+                if(dayData.status === 'present') tr.classList.add('bg-green-50', 'dark:bg-green-900/20');
                 if(dayData.status === 'holiday') tr.classList.add('status-holiday');
                 if(dayData.status === 'sunday') tr.classList.add('status-sunday');
 
@@ -1069,16 +1230,15 @@
 
                 const dragIcon = userRole === 'admin' ? '<span class="drag-handle" title="اسحب لإعادة الترتيب">☰</span>' : '';
 
-                // التعديل: تفعيل لوحة الأرقام فقط لحقول الوقت والأرقام
                 tr.innerHTML = `
-                    <td class="p-3 text-center text-gray-500 flex justify-center items-center" data-label="#" data-label-type="index">
+                    <td class="p-3 text-center text-gray-500 dark:text-gray-400 flex justify-center items-center" data-label="#" data-label-type="index">
                         ${index + 1} ${dragIcon}
                     </td>
-                    <td class="p-3 font-bold text-gray-800 cursor-pointer hover:bg-blue-50 transition-colors select-none group" 
+                    <td class="p-3 font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors select-none group" 
                         onclick="showEmployeeSummary('${empId}')" 
                         data-label="${t('th_name')}" data-label-type="name">
                         <div class="flex items-center justify-between">
-                            <span class="hover:text-blue-600">${empName}</span>
+                            <span class="hover:text-blue-600 dark:hover:text-blue-400">${empName}</span>
                             ${userRole === 'admin' ? `
                             <button onclick="event.stopPropagation(); openEditEmployeeModal('${empId}')" class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity px-1 text-lg" title="تعديل">
                                 ✎
@@ -1089,7 +1249,7 @@
                     
                     <td class="p-3" data-label="${t('th_status')}">
                         <select onchange="saveData('${empId}', '${dateStr}', 'status', this.value)" ${isDisabled}
-                                class="w-full p-2 border rounded bg-white text-sm focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer">
+                                class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer border-gray-200 dark:border-gray-600 dark:text-white">
                             <option value="">${t('val_choose')}</option>
                             <option value="present" ${dayData.status === 'present' ? 'selected' : ''}>${t('val_present')}</option>
                             <option value="sunday" ${dayData.status === 'sunday' ? 'selected' : ''}>${t('val_sunday')}</option>
@@ -1100,22 +1260,22 @@
                     </td>
 
                     <td class="p-3" data-label="${t('th_entry')}">
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center ltr placeholder-gray-300">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center ltr placeholder-gray-300 dark:placeholder-gray-500 border-gray-200 dark:border-gray-600 dark:text-white">
                     </td>
                     <td class="p-3" data-label="${t('th_exit')}">
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" value="${dayData.exit || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'exit')" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center ltr placeholder-gray-300">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" value="${dayData.exit || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'exit')" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center ltr placeholder-gray-300 dark:placeholder-gray-500 border-gray-200 dark:border-gray-600 dark:text-white">
                     </td>
                     <td class="p-3" data-label="${t('th_break')}">
-                        <input type="number" inputmode="decimal" step="0.5" min="0" value="${dayData.breakDuration || '0'}" onchange="saveData('${empId}', '${dateStr}', 'breakDuration', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center">
+                        <input type="number" inputmode="decimal" step="0.5" min="0" value="${dayData.breakDuration || '0'}" onchange="saveData('${empId}', '${dateStr}', 'breakDuration', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white">
                     </td>
                     <td class="p-3" data-label="${t('th_delay')}">
-                        <input type="number" inputmode="decimal" step="0.5" max="0" value="${dayData.shortage || ''}" onchange="if(this.value > 0) this.value = -this.value; saveData('${empId}', '${dateStr}', 'shortage', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center text-red-600 placeholder-red-300" placeholder="-">
+                        <input type="number" inputmode="decimal" step="0.5" max="0" value="${dayData.shortage || ''}" onchange="if(this.value > 0) this.value = -this.value; saveData('${empId}', '${dateStr}', 'shortage', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center text-red-600 dark:text-red-400 placeholder-red-300 dark:placeholder-red-900 border-gray-200 dark:border-gray-600" placeholder="-">
                     </td>
                     <td class="p-3" data-label="${t('th_overtime')}">
-                        <input type="number" inputmode="decimal" step="0.5" value="${dayData.overtime || ''}" onchange="saveData('${empId}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white text-sm text-center" placeholder="0">
+                        <input type="number" inputmode="decimal" step="0.5" value="${dayData.overtime || ''}" onchange="saveData('${empId}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white" placeholder="0">
                     </td>
                     <td class="p-3" data-label="${t('th_notes')}">
-                        <input type="text" value="${dayData.notes || ''}" onchange="saveData('${empId}', '${dateStr}', 'notes', this.value)" ${isDisabled} class="w-full p-2 border rounded bg-white text-sm" placeholder="...">
+                        <input type="text" value="${dayData.notes || ''}" onchange="saveData('${empId}', '${dateStr}', 'notes', this.value)" ${isDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm border-gray-200 dark:border-gray-600 dark:text-white" placeholder="...">
                     </td>
                     
                     ${userRole === 'admin' ? 
@@ -1537,15 +1697,16 @@
                 if ((userRole === 'admin' || userRole === 'viewer') && currentSelectedShift !== 'all' && d.shift !== currentSelectedShift) return;
 
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50 dark:hover:bg-gray-700 transition duration-150";
                 tr.innerHTML = `
-                    <td class="p-3 border font-bold bg-gray-50" data-label="${t('th_name')}" data-label-type="name">${d.name}</td>
-                    <td class="p-3 border text-center text-green-700 font-bold" data-label="${t('th_present')}">${d.present}</td>
-                    <td class="p-3 border text-center text-red-700 font-bold" data-label="${t('th_absent')}">${d.absent}</td>
-                    <td class="p-3 border text-center text-yellow-700 font-bold" data-label="${t('th_vacation')}">${d.vacation}</td>
-                    <td class="p-3 border text-center text-purple-700 font-bold" data-label="${t('th_holiday')}">${d.holiday}</td>
-                    <td class="p-3 border text-center text-cyan-700 font-bold" data-label="${t('th_sunday')}">${d.sunday}</td>
-                    <td class="p-3 border text-center text-blue-700 font-bold" data-label="${t('th_total_overtime')}">${d.overtime}</td>
-                    <td class="p-3 border text-center text-red-600 font-bold" data-label="${t('th_total_delay')}"><span dir="ltr">${Math.abs(d.delay)}</span></td>
+                    <td class="p-3 border dark:border-gray-600 font-bold bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200" data-label="${t('th_name')}" data-label-type="name">${d.name}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-green-700 dark:text-green-400 font-bold" data-label="${t('th_present')}">${d.present}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-red-700 dark:text-red-400 font-bold" data-label="${t('th_absent')}">${d.absent}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-yellow-700 dark:text-yellow-400 font-bold" data-label="${t('th_vacation')}">${d.vacation}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-purple-700 dark:text-purple-400 font-bold" data-label="${t('th_holiday')}">${d.holiday}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-cyan-700 dark:text-cyan-400 font-bold" data-label="${t('th_sunday')}">${d.sunday}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-blue-700 dark:text-blue-400 font-bold" data-label="${t('th_total_overtime')}">${d.overtime}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-red-600 dark:text-red-500 font-bold" data-label="${t('th_total_delay')}"><span dir="ltr">${Math.abs(d.delay)}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1595,35 +1756,35 @@
             statsContainer.innerHTML = `
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <h3 class="font-bold text-xl text-blue-900 flex items-center gap-2">
-                            <span class="bg-blue-100 p-1 rounded text-blue-600">👤</span>
-                            ${t('sum_title')} ${t('sum_emp')} <span class="text-indigo-600 underline">${empName}</span>
+                        <h3 class="font-bold text-xl text-blue-900 dark:text-blue-300 flex items-center gap-2">
+                            <span class="bg-blue-100 dark:bg-blue-900 p-1 rounded text-blue-600 dark:text-blue-300">👤</span>
+                            ${t('sum_title')} ${t('sum_emp')} <span class="text-indigo-600 dark:text-indigo-300 underline">${empName}</span>
                         </h3>
                     </div>
                     <div class="flex flex-wrap gap-4 text-sm font-bold">
-                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-green-500">${t('th_present')}</span> ${present}
+                        <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-green-500 dark:text-green-400">${t('th_present')}</span> ${present}
                         </div>
-                        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-red-500">${t('th_absent')}</span> ${absent}
+                        <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-red-500 dark:text-red-400">${t('th_absent')}</span> ${absent}
                         </div>
-                         <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-yellow-600">${t('th_vacation')}</span> ${vacation}
+                         <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-yellow-600 dark:text-yellow-400">${t('th_vacation')}</span> ${vacation}
                         </div>
-                        <div class="bg-purple-50 border border-purple-200 text-purple-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-purple-600">${t('th_holiday')}</span> ${holiday}
+                        <div class="bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-purple-600 dark:text-purple-400">${t('th_holiday')}</span> ${holiday}
                         </div>
-                        <div class="bg-cyan-50 border border-cyan-200 text-cyan-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-cyan-600">${t('th_sunday')}</span> ${sunday}
+                        <div class="bg-cyan-50 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800 text-cyan-800 dark:text-cyan-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-cyan-600 dark:text-cyan-400">${t('th_sunday')}</span> ${sunday}
                         </div>
-                        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-blue-500">${t('th_overtime')}</span> ${totalOvertime}
+                        <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-blue-500 dark:text-blue-400">${t('th_overtime')}</span> ${totalOvertime}
                         </div>
-                        <div class="bg-orange-50 border border-orange-200 text-orange-800 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-orange-500">${t('th_delay')}</span> <span dir="ltr">${Math.abs(totalShortage)}</span>
+                        <div class="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 text-orange-800 dark:text-orange-300 px-4 py-2 rounded-lg text-center">
+                            <span class="text-xs block text-orange-500 dark:text-orange-400">${t('th_delay')}</span> <span dir="ltr">${Math.abs(totalShortage)}</span>
                         </div>
                     </div>
-                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 px-3 py-1 rounded">×</button>
+                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 dark:bg-gray-600 px-3 py-1 rounded text-gray-500 dark:text-gray-300">×</button>
                 </div>
             `;
             statsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });

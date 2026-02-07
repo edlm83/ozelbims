@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloud Shift Register V3.1</title>
+    <title>Cloud Shift Register V3.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -78,6 +78,15 @@
         .fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Left-Top Dark Mode Button Fix for RTL/LTR */
+        /* Forces button to stay on the left side physically regardless of dir="rtl" */
+        .fixed-top-left {
+            position: absolute;
+            top: 1rem;
+            left: 1rem !important; /* Force physical left */
+            right: auto !important; /* Ensure right is unset */
+        }
+        
         /* السحب والإفلات */
         .draggable-row { cursor: grab; }
         .draggable-row.dragging { opacity: 0.5; background-color: #e0f2fe; }
@@ -294,12 +303,15 @@
             <p class="text-blue-900 font-bold" id="loadingText" data-i18n="loading_processing">جاري معالجة البيانات...</p>
         </div>
     </div>
-    <!-- Dark Mode Loading Override via JS or specific CSS needed if overlay is solid white. 
-         Inline style handles it, but for dark mode we might want dark overlay.
-         Let's rely on the simple overlay for now or adjust dynamically. -->
 
     <div id="loginOverlay" class="overlay flex-col gap-10 bg-gray-900">
         <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative border border-gray-200 dark:border-gray-700">
+            <!-- Dark Mode Button (Fixed Top-Left) -->
+            <!-- Changed classes: removed top-4 left-4, added fixed-top-left custom class for stronger specificity -->
+            <button onclick="toggleDarkMode()" class="fixed-top-left w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-400 flex items-center justify-center transition shadow-sm hover:bg-gray-200 dark:hover:bg-gray-600 z-10" title="Dark Mode">
+                <i class="theme-toggle-icon fa-solid fa-moon"></i>
+            </button>
+
             <div class="flex justify-center gap-4 mb-6">
                 <button id="btn-tr" onclick="changeLanguage('tr')" class="lang-btn w-10 h-10 rounded-full bg-white dark:bg-gray-700 p-0.5 overflow-hidden" title="Türkçe">
                     <img src="https://flagcdn.com/w80/tr.png" class="w-full h-full object-cover rounded-full">
@@ -310,11 +322,12 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Cloud Shift Register <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.1</span></p>
+            <!-- Changed Text Here -->
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.2</span></p>
             <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
-            <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="wrong_code">رمز خاطئ</p>
+            <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="msg_wrong_code">رمز خاطئ</p>
         </div>
 
         <div id="devCardLogin" class="mega-icon-card" data-aos="zoom-in">
@@ -449,7 +462,7 @@
             </div>
             <div class="flex items-center gap-3">
                  <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition shadow-sm">
-                    <i id="darkModeIcon" class="fa-solid fa-moon"></i>
+                    <i class="theme-toggle-icon fa-solid fa-moon"></i>
                 </button>
 
                  <button id="dataBtn" onclick="toggleModal('dataManagerOverlay', true)" class="hidden bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 text-white px-3 py-2 rounded shadow flex items-center gap-2 transition text-sm">
@@ -726,18 +739,22 @@
         window.toggleDarkMode = function() {
             const html = document.documentElement;
             const isDark = html.classList.toggle('dark');
-            const icon = document.getElementById('darkModeIcon');
+            const icons = document.querySelectorAll('.theme-toggle-icon');
             const devCardMain = document.getElementById('devCardMain');
             
             if (isDark) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
+                icons.forEach(icon => {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                });
                 localStorage.setItem('theme', 'dark');
                 // Remove light-mode class to enable the dark glass effect
                 devCardMain.classList.remove('light-mode');
             } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
+                icons.forEach(icon => {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                });
                 localStorage.setItem('theme', 'light');
                 // Add light-mode class for white background
                 devCardMain.classList.add('light-mode');
@@ -746,15 +763,20 @@
 
         // Init Dark Mode
         const savedTheme = localStorage.getItem('theme');
+        const icons = document.querySelectorAll('.theme-toggle-icon');
         if (savedTheme === 'dark') {
             document.documentElement.classList.add('dark');
-            document.getElementById('darkModeIcon').classList.remove('fa-moon');
-            document.getElementById('darkModeIcon').classList.add('fa-sun');
+            icons.forEach(icon => {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            });
             document.getElementById('devCardMain').classList.remove('light-mode');
         } else {
             document.documentElement.classList.remove('dark');
-            document.getElementById('darkModeIcon').classList.remove('fa-sun');
-            document.getElementById('darkModeIcon').classList.add('fa-moon');
+            icons.forEach(icon => {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            });
             document.getElementById('devCardMain').classList.add('light-mode');
         }
 
@@ -879,8 +901,6 @@
                 userRole = 'viewer';
                 currentUserShift = 'all';
                 setupViewerUI();
-                // Removed standard selector for viewer, they are controlled by DB now
-                // document.getElementById('shiftSelectorContainer').classList.remove('hidden'); 
                 listenToViewerPermission();
             } else {
                 errorMsg.classList.remove('hidden');
@@ -930,8 +950,26 @@
              onSnapshot(GLOBAL_SETTINGS_DOC, (snap) => {
                 if (snap.exists()) {
                     const perm = snap.data().viewerPermission || 'all';
-                    currentSelectedShift = perm;
-                    // Optionally update a UI element to show what they are viewing
+                    
+                    const selector = document.getElementById('shiftSelectorContainer');
+                    const filter = document.getElementById('shiftFilter');
+
+                    if (perm === 'all') {
+                        // Admin allows everything -> Show dropdown
+                        selector.classList.remove('hidden');
+                        
+                        // Keep user selection if valid, otherwise default to all
+                        if (filter.value === '' || filter.value === 'all') {
+                             currentSelectedShift = 'all';
+                             filter.value = 'all';
+                        }
+                    } else {
+                        // Admin restricts view -> Hide dropdown and FORCE selection
+                        selector.classList.add('hidden');
+                        currentSelectedShift = perm;
+                        filter.value = perm; // Visual sync
+                    }
+
                     renderDailyTable();
                 }
             });

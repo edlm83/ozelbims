@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloud Shift Register V3.2</title>
+    <title>Cloud Shift Register V3.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,7 +24,9 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- هام جداً: تحديث مكتبة الأيقونات للإصدار 6.5.1 لتظهر أيقونة X -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         body { font-family: 'Tajawal', sans-serif; transition: background-color 0.3s, color 0.3s; }
@@ -32,8 +34,6 @@
         /* --- تنسيقات الجدول --- */
         .table-container { overflow-x: auto; max-height: 70vh; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         thead th { position: sticky; top: 0; z-index: 10; background-color: #1e3a8a; color: white; }
-        
-        /* Dark Mode Table Header */
         .dark thead th { background-color: #111827; border-bottom: 1px solid #374151; }
 
         .select-none { user-select: none; -webkit-user-select: none; }
@@ -45,20 +45,17 @@
         .status-holiday { background-color: #f3e8ff; color: #6b21a8; }
         .status-sunday { background-color: #cffafe; color: #0891b2; }
 
-        /* Dark Mode Status Overrides */
         .dark .status-present { background-color: #064e3b; color: #ecfccb; }
         .dark .status-absent { background-color: #7f1d1d; color: #fecaca; }
         .dark .status-vacation { background-color: #78350f; color: #fef3c7; }
         .dark .status-holiday { background-color: #581c87; color: #e9d5ff; }
         .dark .status-sunday { background-color: #164e63; color: #cffafe; }
         
-        /* تنسيقات الإدخال */
         td input, td select { text-align: center !important; text-align-last: center !important; }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         
-        /* وضع القراءة */
         input:disabled, select:disabled { 
             background-color: #f8fafc; cursor: default; color: #000000 !important; 
             border-color: #cbd5e1; opacity: 1 !important; -webkit-text-fill-color: #000000 !important; font-weight: 700; 
@@ -68,7 +65,6 @@
         }
         select:disabled { appearance: none; background-image: none !important; }
         
-        /* النوافذ */
         .overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, 0.95); z-index: 50; display: flex; justify-content: center; align-items: center; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 40; display: flex; justify-content: center; align-items: center; padding: 1rem; }
         .hidden { display: none !important; }
@@ -78,16 +74,14 @@
         .fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Left-Top Dark Mode Button Fix for RTL/LTR */
-        /* Forces button to stay on the left side physically regardless of dir="rtl" */
+        /* زر الوضع الليلي - ثابت يساراً */
         .fixed-top-left {
             position: absolute;
             top: 1rem;
             left: 1rem !important; /* Force physical left */
-            right: auto !important; /* Ensure right is unset */
+            right: auto !important;
         }
         
-        /* السحب والإفلات */
         .draggable-row { cursor: grab; }
         .draggable-row.dragging { opacity: 0.5; background-color: #e0f2fe; }
         .dark .draggable-row.dragging { background-color: #1e3a8a; }
@@ -95,7 +89,6 @@
         .drag-handle:hover { color: #2563eb; }
         .drag-over { border-top: 2px solid #2563eb; }
 
-        /* تحسين أزرار اللغة */
         .lang-btn {
             transition: all 0.3s ease;
             filter: grayscale(100%);
@@ -122,17 +115,14 @@
             100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
-        /* ========================================
-           Mega Icon Card v2 (Premium Glass Style)
-           ========================================
-        */
+        /* --- بطاقة الاسم (Name Card) --- */
         .mega-icon-card {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 15px;
             padding: 12px 28px;
-            background: rgba(255, 255, 255, 0.05); /* Default Dark Mode Glass */
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
@@ -143,14 +133,7 @@
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
             cursor: default;
-            direction: ltr;
-        }
-
-        @keyframes continuous-shine {
-            0% { left: -100%; opacity: 0; }
-            10% { opacity: 1; }
-            50% { left: 200%; opacity: 0; }
-            100% { left: 200%; opacity: 0; }
+            direction: ltr; /* Ensure text is LTR */
         }
 
         .mega-icon-card::before {
@@ -173,12 +156,6 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        .mega-icon-card i {
-            font-size: 1.5rem;
-            color: #60a5fa; /* Blue in Dark Mode */
-            transition: transform 0.3s ease;
-        }
-
         .mega-icon-card span {
             color: #ffffff;
             font-weight: 700;
@@ -189,22 +166,6 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        .fb-icon-link {
-            color: #60a5fa;
-            font-size: 1.6rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
-        .fb-icon-link:hover {
-            color: #1877F2;
-            transform: scale(1.2) rotate(10deg);
-            filter: drop-shadow(0 0 8px rgba(24, 119, 242, 0.6));
-        }
-
-        /* Light Mode Overrides for Mega Card */
         .mega-icon-card.light-mode {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 242, 245, 0.4));
             border: 1px solid rgba(255, 255, 255, 0.9);
@@ -223,14 +184,77 @@
             text-shadow: none;
             font-weight: 800;
         }
-        
-        .mega-icon-card.light-mode .fb-icon-link {
-            color: #3b82f6;
+
+        /* --- الأيقونات العائمة (Social Bubbles) --- */
+        .social-bubble {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.4rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            color: white !important; /* فرض اللون الأبيض للأيقونة */
+        }
+
+        /* تأكد أن الأيقونة فوق اللمعة */
+        .social-bubble i {
+            position: relative;
+            z-index: 20; 
+        }
+
+        /* 1. Facebook: أزرق دائماً */
+        .social-bubble.fb {
+            background: linear-gradient(135deg, #1877F2, #0052cc) !important;
+        }
+
+        /* 2. Instagram: تدرج لوني دائماً */
+        .social-bubble.ig {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%) !important;
+        }
+
+        /* 3. X (Twitter): أسود دائماً مع حدود بيضاء خفيفة */
+        .social-bubble.x {
+            background: #000000 !important;
+            border: 1px solid rgba(255,255,255,0.2) !important; 
         }
         
-        .mega-icon-card.light-mode .fb-icon-link:hover {
-            color: #1877F2;
-            filter: drop-shadow(0 0 5px rgba(24, 119, 242, 0.4));
+        /* فرض لون أيقونة X للأبيض */
+        .social-bubble.x i {
+            color: #ffffff !important;
+        }
+
+        .social-bubble:hover {
+            transform: translateY(-8px) scale(1.15); 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* تأثير اللمعة المستمرة */
+        .social-bubble::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -200%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: skewX(-25deg);
+            z-index: 1; /* تحت الأيقونة */
+            animation: icon-shine-continuous 3s infinite ease-in-out;
+        }
+
+        @keyframes icon-shine-continuous {
+            0% { left: -150%; opacity: 0; }
+            10% { opacity: 0.8; }
+            20% { left: 150%; opacity: 0; }
+            100% { left: 150%; opacity: 0; } /* وقفة */
         }
 
         [data-aos="zoom-in"] {
@@ -242,7 +266,6 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* Custom Scrollbar for dark mode */
         .dark ::-webkit-scrollbar { width: 8px; height: 8px; }
         .dark ::-webkit-scrollbar-track { background: #1f2937; }
         .dark ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
@@ -289,7 +312,6 @@
             #reportTableBody td[data-label*="الإجازة"]::before, #reportTableBody td[data-label*="Vacation"]::before { color: #a16207; } 
             #reportTableBody td[data-label*="التأخير"]::before, #reportTableBody td[data-label*="Delay"]::before { color: #dc2626; } 
             
-            /* Dark mode report labels */
             .dark #reportTableBody td[data-label*="الحضور"]::before { color: #4ade80; }
             .dark #reportTableBody td[data-label*="الغياب"]::before { color: #f87171; }
         }
@@ -306,8 +328,7 @@
 
     <div id="loginOverlay" class="overlay flex-col gap-10 bg-gray-900">
         <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative border border-gray-200 dark:border-gray-700">
-            <!-- Dark Mode Button (Fixed Top-Left) -->
-            <!-- Changed classes: removed top-4 left-4, added fixed-top-left custom class for stronger specificity -->
+            <!-- زر الوضع الليلي -->
             <button onclick="toggleDarkMode()" class="fixed-top-left w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-400 flex items-center justify-center transition shadow-sm hover:bg-gray-200 dark:hover:bg-gray-600 z-10" title="Dark Mode">
                 <i class="theme-toggle-icon fa-solid fa-moon"></i>
             </button>
@@ -322,22 +343,34 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <!-- Changed Text Here -->
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.2</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.5</span></p>
             <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
             <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="msg_wrong_code">رمز خاطئ</p>
         </div>
 
-        <div id="devCardLogin" class="mega-icon-card" data-aos="zoom-in">
-            <span>Developed by EMAD ALLAHAM</span>
-            <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="fb-icon-link" title="Visit Facebook Page">
-                <i class="fa-brands fa-facebook"></i>
-            </a>
+        <!-- تذييل واجهة الدخول (أيقونات) -->
+        <div class="flex flex-col items-center gap-3" data-aos="zoom-in">
+            <div id="devCardLogin" class="mega-icon-card">
+                <span>Developed by EMAD ALLAHAM</span>
+            </div>
+            <!-- حاوية الأيقونات: dir="ltr" يجبر الترتيب يسار ليمين دائماً -->
+            <div class="flex gap-4" dir="ltr">
+                <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="social-bubble fb" title="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/edlm83" target="_blank" class="social-bubble ig" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+            </div>
         </div>
     </div>
 
+    <!-- نافذة إضافة موظف -->
     <div id="addEmployeeOverlay" class="modal-overlay hidden">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border dark:border-gray-700">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4" id="empModalTitle" data-i18n="add_emp_title">إضافة موظف</h3>
@@ -359,12 +392,18 @@
         </div>
     </div>
 
+    <!-- نافذة إدارة البيانات (تحوي زر السجل) -->
     <div id="dataManagerOverlay" class="modal-overlay hidden">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-md w-full border dark:border-gray-700">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <span>💾</span> <span data-i18n="data_management">إدارة البيانات</span>
             </h3>
             
+            <!-- زر سجل الدخول الجديد -->
+            <button onclick="viewLoginLogs()" class="w-full mb-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded flex justify-center items-center gap-2 shadow-sm transition">
+                <span>📜</span> <span data-i18n="btn_login_log">سجل الدخول</span>
+            </button>
+
             <div class="mb-6 bg-orange-50 dark:bg-orange-900/30 p-3 rounded border border-orange-200 dark:border-orange-800">
                 <h4 class="font-bold text-orange-800 dark:text-orange-300 text-sm mb-2" data-i18n="legacy_import_title">📥 الانتقال من النظام القديم (V2)</h4>
                 <p class="text-xs text-orange-600 dark:text-orange-400 mb-3" data-i18n="legacy_import_desc">اضغط هنا فقط إذا كنت تريد جلب الموظفين وبيانات الحضور من ملفات السنة الماضية.</p>
@@ -385,6 +424,29 @@
             </div>
 
             <button onclick="toggleModal('dataManagerOverlay', false)" class="w-full mt-4 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 py-2 rounded" data-i18n="close">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة عرض سجلات الدخول (جديدة) -->
+    <div id="loginLogOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] md:h-[90vh] border dark:border-gray-700">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="log_modal_title">سجل دخول المستخدمين</h3>
+                <button onclick="toggleModal('loginLogOverlay', false)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
+            </div>
+            <div class="flex-1 overflow-auto p-2 relative bg-gray-50 dark:bg-gray-900/50">
+                <table class="w-full text-start text-sm border-collapse bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                    <thead class="bg-teal-100 dark:bg-teal-900 text-gray-800 dark:text-white sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-start" data-i18n="th_role">الرتبة</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center ltr" data-i18n="th_time">الوقت والتاريخ</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_device">الجهاز</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-start" data-i18n="th_browser">المتصفح</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loginLogTableBody" class="text-gray-700 dark:text-gray-300"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -559,11 +621,23 @@
             <div id="emptyState" class="hidden text-center p-8 text-gray-400 dark:text-gray-500" data-i18n="no_data">لا يوجد موظفين.</div>
         </div>
 
-        <div id="devCardMain" class="mega-icon-card light-mode" data-aos="zoom-in" style="margin-top: 4rem; align-self: center; margin-bottom: 2rem;">
-            <span>Developed by EMAD ALLAHAM</span>
-            <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="fb-icon-link" title="Visit Facebook Page">
-                <i class="fa-brands fa-facebook"></i>
-            </a>
+        <!-- تذييل التطبيق الرئيسي -->
+        <div class="flex flex-col items-center gap-3 mt-8 mb-4" data-aos="zoom-in">
+            <div id="devCardMain" class="mega-icon-card light-mode">
+                <span>Developed by EMAD ALLAHAM</span>
+            </div>
+            <!-- حاوية الأيقونات مع اتجاه ثابت LTR -->
+            <div class="flex gap-4" dir="ltr">
+                <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="social-bubble fb" title="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/edlm83" target="_blank" class="social-bubble ig" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -634,7 +708,13 @@
                 ph_employee_name: "الاسم الثلاثي",
                 bulk_entry: "دخول جماعي",
                 bulk_exit: "خروج جماعي",
-                lbl_viewer_control: "عرض المحاسب"
+                lbl_viewer_control: "عرض المحاسب",
+                btn_login_log: "سجل الدخول",
+                log_modal_title: "سجل دخول المستخدمين",
+                th_time: "الوقت والتاريخ",
+                th_role: "الرتبة",
+                th_device: "الجهاز",
+                th_browser: "المتصفح"
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -697,7 +777,13 @@
                 ph_employee_name: "Ad Soyad",
                 bulk_entry: "Toplu Giriş",
                 bulk_exit: "Toplu Çıkış",
-                lbl_viewer_control: "Muhasebe Görünümü"
+                lbl_viewer_control: "Muhasebe Görünümü",
+                btn_login_log: "Giriş Kaydı",
+                log_modal_title: "Kullanıcı Giriş Kaydı",
+                th_time: "Tarih ve Saat",
+                th_role: "Rol",
+                th_device: "Cihaz",
+                th_browser: "Tarayıcı"
             }
         };
 
@@ -813,6 +899,7 @@
 
         const EMPLOYEES_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'employees');
         const GLOBAL_SETTINGS_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global_config');
+        const LOGS_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'logs', 'access_history');
         const getMonthDoc = (year, month) => doc(db, 'artifacts', appId, 'public', 'data', 'months', `data_${year}_${month}`);
         const getLegacyYearDoc = (year) => doc(db, 'attendance_data', firebaseConfig.projectId === 'YOUR_PROJECT_ID' ? 'demo-app' : firebaseConfig.projectId, 'years', `data_${year}`);
 
@@ -876,11 +963,14 @@
             document.getElementById('bulkControls').classList.add('hidden'); 
             document.getElementById('adminViewerControl').classList.add('hidden');
             
+            let detectedRole = '';
+
             if (hashedCode === HASH_ADMIN) {
                 userRole = 'admin';
+                detectedRole = 'Admin';
                 currentUserShift = 'all';
                 document.getElementById('shiftSelectorContainer').classList.remove('hidden');
-                document.getElementById('adminViewerControl').classList.remove('hidden'); // Show Viewer Control for Admin
+                document.getElementById('adminViewerControl').classList.remove('hidden'); 
                 document.getElementById('dataBtn').classList.remove('hidden');
                 document.getElementById('bulkControls').classList.remove('hidden'); 
                 
@@ -893,12 +983,14 @@
 
             } else if (hashedCode === HASH_SHIFT_B) {
                 userRole = 'shift_b_manager';
+                detectedRole = 'Shift B Manager';
                 currentUserShift = 'shift_B';
                 document.getElementById('shiftBadge').classList.remove('hidden');
                 document.getElementById('shiftBadge').innerText = t('badge_shift_b');
                 document.getElementById('bulkControls').classList.remove('hidden'); 
             } else if (hashedCode === HASH_VIEWER) {
                 userRole = 'viewer';
+                detectedRole = 'Accountant/Viewer';
                 currentUserShift = 'all';
                 setupViewerUI();
                 listenToViewerPermission();
@@ -906,6 +998,9 @@
                 errorMsg.classList.remove('hidden');
                 return;
             }
+
+            // Log the successful login
+            logAccess(detectedRole);
 
             document.getElementById('loadingScreen').classList.remove('hidden');
             
@@ -928,6 +1023,90 @@
             document.getElementById('appContainer').classList.remove('hidden');
         };
 
+        async function logAccess(role) {
+            try {
+                const now = new Date();
+                const timestamp = now.toLocaleString('en-GB'); // DD/MM/YYYY, HH:MM:SS
+                const userAgent = navigator.userAgent;
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+                const device = isMobile ? 'Mobile' : 'Desktop';
+                
+                let browser = 'Unknown';
+                if(userAgent.indexOf("Chrome") != -1 && userAgent.indexOf("Edg") == -1) browser = 'Chrome';
+                else if(userAgent.indexOf("Safari") != -1 && userAgent.indexOf("Chrome") == -1) browser = 'Safari';
+                else if(userAgent.indexOf("Firefox") != -1) browser = 'Firefox';
+                else if(userAgent.indexOf("Edg") != -1) browser = 'Edge';
+
+                const newEntry = {
+                    role: role,
+                    time: timestamp,
+                    device: device,
+                    browser: browser,
+                    agent: userAgent
+                };
+
+                const snap = await getDoc(LOGS_DOC);
+                let history = [];
+                if (snap.exists()) {
+                    history = snap.data().entries || [];
+                }
+
+                history.unshift(newEntry);
+                if (history.length > 50) {
+                    history = history.slice(0, 50);
+                }
+
+                await setDoc(LOGS_DOC, { entries: history }, { merge: true });
+
+            } catch (e) {
+                console.error("Logging failed", e);
+            }
+        }
+
+        window.viewLoginLogs = async function() {
+            const tbody = document.getElementById('loginLogTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4"><div class="loader mx-auto"></div></td></tr>';
+            
+            toggleModal('loginLogOverlay', true);
+
+            try {
+                const snap = await getDoc(LOGS_DOC);
+                if (snap.exists() && snap.data().entries) {
+                    const logs = snap.data().entries;
+                    tbody.innerHTML = '';
+                    
+                    if(logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">No logs found.</td></tr>';
+                        return;
+                    }
+
+                    logs.forEach(log => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b dark:border-gray-700";
+                        
+                        let roleColor = 'text-gray-700';
+                        if(log.role === 'Admin') roleColor = 'text-red-600 font-bold';
+                        if(log.role === 'Shift B Manager') roleColor = 'text-blue-600';
+                        if(log.role === 'Accountant/Viewer') roleColor = 'text-orange-600';
+
+                        tr.innerHTML = `
+                            <td class="p-3 ${roleColor} text-xs md:text-sm border-l dark:border-gray-600">${log.role}</td>
+                            <td class="p-3 text-center ltr font-mono text-xs md:text-sm border-l dark:border-gray-600 text-gray-600 dark:text-gray-300">${log.time}</td>
+                            <td class="p-3 text-center text-xs md:text-sm border-l dark:border-gray-600">${log.device === 'Mobile' ? '📱' : '💻'} <span class="hidden md:inline">${log.device}</span></td>
+                            <td class="p-3 text-start text-xs md:text-sm text-gray-500 truncate max-w-[100px] md:max-w-none" title="${log.agent}">
+                                ${log.browser}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">No logs found.</td></tr>';
+                }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error: ${e.message}</td></tr>`;
+            }
+        };
+
         function setupViewerUI() {
             document.getElementById('adminControls').innerHTML = 
                 `<div class="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-3 py-2 rounded border border-orange-200 dark:border-orange-800 font-bold text-sm">${t('viewer_mode')}</div>`;
@@ -936,7 +1115,6 @@
             document.head.appendChild(style);
         }
 
-        // Admin function to update viewer permission
         window.updateViewerPermission = async function(val) {
             try {
                 await setDoc(GLOBAL_SETTINGS_DOC, { viewerPermission: val }, { merge: true });
@@ -945,31 +1123,24 @@
             }
         };
 
-        // Viewer function to listen to changes
         function listenToViewerPermission() {
              onSnapshot(GLOBAL_SETTINGS_DOC, (snap) => {
                 if (snap.exists()) {
                     const perm = snap.data().viewerPermission || 'all';
-                    
                     const selector = document.getElementById('shiftSelectorContainer');
                     const filter = document.getElementById('shiftFilter');
 
                     if (perm === 'all') {
-                        // Admin allows everything -> Show dropdown
                         selector.classList.remove('hidden');
-                        
-                        // Keep user selection if valid, otherwise default to all
                         if (filter.value === '' || filter.value === 'all') {
                              currentSelectedShift = 'all';
                              filter.value = 'all';
                         }
                     } else {
-                        // Admin restricts view -> Hide dropdown and FORCE selection
                         selector.classList.add('hidden');
                         currentSelectedShift = perm;
-                        filter.value = perm; // Visual sync
+                        filter.value = perm; 
                     }
-
                     renderDailyTable();
                 }
             });
@@ -999,7 +1170,6 @@
             }
         };
 
-        // New function for date arrows
         window.adjustDate = function(days) {
             const input = document.getElementById('currentDateInput');
             if (!input.value) return;

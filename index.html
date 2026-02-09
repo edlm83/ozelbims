@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloud Shift Register V3.5</title>
+    <title>Cloud Shift Register V3.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,7 +25,6 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- هام جداً: تحديث مكتبة الأيقونات للإصدار 6.5.1 لتظهر أيقونة X -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -343,7 +342,7 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.5</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.6</span></p>
             <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
@@ -427,14 +426,24 @@
         </div>
     </div>
 
-    <!-- نافذة عرض سجلات الدخول (جديدة) -->
+    <!-- نافذة عرض سجلات الدخول (معدلة للموبايل) -->
     <div id="loginLogOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] md:h-[90vh] border dark:border-gray-700">
-            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[85vh] border dark:border-gray-700 overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700 flex-shrink-0">
                 <h3 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="log_modal_title">سجل دخول المستخدمين</h3>
-                <button onclick="toggleModal('loginLogOverlay', false)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
+                <div class="flex gap-2">
+                    <!-- أزرار جديدة: تصدير ومسح -->
+                    <button id="btnExportLog" onclick="exportLoginLogs()" class="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-3 py-1 rounded hidden" title="Export Excel">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+                    <button id="btnClearLog" onclick="clearLoginLogs()" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1 rounded hidden" title="Clear Logs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button onclick="toggleModal('loginLogOverlay', false)" class="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
+                </div>
             </div>
-            <div class="flex-1 overflow-auto p-2 relative bg-gray-50 dark:bg-gray-900/50">
+            <!-- تم تعديل هذه المنطقة لتسمح بالتمرير الداخلي في الموبايل -->
+            <div class="flex-1 overflow-y-auto p-2 relative bg-gray-50 dark:bg-gray-900/50" style="overscroll-behavior: contain;">
                 <table class="w-full text-start text-sm border-collapse bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                     <thead class="bg-teal-100 dark:bg-teal-900 text-gray-800 dark:text-white sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -974,6 +983,10 @@
                 document.getElementById('dataBtn').classList.remove('hidden');
                 document.getElementById('bulkControls').classList.remove('hidden'); 
                 
+                // Show Admin Only Buttons for Logs
+                document.getElementById('btnExportLog').classList.remove('hidden');
+                document.getElementById('btnClearLog').classList.remove('hidden');
+
                 // Fetch current viewer permission setting
                 getDoc(GLOBAL_SETTINGS_DOC).then(snap => {
                     if (snap.exists() && snap.data().viewerPermission) {
@@ -1023,7 +1036,8 @@
             document.getElementById('appContainer').classList.remove('hidden');
         };
 
-        async function logAccess(role) {
+        // Modified Log Access Function - Limit 20 and handles actions
+        async function logAccess(role, action = null) {
             try {
                 const now = new Date();
                 const timestamp = now.toLocaleString('en-GB'); // DD/MM/YYYY, HH:MM:SS
@@ -1037,8 +1051,15 @@
                 else if(userAgent.indexOf("Firefox") != -1) browser = 'Firefox';
                 else if(userAgent.indexOf("Edg") != -1) browser = 'Edge';
 
+                // If action is provided, append it to role for display purposes
+                // Or store it separately. Here we keep it simple for the existing table structure
+                let displayRole = role;
+                if (action) {
+                    displayRole = `${role} (${action})`;
+                }
+
                 const newEntry = {
-                    role: role,
+                    role: displayRole,
                     time: timestamp,
                     device: device,
                     browser: browser,
@@ -1052,8 +1073,10 @@
                 }
 
                 history.unshift(newEntry);
-                if (history.length > 50) {
-                    history = history.slice(0, 50);
+                
+                // REDUCED LIMIT TO 20
+                if (history.length > 20) {
+                    history = history.slice(0, 20);
                 }
 
                 await setDoc(LOGS_DOC, { entries: history }, { merge: true });
@@ -1085,9 +1108,9 @@
                         tr.className = "hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b dark:border-gray-700";
                         
                         let roleColor = 'text-gray-700';
-                        if(log.role === 'Admin') roleColor = 'text-red-600 font-bold';
-                        if(log.role === 'Shift B Manager') roleColor = 'text-blue-600';
-                        if(log.role === 'Accountant/Viewer') roleColor = 'text-orange-600';
+                        if(log.role.includes('Admin')) roleColor = 'text-red-600 font-bold';
+                        if(log.role.includes('Shift B')) roleColor = 'text-blue-600';
+                        if(log.role.includes('Accountant')) roleColor = 'text-orange-600';
 
                         tr.innerHTML = `
                             <td class="p-3 ${roleColor} text-xs md:text-sm border-l dark:border-gray-600">${log.role}</td>
@@ -1104,6 +1127,44 @@
                 }
             } catch (e) {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error: ${e.message}</td></tr>`;
+            }
+        };
+
+        window.clearLoginLogs = async function() {
+            if (!confirm("هل أنت متأكد من مسح سجل الدخول بالكامل؟")) return;
+            try {
+                await setDoc(LOGS_DOC, { entries: [] });
+                viewLoginLogs(); // Refresh
+            } catch (e) {
+                alert("Error clearing logs: " + e.message);
+            }
+        };
+
+        window.exportLoginLogs = async function() {
+            try {
+                const snap = await getDoc(LOGS_DOC);
+                if (!snap.exists() || !snap.data().entries) {
+                    alert("No logs to export");
+                    return;
+                }
+                const logs = snap.data().entries;
+                
+                let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+                csvContent += "Role,Time,Device,Browser,UserAgent\n";
+                
+                logs.forEach(log => {
+                    const row = `"${log.role}","${log.time}","${log.device}","${log.browser}","${log.agent}"`;
+                    csvContent += row + "\n";
+                });
+
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download", "access_logs.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                alert("Export failed: " + e.message);
             }
         };
 
@@ -1612,8 +1673,12 @@
         window.deleteEmployee = async function(empId) {
             if (!confirm(t('msg_confirm_delete'))) return;
             const newMap = { ...masterEmployees };
+            const name = newMap[empId]?.name || 'Unknown';
             delete newMap[empId];
             await setDoc(EMPLOYEES_DOC, { list: newMap });
+            
+            // Log this action
+            await logAccess('Admin', `Deleted: ${name}`);
         };
 
         window.importLegacyEmployees = async function() {
@@ -1700,6 +1765,9 @@
                     await setDoc(monthDocRef, { records: monthlyUpdates[m] }, { merge: true });
                     recordsCount += Object.keys(monthlyUpdates[m]).length;
                 }
+                
+                // Log action
+                await logAccess('Admin', `Imported Legacy Data`);
 
                 alert(t('msg_import_success'));
                 

@@ -193,23 +193,29 @@
             font-weight: 800;
         }
 
-        /* --- الأيقونات العائمة (Social Bubbles) --- */
+        /* --- الأيقونات الزجاجية (Glass Social Bubbles) --- */
         .social-bubble {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 1.4rem;
+            
+            /* Glass Effect Default - زجاجي شفاف افتراضياً */
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            
+            color: white !important;
+            font-size: 1.5rem;
             text-decoration: none;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 10;
-            color: white !important; /* فرض اللون الأبيض للأيقونة */
         }
 
         /* تأكد أن الأيقونة فوق اللمعة */
@@ -218,32 +224,33 @@
             z-index: 20; 
         }
 
-        /* 1. Facebook: أزرق دائماً */
-        .social-bubble.fb {
-            background: linear-gradient(135deg, #1877F2, #0052cc) !important;
+        /* تأثير التحويم - يظهر اللون الحقيقي */
+        .social-bubble:hover {
+            transform: translateY(-5px) scale(1.15); 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border-color: transparent;
         }
 
-        /* 2. Instagram: تدرج لوني دائماً */
-        .social-bubble.ig {
+        /* 1. Facebook: أزرق */
+        .social-bubble.fb:hover {
+            background: #1877F2 !important;
+        }
+
+        /* 2. Instagram: تدرج لوني */
+        .social-bubble.ig:hover {
             background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%) !important;
         }
 
-        /* 3. X (Twitter): أسود دائماً مع حدود بيضاء خفيفة */
-        .social-bubble.x {
+        /* 3. X (Twitter): أسود */
+        .social-bubble.x:hover {
             background: #000000 !important;
-            border: 1px solid rgba(255,255,255,0.2) !important; 
+        }
+
+        /* 4. Telegram: أزرق سماوي */
+        .social-bubble.tg:hover {
+            background: linear-gradient(135deg, #2AABEE, #229ED9) !important;
         }
         
-        /* فرض لون أيقونة X للأبيض */
-        .social-bubble.x i {
-            color: #ffffff !important;
-        }
-
-        .social-bubble:hover {
-            transform: translateY(-8px) scale(1.15); 
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-        }
-
         /* تأثير اللمعة المستمرة */
         .social-bubble::after {
             content: '';
@@ -252,9 +259,9 @@
             left: -200%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
             transform: skewX(-25deg);
-            z-index: 1; /* تحت الأيقونة */
+            z-index: 1; 
             animation: icon-shine-continuous 3s infinite ease-in-out;
         }
 
@@ -263,6 +270,34 @@
             10% { opacity: 0.8; }
             20% { left: 150%; opacity: 0; }
             100% { left: 150%; opacity: 0; } /* وقفة */
+        }
+
+        /* --- تأثير لمعة الشعار (Logo Shine) --- */
+        .logo-glow-container {
+            position: relative;
+            display: inline-block;
+            border-radius: 20px; 
+            overflow: hidden;
+        }
+        
+        .logo-glow-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: skewX(-25deg);
+            animation: logo-shine-anim 4s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        @keyframes logo-shine-anim {
+            0% { left: -150%; }
+            20% { left: 150%; } /* مرور سريع */
+            100% { left: 150%; } /* انتظار */
         }
 
         [data-aos="zoom-in"] {
@@ -350,13 +385,15 @@
                 </button>
             </div>
 
-            <!-- شعار الشركة في شاشة الدخول -->
+            <!-- شعار الشركة في شاشة الدخول مع تأثير اللمعة -->
             <div class="flex justify-center mb-4">
-                <img src="https://i.imgur.com/623NMYe.png" alt="ozelBims Logo" class="w-24 h-24 object-contain drop-shadow-lg">
+                <div class="logo-glow-container">
+                    <img src="https://i.imgur.com/623NMYe.png" alt="ozelBims Logo" class="w-24 h-24 object-contain drop-shadow-lg relative z-10">
+                </div>
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.6</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.7</span></p>
             <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
@@ -368,16 +405,23 @@
             <div id="devCardLogin" class="mega-icon-card">
                 <span>Developed by EMAD ALLAHAM</span>
             </div>
-            <!-- حاوية الأيقونات: dir="ltr" يجبر الترتيب يسار ليمين دائماً -->
+            <!-- حاوية الأيقونات الزجاجية: dir="ltr" يجبر الترتيب يسار ليمين دائماً -->
             <div class="flex gap-4" dir="ltr">
+                <!-- Facebook -->
                 <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="social-bubble fb" title="Facebook">
                     <i class="fa-brands fa-facebook-f"></i>
                 </a>
+                <!-- X (Twitter) -->
+                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <!-- Instagram -->
                 <a href="https://www.instagram.com/edlm83" target="_blank" class="social-bubble ig" title="Instagram">
                     <i class="fa-brands fa-instagram"></i>
                 </a>
-                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
-                    <i class="fa-brands fa-x-twitter"></i>
+                <!-- Telegram -->
+                <a href="https://t.me/edlm83" target="_blank" class="social-bubble tg" title="Telegram">
+                    <i class="fa-brands fa-telegram"></i>
                 </a>
             </div>
         </div>
@@ -651,14 +695,21 @@
             </div>
             <!-- حاوية الأيقونات مع اتجاه ثابت LTR -->
             <div class="flex gap-4" dir="ltr">
+                <!-- Facebook -->
                 <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="social-bubble fb" title="Facebook">
                     <i class="fa-brands fa-facebook-f"></i>
                 </a>
+                <!-- X (Twitter) -->
+                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <!-- Instagram -->
                 <a href="https://www.instagram.com/edlm83" target="_blank" class="social-bubble ig" title="Instagram">
                     <i class="fa-brands fa-instagram"></i>
                 </a>
-                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
-                    <i class="fa-brands fa-x-twitter"></i>
+                <!-- Telegram -->
+                <a href="https://t.me/edlm83" target="_blank" class="social-bubble tg" title="Telegram">
+                    <i class="fa-brands fa-telegram"></i>
                 </a>
             </div>
         </div>

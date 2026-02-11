@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 1. عنوان المتصفح الجديد -->
-    <title>ozelBims</title>
+    <!-- 1. عنوان المتصفح الجديد بالأحرف الكبيرة -->
+    <title>OZELBIMS</title>
     
     <!-- 2. أيقونة المتصفح (Favicon) -->
     <link rel="icon" type="image/png" href="https://i.imgur.com/623NMYe.png">
@@ -157,6 +157,14 @@
             animation: continuous-shine 3.5s infinite ease-in-out;
         }
 
+        /* إضافة الحركة المفقودة لبطاقة الاسم */
+        @keyframes continuous-shine {
+            0% { left: -150%; opacity: 0; }
+            10% { opacity: 0.8; }
+            20% { left: 150%; opacity: 0; }
+            100% { left: 150%; opacity: 0; } /* وقفة */
+        }
+
         .mega-icon-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4);
@@ -183,8 +191,9 @@
                 inset 0 0 20px rgba(255, 255, 255, 0.5); 
         }
         
+        /* تعديل لمعة الوضع النهاري لتكون مرئية (فضي خفيف) */
         .mega-icon-card.light-mode::before {
-             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0), rgba(150, 150, 150, 0.4), rgba(255, 255, 255, 0), transparent);
         }
         
         .mega-icon-card.light-mode span {
@@ -692,25 +701,6 @@
         <div class="flex flex-col items-center gap-3 mt-8 mb-4" data-aos="zoom-in">
             <div id="devCardMain" class="mega-icon-card light-mode">
                 <span>Developed by EMAD ALLAHAM</span>
-            </div>
-            <!-- حاوية الأيقونات مع اتجاه ثابت LTR -->
-            <div class="flex gap-4" dir="ltr">
-                <!-- Facebook -->
-                <a href="https://www.facebook.com/emad.allahaam" target="_blank" class="social-bubble fb" title="Facebook">
-                    <i class="fa-brands fa-facebook-f"></i>
-                </a>
-                <!-- X (Twitter) -->
-                <a href="https://x.com/edlm83" target="_blank" class="social-bubble x" title="X (Twitter)">
-                    <i class="fa-brands fa-x-twitter"></i>
-                </a>
-                <!-- Instagram -->
-                <a href="https://www.instagram.com/edlm83" target="_blank" class="social-bubble ig" title="Instagram">
-                    <i class="fa-brands fa-instagram"></i>
-                </a>
-                <!-- Telegram -->
-                <a href="https://t.me/edlm83" target="_blank" class="social-bubble tg" title="Telegram">
-                    <i class="fa-brands fa-telegram"></i>
-                </a>
             </div>
         </div>
     </div>

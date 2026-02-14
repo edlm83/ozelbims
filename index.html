@@ -64,6 +64,7 @@
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         
+        /* التنسيق العام للحقول المعطلة (Disabled) - يطغى على الألوان عادة */
         input:disabled, select:disabled { 
             background-color: #f8fafc; cursor: default; color: #000000 !important; 
             border-color: #cbd5e1; opacity: 1 !important; -webkit-text-fill-color: #000000 !important; font-weight: 700; 
@@ -71,6 +72,20 @@
         .dark input:disabled, .dark select:disabled {
             background-color: #374151; color: #d1d5db !important; -webkit-text-fill-color: #d1d5db !important; border-color: #4b5563;
         }
+
+        /* --- استثناء خاص لخانة الملاحظات (Note Input) --- */
+        /* يجبر النص داخل الخانة على البقاء باللون الأحمر حتى لو كانت مغلقة (وضع المحاسب) مع الحفاظ على الخلفية الرمادية */
+        input.note-input:disabled {
+            color: #dc2626 !important; /* red-600 */
+            -webkit-text-fill-color: #dc2626 !important;
+            background-color: #f8fafc !important; /* نفس خلفية باقي الحقول المغلقة */
+        }
+        .dark input.note-input:disabled {
+            color: #ef4444 !important; /* red-500 */
+            -webkit-text-fill-color: #ef4444 !important;
+            background-color: #374151 !important; /* نفس خلفية باقي الحقول المغلقة في الليلي */
+        }
+
         select:disabled { appearance: none; background-image: none !important; }
         
         .overlay { position: fixed; inset: 0; background: rgba(17, 24, 39, 0.95); z-index: 50; display: flex; justify-content: center; align-items: center; }
@@ -778,7 +793,7 @@
                 th_time: "الوقت والتاريخ",
                 th_role: "الرتبة",
                 th_device: "الجهاز",
-                th_browser: "المتصفح"
+                th_browser: "Tarayıcı"
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -1493,6 +1508,17 @@
             }
         }
 
+        // Add this helper function to prevent XSS and HTML breaking
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         window.renderDailyTable = function() {
             const tbody = document.getElementById('dailyTableBody');
             tbody.innerHTML = '';
@@ -1554,6 +1580,10 @@
 
                 const dragIcon = userRole === 'admin' ? '<span class="drag-handle" title="اسحب لإعادة الترتيب">☰</span>' : '';
 
+                // Use escapeHtml for user-input fields
+                const escapedName = escapeHtml(empName);
+                const escapedNotes = escapeHtml(dayData.notes || '');
+
                 tr.innerHTML = `
                     <td class="p-3 text-center text-gray-500 dark:text-gray-400 flex justify-center items-center" data-label="#" data-label-type="index">
                         ${index + 1} ${dragIcon}
@@ -1562,7 +1592,7 @@
                         onclick="showEmployeeSummary('${empId}')" 
                         data-label="${t('th_name')}" data-label-type="name">
                         <div class="flex items-center justify-between">
-                            <span class="hover:text-blue-600 dark:hover:text-blue-400">${empName}</span>
+                            <span class="hover:text-blue-600 dark:hover:text-blue-400">${escapedName}</span>
                             ${userRole === 'admin' ? `
                             <button onclick="event.stopPropagation(); openEditEmployeeModal('${empId}')" class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity px-1 text-lg" title="تعديل">
                                 ✎
@@ -1599,7 +1629,16 @@
                         <input type="number" inputmode="decimal" step="0.5" value="${dayData.overtime || ''}" onchange="saveData('${empId}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white" placeholder="0">
                     </td>
                     <td class="p-3" data-label="${t('th_notes')}">
-                        <input type="text" value="${dayData.notes || ''}" onchange="saveData('${empId}', '${dateStr}', 'notes', this.value)" ${isDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm border-gray-200 dark:border-gray-600 dark:text-white" placeholder="...">
+                        <input 
+                            type="text" 
+                            value="${escapedNotes}" 
+                            title="${escapedNotes}" 
+                            dir="ltr"
+                            onchange="saveData('${empId}', '${dateStr}', 'notes', this.value)" 
+                            ${isDisabled} 
+                            class="note-input w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 font-bold text-left focus:bg-red-50 dark:focus:bg-red-900/10 transition-colors placeholder-red-200 dark:placeholder-red-900" 
+                            placeholder="..."
+                        >
                     </td>
                     
                     ${userRole === 'admin' ? 

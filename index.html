@@ -417,7 +417,7 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.7</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V3.8</span></p>
             <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
@@ -473,17 +473,23 @@
         </div>
     </div>
 
-    <!-- نافذة إدارة البيانات (تحوي زر السجل) -->
+    <!-- نافذة إدارة البيانات (تحوي زر السجل وسلة المحذوفات) -->
     <div id="dataManagerOverlay" class="modal-overlay hidden">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-md w-full border dark:border-gray-700">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <span>💾</span> <span data-i18n="data_management">إدارة البيانات</span>
             </h3>
             
-            <!-- زر سجل الدخول الجديد -->
-            <button onclick="viewLoginLogs()" class="w-full mb-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded flex justify-center items-center gap-2 shadow-sm transition">
-                <span>📜</span> <span data-i18n="btn_login_log">سجل الدخول</span>
-            </button>
+            <div class="grid grid-cols-2 gap-2 mb-6">
+                <!-- زر سجل الدخول -->
+                <button onclick="viewLoginLogs()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded flex justify-center items-center gap-2 shadow-sm transition">
+                    <span>📜</span> <span data-i18n="btn_login_log">سجل الدخول</span>
+                </button>
+                <!-- زر سلة المحذوفات -->
+                <button onclick="openRecycleBin()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded flex justify-center items-center gap-2 shadow-sm transition">
+                    <span>🗑️</span> <span data-i18n="btn_recycle_bin">المحذوفات</span>
+                </button>
+            </div>
 
             <div class="mb-6 bg-orange-50 dark:bg-orange-900/30 p-3 rounded border border-orange-200 dark:border-orange-800">
                 <h4 class="font-bold text-orange-800 dark:text-orange-300 text-sm mb-2" data-i18n="legacy_import_title">📥 الانتقال من النظام القديم (V2)</h4>
@@ -505,6 +511,22 @@
             </div>
 
             <button onclick="toggleModal('dataManagerOverlay', false)" class="w-full mt-4 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 py-2 rounded" data-i18n="close">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة سلة المحذوفات (Recycle Bin Modal) -->
+    <div id="recycleBinOverlay" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 2rem;">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh] border dark:border-gray-700 overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700 flex-shrink-0">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                    <span>🗑️</span> <span data-i18n="recycle_bin_title">الموظفون المحذوفون</span>
+                </h3>
+                <button onclick="toggleModal('recycleBinOverlay', false)" class="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-1 rounded" data-i18n="close">إغلاق</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 relative bg-gray-50 dark:bg-gray-900/50">
+                <div id="recycleBinList" class="space-y-2"></div>
+                <div id="emptyRecycleBin" class="hidden text-center p-8 text-gray-400 dark:text-gray-500" data-i18n="no_deleted_emp">لا يوجد موظفين محذوفين.</div>
+            </div>
         </div>
     </div>
 
@@ -682,7 +704,8 @@
                 <span id="dateDisplay" class="text-sm text-blue-600 dark:text-blue-400">--</span>
             </div>
 
-            <div id="adminControls" class="flex gap-2">
+            <!-- Changed class to hidden by default, handled by JS -->
+            <div id="adminControls" class="flex gap-2 hidden">
                 <button onclick="openAddEmployeeModal()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded shadow text-sm transition flex items-center gap-1">
                     <span data-i18n="new_employee">+ موظف</span>
                 </button>
@@ -764,7 +787,10 @@
                 day_sunday: "الأحد", day_monday: "الإثنين", day_tuesday: "الثلاثاء", day_wednesday: "الأربعاء", day_thursday: "الخميس", day_friday: "الجمعة", day_saturday: "السبت",
                 lbl_shift: "الوردية", val_all_shifts: "الكل",
                 val_shift_a: "الوردية A", val_shift_b: "الوردية B",
-                role_admin: "المدير العام: 56401", role_shift_b_man: "مدير الوردية B فقط: 2222", role_accountant: "المحاسب: 3838",
+                // تم إزالة كلمات المرور من هنا للأمان
+                role_admin: "المدير العام", 
+                role_shift_b_man: "مدير الوردية B فقط", 
+                role_accountant: "المحاسب",
                 data_btn: "بيانات", data_management: "إدارة البيانات",
                 legacy_import_title: "📥 الانتقال من النظام القديم (V2)",
                 legacy_import_desc: "اضغط هنا فقط إذا كنت تريد جلب الموظفين وبيانات الحضور من ملفات السنة الماضية.",
@@ -793,7 +819,12 @@
                 th_time: "الوقت والتاريخ",
                 th_role: "الرتبة",
                 th_device: "الجهاز",
-                th_browser: "Tarayıcı"
+                th_browser: "Tarayıcı",
+                btn_recycle_bin: "المحذوفات",
+                recycle_bin_title: "الموظفون المحذوفون",
+                btn_restore: "استعادة",
+                no_deleted_emp: "لا يوجد موظفين محذوفين.",
+                deleted_at: "تاريخ الحذف: "
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -833,7 +864,10 @@
                 day_sunday: "Pazar", day_monday: "Pazartesi", day_tuesday: "Salı", day_wednesday: "Çarşamba", day_thursday: "Perşembe", day_friday: "Cuma", day_saturday: "Cumartesi",
                 lbl_shift: "Vardiya", val_all_shifts: "Tümü",
                 val_shift_a: "Vardiya A", val_shift_b: "Vardiya B",
-                role_admin: "Genel Müdür: 56401", role_shift_b_man: "Sadece B Vardiya Müdürü: 2222", role_accountant: "Muhasebeci: 3838",
+                // Passwords removed here for security
+                role_admin: "Genel Müdür", 
+                role_shift_b_man: "Sadece B Vardiya Müdürü", 
+                role_accountant: "Muhasebeci",
                 data_btn: "Veri", data_management: "Veri Yönetimi",
                 legacy_import_title: "📥 Eski Sistemden Geçiş (V2)",
                 legacy_import_desc: "Bu butonu sadece geçen yılın dosyalarından personel ve devam verilerini getirmek istiyorsanız kullanın.",
@@ -842,7 +876,7 @@
                 btn_restore_upload: "Yedeği Geri Yükle",
                 loading_processing: "Veriler işleniyor...",
                 msg_wrong_code: "Hatalı Kod",
-                msg_confirm_delete: "Bu personeli kalıcı olarak silmek istediğinizden emin misiniz?",
+                msg_confirm_delete: "Bu personeli silmek istediğinizden emin misiniz? (Geri Dönüşüm Kutusuna taşınacak)",
                 msg_confirm_restore: "Uyarı: Bu işlem mevcut verileri dosyadaki verilerle değiştirecektir. Emin misiniz?",
                 msg_restore_success: "Geri yükleme başarılı! Sayfa yenilenecek.",
                 msg_file_error: "Dosya hatası: ",
@@ -862,7 +896,12 @@
                 th_time: "Tarih ve Saat",
                 th_role: "Rol",
                 th_device: "Cihaz",
-                th_browser: "Tarayıcı"
+                th_browser: "Tarayıcı",
+                btn_recycle_bin: "Geri Dönüşüm Kutusu",
+                recycle_bin_title: "Silinen Personel",
+                btn_restore: "Geri Yükle",
+                no_deleted_emp: "Silinen personel yok.",
+                deleted_at: "Silinme Tarihi: "
             }
         };
 
@@ -1056,6 +1095,9 @@
                 // Show Admin Only Buttons for Logs
                 document.getElementById('btnExportLog').classList.remove('hidden');
                 document.getElementById('btnClearLog').classList.remove('hidden');
+                
+                // Show Admin Controls (+ موظف)
+                document.getElementById('adminControls').classList.remove('hidden');
 
                 // Fetch current viewer permission setting
                 getDoc(GLOBAL_SETTINGS_DOC).then(snap => {
@@ -1070,11 +1112,18 @@
                 currentUserShift = 'shift_B';
                 document.getElementById('shiftBadge').classList.remove('hidden');
                 document.getElementById('shiftBadge').innerText = t('badge_shift_b');
-                document.getElementById('bulkControls').classList.remove('hidden'); 
+                document.getElementById('bulkControls').classList.remove('hidden');
+                
+                // Hide Admin Controls (+ موظف) for Shift B
+                document.getElementById('adminControls').classList.add('hidden'); 
+                
             } else if (hashedCode === HASH_VIEWER) {
                 userRole = 'viewer';
                 detectedRole = 'Accountant/Viewer';
                 currentUserShift = 'all';
+                
+                // Ensure adminControls is visible container, but content replaced by setupViewerUI
+                document.getElementById('adminControls').classList.remove('hidden');
                 setupViewerUI();
                 listenToViewerPermission();
             } else {
@@ -1526,12 +1575,43 @@
             const dateStr = document.getElementById('currentDateInput').value;
             if (!dateStr) return;
 
+            // SOFT DELETE & CREATION DATE LOGIC: Check Date Visibility
+            const selectedDate = new Date(dateStr);
+
             let empArray = Object.entries(masterEmployees).map(([id, data]) => ({
                 id: id,
                 name: data.name,
                 shift: data.shift || 'shift_A',
-                order: data.order || 9999
+                order: data.order || 9999,
+                deleted: data.deleted || false,
+                deletedAt: data.deletedAt || null,
+                createdAt: data.createdAt || null
             }));
+
+            // Filter Logic
+            empArray = empArray.filter(e => {
+                // 1. Hide if selected date is BEFORE employee creation date
+                if (e.createdAt) {
+                    // Convert createdAt to Date object (YYYY-MM-DD) for comparison
+                    const creationDate = new Date(e.createdAt.split('T')[0]);
+                    const currentViewDate = new Date(dateStr);
+                    // If viewing a date strictly BEFORE creation, hide
+                    if (currentViewDate < creationDate) {
+                        return false;
+                    }
+                }
+
+                // 2. Hide if deleted AND selected date is AFTER end of deletion month
+                if (e.deleted && e.deletedAt) {
+                    const deletionDate = new Date(e.deletedAt);
+                    const endOfDeletionMonth = new Date(deletionDate.getFullYear(), deletionDate.getMonth() + 1, 0); // last day of month
+                    
+                    if (selectedDate > endOfDeletionMonth) {
+                        return false; 
+                    }
+                }
+                return true; 
+            });
 
             if (userRole === 'shift_b_manager') {
                 empArray = empArray.filter(e => e.shift === 'shift_B');
@@ -1557,6 +1637,11 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 dark:hover:bg-gray-700 border-b transition duration-150";
                 
+                // Mark deleted rows visually
+                if (emp.deleted) {
+                    tr.classList.add('bg-gray-100', 'dark:bg-gray-800', 'opacity-75');
+                }
+
                 if (userRole === 'admin') {
                     tr.setAttribute('draggable', 'true');
                     tr.classList.add('draggable-row');
@@ -1574,15 +1659,19 @@
                 if(dayData.status === 'sunday') tr.classList.add('status-sunday');
 
                 const isViewer = userRole === 'viewer';
-                const isInputsFrozen = !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday' && dayData.status !== 'sunday');
+                // Also freeze inputs if employee is deleted
+                const isInputsFrozen = emp.deleted || !dayData.status || (dayData.status !== 'present' && dayData.status !== 'holiday' && dayData.status !== 'sunday');
                 const inputsDisabled = isInputsFrozen || isViewer ? 'disabled' : '';
-                const isDisabled = isViewer ? 'disabled' : '';
+                const isDisabled = isViewer || emp.deleted ? 'disabled' : '';
 
                 const dragIcon = userRole === 'admin' ? '<span class="drag-handle" title="اسحب لإعادة الترتيب">☰</span>' : '';
 
                 // Use escapeHtml for user-input fields
                 const escapedName = escapeHtml(empName);
                 const escapedNotes = escapeHtml(dayData.notes || '');
+                
+                // Add (Deleted) indicator if applicable
+                const displayName = emp.deleted ? `<span class="text-red-500 line-through">${escapedName}</span>` : escapedName;
 
                 tr.innerHTML = `
                     <td class="p-3 text-center text-gray-500 dark:text-gray-400 flex justify-center items-center" data-label="#" data-label-type="index">
@@ -1592,8 +1681,8 @@
                         onclick="showEmployeeSummary('${empId}')" 
                         data-label="${t('th_name')}" data-label-type="name">
                         <div class="flex items-center justify-between">
-                            <span class="hover:text-blue-600 dark:hover:text-blue-400">${escapedName}</span>
-                            ${userRole === 'admin' ? `
+                            <span class="hover:text-blue-600 dark:hover:text-blue-400">${displayName}</span>
+                            ${userRole === 'admin' && !emp.deleted ? `
                             <button onclick="event.stopPropagation(); openEditEmployeeModal('${empId}')" class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity px-1 text-lg" title="تعديل">
                                 ✎
                             </button>
@@ -1642,7 +1731,7 @@
                     </td>
                     
                     ${userRole === 'admin' ? 
-                    `<td class="p-3 text-center delete-col" data-label="${t('th_delete')}"><button onclick="deleteEmployee('${empId}')" class="text-red-400 hover:text-red-700 font-bold px-2">×</button></td>` 
+                    `<td class="p-3 text-center delete-col" data-label="${t('th_delete')}"><button onclick="deleteEmployee('${empId}')" class="text-red-400 hover:text-red-700 font-bold px-2">${emp.deleted ? '⟳' : '×'}</button></td>` 
                     : '<td class="p-3"></td>'}
                 `;
                 tbody.appendChild(tr);
@@ -1750,7 +1839,13 @@
                 updates[`list.${id}.shift`] = shift;
             } else {
                 const newId = 'emp_' + Date.now();
-                updates[`list.${newId}`] = { name: name, shift: shift, order: newOrder };
+                // Add createdAt field for new employees
+                updates[`list.${newId}`] = { 
+                    name: name, 
+                    shift: shift, 
+                    order: newOrder,
+                    createdAt: new Date().toISOString() // Save creation timestamp
+                };
             }
 
             try {
@@ -1758,21 +1853,93 @@
             } catch (e) {
                 const deepObj = { list: {} };
                 const newId = id || 'emp_' + Date.now();
-                deepObj.list[newId] = { name: name, shift: shift, order: newOrder };
+                deepObj.list[newId] = { 
+                    name: name, 
+                    shift: shift, 
+                    order: newOrder,
+                    createdAt: new Date().toISOString() // Save creation timestamp
+                };
                 await setDoc(EMPLOYEES_DOC, deepObj, { merge: true });
             }
             toggleModal('addEmployeeOverlay', false);
         };
 
+        // NEW: Soft Delete Logic
         window.deleteEmployee = async function(empId) {
+            const emp = masterEmployees[empId];
+            if (!emp) return;
+
+            // If already deleted, restore logic could go here or separate function
+            if (emp.deleted) {
+                restoreEmployee(empId);
+                return;
+            }
+
             if (!confirm(t('msg_confirm_delete'))) return;
-            const newMap = { ...masterEmployees };
-            const name = newMap[empId]?.name || 'Unknown';
-            delete newMap[empId];
-            await setDoc(EMPLOYEES_DOC, { list: newMap });
             
-            // Log this action
-            await logAccess('Admin', `Deleted: ${name}`);
+            const updates = {};
+            updates[`list.${empId}.deleted`] = true;
+            updates[`list.${empId}.deletedAt`] = new Date().toISOString();
+
+            try {
+                await updateDoc(EMPLOYEES_DOC, updates);
+                // We don't remove locally immediately, onSnapshot will handle it
+                await logAccess('Admin', `Soft Deleted: ${emp.name}`);
+            } catch (e) {
+                console.error("Delete failed", e);
+            }
+        };
+
+        // NEW: Restore Employee
+        window.restoreEmployee = async function(empId) {
+            const emp = masterEmployees[empId];
+            if (!emp) return;
+
+            if (!confirm(`هل تريد استعادة الموظف: ${emp.name}؟`)) return;
+
+            const updates = {};
+            updates[`list.${empId}.deleted`] = false;
+            updates[`list.${empId}.deletedAt`] = null;
+
+            try {
+                await updateDoc(EMPLOYEES_DOC, updates);
+                await logAccess('Admin', `Restored: ${emp.name}`);
+                openRecycleBin(); // Refresh list if open
+            } catch (e) {
+                console.error("Restore failed", e);
+            }
+        };
+
+        // NEW: Recycle Bin Logic
+        window.openRecycleBin = function() {
+            toggleModal('dataManagerOverlay', false);
+            const listContainer = document.getElementById('recycleBinList');
+            listContainer.innerHTML = '';
+            
+            const deletedEmps = Object.entries(masterEmployees).filter(([id, data]) => data.deleted);
+            
+            if (deletedEmps.length === 0) {
+                document.getElementById('emptyRecycleBin').classList.remove('hidden');
+            } else {
+                document.getElementById('emptyRecycleBin').classList.add('hidden');
+                deletedEmps.forEach(([id, data]) => {
+                    const date = new Date(data.deletedAt).toLocaleDateString('en-GB');
+                    const div = document.createElement('div');
+                    div.className = "flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg";
+                    div.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800 dark:text-gray-200">${data.name}</p>
+                            <p class="text-xs text-red-500">${t('deleted_at')} ${date}</p>
+                        </div>
+                        <button onclick="restoreEmployee('${id}')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold shadow transition">
+                            ${t('btn_restore')} ⟳
+                        </button>
+                    `;
+                    listContainer.appendChild(div);
+                });
+            }
+            
+            toggleModal('recycleBinOverlay', true);
         };
 
         window.importLegacyEmployees = async function() {
@@ -1927,7 +2094,13 @@
                 const content = e.target.result;
                 try {
                     const data = JSON.parse(content);
-                    if (!data.employees) throw new Error("Invalid File");
+                    
+                    // --- SECURITY VALIDATION CHECK ---
+                    // التحقق من أن الملف يحتوي على بيانات الموظفين وبيانات الشهور
+                    if (!data || typeof data !== 'object') throw new Error("الملف تالف أو فارغ");
+                    if (!data.employees || typeof data.employees !== 'object') throw new Error("بيانات الموظفين غير موجودة أو غير صالحة");
+                    if (!data.months || typeof data.months !== 'object') throw new Error("بيانات السجلات الشهرية غير موجودة أو غير صالحة");
+                    // ---------------------------------
 
                     if (!confirm(t('msg_confirm_restore'))) return;
 
@@ -2017,10 +2190,28 @@
             let reportData = {};
             
             Object.keys(masterEmployees).forEach(id => {
+                const emp = masterEmployees[id];
+                // SOFT DELETE LOGIC FOR REPORTS
+                if (emp.deleted && emp.deletedAt) {
+                    const deletionDate = new Date(emp.deletedAt);
+                    const endOfDeletionMonth = new Date(deletionDate.getFullYear(), deletionDate.getMonth() + 1, 0); // End of month
+                    const reportDateStart = new Date(year, parseInt(month) - 1, 1);
+                    
+                    // If Report Month START is AFTER Deletion Month END, Exclude Employee
+                    if (type === 'monthly' && reportDateStart > endOfDeletionMonth) {
+                        return; // Skip this deleted employee
+                    }
+                    
+                    if (type === 'annual' && year > deletionDate.getFullYear()) {
+                        return; // Skip if report year is after deletion year
+                    }
+                }
+
                 reportData[id] = { 
-                    name: masterEmployees[id].name, 
-                    shift: masterEmployees[id].shift,
-                    order: masterEmployees[id].order || 9999,
+                    name: emp.name, 
+                    shift: emp.shift,
+                    order: emp.order || 9999,
+                    deleted: emp.deleted || false,
                     present: 0, absent: 0, vacation: 0, holiday: 0, sunday: 0, overtime: 0, delay: 0 
                 };
             });
@@ -2068,8 +2259,12 @@
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 dark:hover:bg-gray-700 transition duration-150";
+                
+                // Add visual cue for deleted in report
+                const displayName = d.deleted ? `<span class="text-red-500 italic">${d.name} (محذوف)</span>` : d.name;
+
                 tr.innerHTML = `
-                    <td class="p-3 border dark:border-gray-600 font-bold bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200" data-label="${t('th_name')}" data-label-type="name">${d.name}</td>
+                    <td class="p-3 border dark:border-gray-600 font-bold bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200" data-label="${t('th_name')}" data-label-type="name">${displayName}</td>
                     <td class="p-3 border dark:border-gray-600 text-center text-green-700 dark:text-green-400 font-bold" data-label="${t('th_present')}">${d.present}</td>
                     <td class="p-3 border dark:border-gray-600 text-center text-red-700 dark:text-red-400 font-bold" data-label="${t('th_absent')}">${d.absent}</td>
                     <td class="p-3 border dark:border-gray-600 text-center text-yellow-700 dark:text-yellow-400 font-bold" data-label="${t('th_vacation')}">${d.vacation}</td>

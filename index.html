@@ -277,39 +277,87 @@
         }
 
         /* === Login Input === */
+        /* Hide browser's native password reveal button (Chrome/Edge/Safari) */
+        #accessCode::-ms-reveal,
+        #accessCode::-ms-clear,
+        #accessCode::-webkit-contacts-auto-fill-button,
+        #accessCode::-webkit-credentials-auto-fill-button {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
         #accessCode {
-            border-radius: 12px !important;
-            font-size: 1.5rem !important;
-            letter-spacing: 0.4em !important;
+            border-radius: 10px !important;
+            font-size: 1rem !important;
+            letter-spacing: 0.3em !important;
             text-align: center !important;
-            padding: 0.85rem !important;
+            /* symmetric padding so text stays centered */
+            padding: 0.65rem 2.5rem !important;
             transition: all 0.3s ease !important;
+            width: 100%;
             /* Light mode */
             background: rgba(239,244,255,0.8) !important;
-            border: 1px solid rgba(37,99,235,0.25) !important;
+            border: 1px solid rgba(37,99,235,0.22) !important;
             color: #1E3A8A !important;
             caret-color: #2563EB;
+            /* Prevent browser from adding its own icons */
+            -webkit-appearance: none;
+            appearance: none;
         }
-        #accessCode::placeholder { color: rgba(37,99,235,0.3) !important; letter-spacing: 0.2em; }
+        #accessCode::placeholder {
+            color: rgba(37,99,235,0.3) !important;
+            letter-spacing: 0.1em;
+            font-size: 0.85rem;
+        }
         #accessCode:focus {
-            border-color: rgba(37,99,235,0.6) !important;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.12), 0 0 20px rgba(37,99,235,0.1) !important;
+            border-color: rgba(37,99,235,0.55) !important;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1), 0 0 16px rgba(37,99,235,0.08) !important;
             outline: none !important;
             background: #fff !important;
         }
-        /* Dark mode overrides */
         .dark #accessCode {
-            background: rgba(5,9,26,0.7) !important;
-            border-color: rgba(56,189,248,0.25) !important;
+            background: rgba(5,9,26,0.65) !important;
+            border-color: rgba(56,189,248,0.22) !important;
             color: #E2E8F0 !important;
             caret-color: #38BDF8;
         }
-        .dark #accessCode::placeholder { color: rgba(148,163,184,0.35) !important; }
+        .dark #accessCode::placeholder { color: rgba(148,163,184,0.28) !important; }
         .dark #accessCode:focus {
-            border-color: rgba(56,189,248,0.55) !important;
-            box-shadow: 0 0 0 3px rgba(56,189,248,0.15), 0 0 25px rgba(56,189,248,0.1) !important;
+            border-color: rgba(56,189,248,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.12), 0 0 18px rgba(56,189,248,0.08) !important;
             background: rgba(5,9,26,0.85) !important;
         }
+
+        /* Eye toggle button — sits on the right end */
+        #togglePasswordBtn {
+            position: absolute;
+            right: 0.7rem;
+            left: auto !important;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem 0.3rem;
+            line-height: 1;
+            border-radius: 6px;
+            color: rgba(37,99,235,0.4);
+            transition: color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5;
+        }
+        #togglePasswordBtn:hover {
+            color: #2563EB;
+            background: rgba(37,99,235,0.08);
+            transform: translateY(-50%) scale(1.12);
+        }
+        .dark #togglePasswordBtn { color: rgba(56,189,248,0.38); }
+        .dark #togglePasswordBtn:hover {
+            color: #38BDF8;
+            background: rgba(56,189,248,0.1);
+        }
+        #togglePasswordBtn i { font-size: 0.92rem; }
 
         /* === Login Button === */
         #loginOverlay button[onclick="checkLogin()"] {
@@ -1367,7 +1415,12 @@
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
             <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4</span></p>
-            <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mb-4 text-center text-lg tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="Code">
+            <div class="relative w-full mb-4">
+                <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full border rounded-lg text-center tracking-widest outline-none transition-colors" placeholder="Code">
+                <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()" title="إظهار/إخفاء الرمز">
+                    <i id="eyeIcon" class="fa-solid fa-eye-slash" style="font-size:1rem;"></i>
+                </button>
+            </div>
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
             
             <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="msg_wrong_code">رمز خاطئ</p>
@@ -1911,6 +1964,19 @@
         window.toggleLanguageSwitch = function() {
             const newLang = currentLang === 'ar' ? 'tr' : 'ar';
             changeLanguage(newLang);
+        };
+
+        // Password Visibility Toggle
+        window.togglePasswordVisibility = function() {
+            const input = document.getElementById('accessCode');
+            const icon  = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            }
         };
 
         // Dark Mode Logic

@@ -91,7 +91,7 @@
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: var(--bg-base);
+            background-color: var(--bg-base);
             color: var(--text-primary);
             transition: background 0.4s ease, color 0.3s ease;
             min-height: 100vh;
@@ -135,7 +135,7 @@
         .overlay {
             position: fixed; inset: 0; z-index: 50;
             display: flex; justify-content: center; align-items: center;
-            background: rgba(5,9,26,0.96);
+            background-color: rgba(5,9,26,0.96) ;
             backdrop-filter: blur(12px);
         }
         .loader {
@@ -153,7 +153,7 @@
             position: fixed; inset: 0; z-index: 40;
             display: flex; justify-content: center; align-items: center;
             padding: 1rem;
-            background: rgba(5,9,26,0.7);
+            background-color: rgba(5,9,26,0.7) ;
             backdrop-filter: blur(8px);
         }
 
@@ -186,7 +186,7 @@
 
         /* === LIGHT MODE Card === */
         #loginOverlay > div:first-of-type {
-            background: rgba(255,255,255,0.92) !important;
+            background-color: rgba(255,255,255,0.92) !important;
             border: 1px solid rgba(37,99,235,0.18) !important;
             border-radius: 24px !important;
             box-shadow:
@@ -214,7 +214,7 @@
 
         /* === DARK MODE Card === */
         .dark #loginOverlay > div:first-of-type {
-            background: rgba(12,21,53,0.88) !important;
+            background-color: rgba(12,21,53,0.88) !important;
             border: 1px solid rgba(56,189,248,0.22) !important;
             box-shadow:
                 0 0 0 1px rgba(56,189,248,0.08),
@@ -233,22 +233,22 @@
             display: flex; align-items: center; justify-content: center;
             transition: all 0.3s ease;
             /* Light mode style */
-            background: rgba(37,99,235,0.1) !important;
+            background-color: rgba(37,99,235,0.1) !important;
             border: 1px solid rgba(37,99,235,0.25) !important;
             color: #2563EB !important;
         }
         .fixed-top-left:hover {
-            background: rgba(37,99,235,0.18) !important;
+            background-color: rgba(37,99,235,0.18) !important;
             box-shadow: 0 0 18px rgba(37,99,235,0.25) !important;
             transform: rotate(15deg) scale(1.1);
         }
         .dark .fixed-top-left {
-            background: rgba(56,189,248,0.1) !important;
+            background-color: rgba(56,189,248,0.1) !important;
             border-color: rgba(56,189,248,0.2) !important;
             color: #38BDF8 !important;
         }
         .dark .fixed-top-left:hover {
-            background: rgba(56,189,248,0.2) !important;
+            background-color: rgba(56,189,248,0.2) !important;
             box-shadow: 0 0 18px rgba(56,189,248,0.3) !important;
         }
 
@@ -266,13 +266,13 @@
 
         /* Version Badge */
         #loginOverlay .bg-blue-100 {
-            background: rgba(37,99,235,0.1) !important;
+            background-color: rgba(37,99,235,0.1) !important;
             color: #2563EB !important;
             border-radius: 99px !important;
             font-weight: 700 !important;
         }
         .dark #loginOverlay .bg-blue-100 {
-            background: rgba(56,189,248,0.15) !important;
+            background-color: rgba(56,189,248,0.15) !important;
             color: #38BDF8 !important;
         }
 
@@ -297,7 +297,7 @@
             transition: all 0.3s ease !important;
             width: 100%;
             /* Light mode */
-            background: rgba(239,244,255,0.8) !important;
+            background-color: rgba(239,244,255,0.8) !important;
             border: 1px solid rgba(37,99,235,0.22) !important;
             color: #1E3A8A !important;
             caret-color: #2563EB;
@@ -317,7 +317,7 @@
             background: #fff !important;
         }
         .dark #accessCode {
-            background: rgba(5,9,26,0.65) !important;
+            background-color: rgba(5,9,26,0.65) !important;
             border-color: rgba(56,189,248,0.22) !important;
             color: #E2E8F0 !important;
             caret-color: #38BDF8;
@@ -326,7 +326,7 @@
         .dark #accessCode:focus {
             border-color: rgba(56,189,248,0.5) !important;
             box-shadow: 0 0 0 3px rgba(56,189,248,0.12), 0 0 18px rgba(56,189,248,0.08) !important;
-            background: rgba(5,9,26,0.85) !important;
+            background-color: rgba(5,9,26,0.85) !important;
         }
 
         /* Eye toggle button — sits on the right end */
@@ -349,13 +349,13 @@
         }
         #togglePasswordBtn:hover {
             color: #2563EB;
-            background: rgba(37,99,235,0.08);
+            background-color: rgba(37,99,235,0.08) ;
             transform: translateY(-50%) scale(1.12);
         }
         .dark #togglePasswordBtn { color: rgba(56,189,248,0.38); }
         .dark #togglePasswordBtn:hover {
             color: #38BDF8;
-            background: rgba(56,189,248,0.1);
+            background-color: rgba(56,189,248,0.1) ;
         }
         #togglePasswordBtn i { font-size: 0.92rem; }
 
@@ -395,11 +395,11 @@
 
         /* === Language Toggle === */
         #loginOverlay .bg-gray-200 {
-            background: rgba(37,99,235,0.08) !important;
+            background-color: rgba(37,99,235,0.08) !important;
             border-color: rgba(37,99,235,0.2) !important;
         }
         .dark #loginOverlay .bg-gray-200 {
-            background: rgba(56,189,248,0.1) !important;
+            background-color: rgba(56,189,248,0.1) !important;
             border-color: rgba(56,189,248,0.2) !important;
         }
         #lang-knob {
@@ -452,7 +452,7 @@
            MAIN APP CONTAINER
            ============================================ */
         #appContainer {
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
             border: 1px solid var(--border) !important;
             border-radius: 20px !important;
             box-shadow: var(--shadow-card) !important;
@@ -501,19 +501,19 @@
 
         /* Dark Mode Toggle */
         button[onclick="toggleDarkMode()"] {
-            background: rgba(37,99,235,0.1) !important;
+            background-color: rgba(37,99,235,0.1) !important;
             border: 1px solid rgba(37,99,235,0.25) !important;
             color: #2563EB !important;
             border-radius: 50% !important;
             transition: all 0.3s ease !important;
         }
         button[onclick="toggleDarkMode()"]:hover {
-            background: rgba(37,99,235,0.2) !important;
+            background-color: rgba(37,99,235,0.2) !important;
             box-shadow: 0 0 15px rgba(37,99,235,0.3) !important;
             transform: rotate(15deg) scale(1.1) !important;
         }
         .dark button[onclick="toggleDarkMode()"] {
-            background: rgba(56,189,248,0.1) !important;
+            background-color: rgba(56,189,248,0.1) !important;
             border-color: rgba(56,189,248,0.25) !important;
             color: #38BDF8 !important;
         }
@@ -561,7 +561,7 @@
         }
         button[onclick="logout()"]:hover {
             color: #F87171 !important;
-            background: rgba(248,113,113,0.1) !important;
+            background-color: rgba(248,113,113,0.1) !important;
             border-color: rgba(248,113,113,0.25) !important;
         }
 
@@ -583,7 +583,7 @@
            TOOLBAR / FILTER AREA
            ============================================ */
         #appContainer > div:nth-child(2) {
-            background: var(--bg-toolbar) !important;
+            background-color: var(--bg-toolbar) !important;
             border: 1px solid var(--border) !important;
             border-radius: 14px !important;
             padding: 1rem !important;
@@ -601,7 +601,7 @@
         /* Date Input & Selects */
         input[type="date"],
         #shiftFilter, #viewerPermission {
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
             border: 1px solid var(--border) !important;
             color: var(--text-primary) !important;
             border-radius: 10px !important;
@@ -659,7 +659,7 @@
         button[onclick="applyBulkAction('break')"]:hover { filter: brightness(1.12) !important; }
 
         #bulkBreakInput {
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
             border-top: none !important;
             font-weight: 700 !important;
             font-size: 0.9rem !important;
@@ -670,7 +670,7 @@
         #bulkBreakInput::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
         #bulkEntryInput, #bulkExitInput {
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
             border-top: none !important;
             font-weight: 700 !important;
             font-size: 0.9rem !important;
@@ -680,7 +680,7 @@
            EMPLOYEE STATS CARD
            ============================================ */
         #employeeStatsCard {
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
             border: none !important;
             border-radius: 14px !important;
             box-shadow: var(--shadow-card) !important;
@@ -698,7 +698,7 @@
             border-radius: 14px !important;
             border: 1px solid var(--border) !important;
             box-shadow: var(--shadow-card) !important;
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
         }
 
         /* Table Header */
@@ -725,10 +725,10 @@
             border-bottom: 1px solid var(--border) !important;
         }
         tbody tr:hover {
-            background: rgba(37,99,235,0.05) !important;
+            background-color: rgba(37,99,235,0.05) !important;
             transform: none !important;
         }
-        .dark tbody tr:hover { background: rgba(56,189,248,0.04) !important; }
+        .dark tbody tr:hover { background-color: rgba(56,189,248,0.04) !important; }
 
         /* Table Cells */
         tbody td {
@@ -759,8 +759,8 @@
             transition: background 0.15s, color 0.15s;
             padding: 0;
         }
-        .action-btn:hover { background: rgba(37,99,235,0.12); color: #2563EB; }
-        .dark .action-btn:hover { background: rgba(56,189,248,0.12); color: #38BDF8; }
+        .action-btn:hover { background-color: rgba(37,99,235,0.12) ; color: #2563EB; }
+        .dark .action-btn:hover { background-color: rgba(56,189,248,0.12) ; color: #38BDF8; }
 
         /* ---- Disable drag on interactive elements inside draggable rows ---- */
         .draggable-row input,
@@ -799,7 +799,7 @@
         input[type=number] { -moz-appearance: textfield; }
 
         td select, td input[type="tel"], td input[type="number"], td input[type="text"] {
-            background: rgba(37,99,235,0.05) !important;
+            background-color: rgba(37,99,235,0.05) !important;
             border: 1px solid rgba(37,99,235,0.15) !important;
             border-radius: 8px !important;
             color: var(--text-primary) !important;
@@ -813,11 +813,11 @@
             border-color: var(--accent) !important;
             box-shadow: 0 0 0 2px var(--accent-glow) !important;
             outline: none !important;
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
         }
         .dark td select, .dark td input[type="tel"],
         .dark td input[type="number"], .dark td input[type="text"] {
-            background: rgba(56,189,248,0.05) !important;
+            background-color: rgba(56,189,248,0.05) !important;
             border-color: rgba(56,189,248,0.12) !important;
         }
 
@@ -854,8 +854,8 @@
             font-weight: 800 !important;
             font-size: 0.9rem !important;
         }
-        td[data-label-type="name"]:hover { background: rgba(37,99,235,0.06) !important; }
-        .dark td[data-label-type="name"]:hover { background: rgba(56,189,248,0.06) !important; }
+        td[data-label-type="name"]:hover { background-color: rgba(37,99,235,0.06) !important; }
+        .dark td[data-label-type="name"]:hover { background-color: rgba(56,189,248,0.06) !important; }
 
         /* Delete button */
         td.delete-col button {
@@ -867,7 +867,7 @@
             transition: all 0.2s ease !important;
         }
         td.delete-col button:hover {
-            background: rgba(248,113,113,0.15) !important;
+            background-color: rgba(248,113,113,0.15) !important;
             color: #EF4444 !important;
         }
 
@@ -888,10 +888,10 @@
         .draggable-row { cursor: grab; }
         .draggable-row.dragging {
             opacity: 0.5 !important;
-            background: rgba(37,99,235,0.1) !important;
+            background-color: rgba(37,99,235,0.1) !important;
             box-shadow: 0 8px 30px rgba(37,99,235,0.2) !important;
         }
-        .dark .draggable-row.dragging { background: rgba(56,189,248,0.08) !important; }
+        .dark .draggable-row.dragging { background-color: rgba(56,189,248,0.08) !important; }
         .drag-handle {
             cursor: grab;
             color: var(--text-muted) !important;
@@ -926,7 +926,7 @@
            MODALS (Add Employee / Data Manager / etc)
            ============================================ */
         .modal-overlay > div {
-            background: var(--bg-card) !important;
+            background-color: var(--bg-card) !important;
             border: 1px solid var(--border) !important;
             border-radius: 20px !important;
             box-shadow: var(--shadow-lg) !important;
@@ -940,7 +940,7 @@
 
         /* Modal inputs */
         #newEmployeeName, #newEmployeeShift {
-            background: var(--bg-base) !important;
+            background-color: var(--bg-base) !important;
             border: 1px solid var(--border) !important;
             color: var(--text-primary) !important;
             border-radius: 10px !important;
@@ -970,7 +970,7 @@
 
         /* Cancel Button (generic gray buttons) */
         .bg-gray-200, .dark\:bg-gray-700 {
-            background: rgba(148,163,184,0.12) !important;
+            background-color: rgba(148,163,184,0.12) !important;
             color: var(--text-secondary) !important;
         }
 
@@ -987,7 +987,7 @@
         }
         #monthlyReportOverlay .bg-gray-50,
         #monthlyReportOverlay .dark\:bg-gray-900 {
-            background: var(--bg-base) !important;
+            background-color: var(--bg-base) !important;
         }
         #reportTitleDisplay {
             background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.05)) !important;
@@ -1059,7 +1059,7 @@
             transition: all 0.2s ease !important;
         }
         button[data-i18n="close"]:hover {
-            background: rgba(248,113,113,0.1) !important;
+            background-color: rgba(248,113,113,0.1) !important;
             border-color: rgba(248,113,113,0.3) !important;
             color: #F87171 !important;
         }
@@ -1102,7 +1102,7 @@
 
         /* --- LIGHT MODE card --- */
         html:not(.dark) .mega-icon-card {
-            background: rgba(255,255,255,0.88);
+            background-color: rgba(255,255,255,0.88) ;
             border: 1px solid rgba(37,99,235,0.22);
             box-shadow: 0 8px 28px rgba(37,99,235,0.14), 0 2px 8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,1);
         }
@@ -1128,7 +1128,7 @@
 
         /* --- DARK MODE card --- */
         html.dark .mega-icon-card {
-            background: rgba(8,15,40,0.82);
+            background-color: rgba(8,15,40,0.82) ;
             border: 1px solid rgba(56,189,248,0.2);
             box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(56,189,248,0.07);
         }
@@ -1151,7 +1151,7 @@
 
         /* Keep .light-mode class working for devCardMain (toggled by JS) */
         .mega-icon-card.light-mode {
-            background: rgba(255,255,255,0.88) !important;
+            background-color: rgba(255,255,255,0.88) !important;
             border: 1px solid rgba(37,99,235,0.22) !important;
             box-shadow: 0 8px 28px rgba(37,99,235,0.14), inset 0 1px 0 rgba(255,255,255,1) !important;
         }
@@ -1187,7 +1187,7 @@
 
         /* Light mode social bubbles */
         html:not(.dark) .social-bubble {
-            background: rgba(255,255,255,0.75);
+            background-color: rgba(255,255,255,0.75) ;
             border: 1px solid rgba(37,99,235,0.2);
             box-shadow: 0 4px 14px rgba(37,99,235,0.1);
             color: #475569 !important;
@@ -1200,7 +1200,7 @@
         }
         /* Dark mode social bubbles */
         html.dark .social-bubble {
-            background: rgba(56,189,248,0.07);
+            background-color: rgba(56,189,248,0.07) ;
             border: 1px solid rgba(56,189,248,0.14);
             box-shadow: 0 4px 14px rgba(0,0,0,0.25);
             color: #94A3B8 !important;
@@ -1239,7 +1239,7 @@
            LEGACY IMPORT NOTICE
            ============================================ */
         .bg-orange-50, .dark\:bg-orange-900\/30 {
-            background: rgba(245,158,11,0.08) !important;
+            background-color: rgba(245,158,11,0.08) !important;
             border-color: rgba(245,158,11,0.25) !important;
             border-radius: 10px !important;
         }
@@ -1256,7 +1256,7 @@
         /* ============================================
            LOGIN LOG TABLE
            ============================================ */
-        #loginLogOverlay thead { background: rgba(15,118,110,0.15) !important; }
+        #loginLogOverlay thead { background-color: rgba(15,118,110,0.15) !important; }
         #loginLogOverlay thead th {
             background: linear-gradient(135deg, #0F766E, #0D9488) !important;
         }
@@ -1273,7 +1273,7 @@
 
         /* Adjust Year input in report modal */
         #repYearInput {
-            background: var(--bg-base) !important;
+            background-color: var(--bg-base) !important;
             border: 1px solid var(--border) !important;
             border-radius: 8px !important;
             color: var(--text-primary) !important;
@@ -1298,7 +1298,7 @@
            RECYCLE BIN & LOG BACKGROUNDS
            ============================================ */
         .bg-gray-50, .dark\:bg-gray-900\/50 {
-            background: var(--bg-base) !important;
+            background-color: var(--bg-base) !important;
         }
 
         /* ============================================
@@ -1318,7 +1318,7 @@
             thead { display: none; }
 
             tr {
-                background: var(--bg-card) !important;
+                background-color: var(--bg-card) !important;
                 margin-bottom: 1rem !important;
                 border-radius: 14px !important;
                 box-shadow: var(--shadow-card) !important;
@@ -1370,7 +1370,7 @@
             td input, td select { width: 55% !important; padding: 0.5rem !important; }
 
             td.delete-col {
-                background: rgba(248,113,113,0.06) !important;
+                background-color: rgba(248,113,113,0.06) !important;
                 justify-content: center !important;
                 padding: 0.75rem !important;
             }
@@ -1382,22 +1382,15 @@
            DARK SCROLLBAR
            ============================================ */
         .dark ::-webkit-scrollbar { width: 6px; height: 6px; }
-        .dark ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .dark ::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.35); border-radius: 99px; }
-        .dark ::-webkit-scrollbar-thumb:hover { background: rgba(56,189,248,0.6); }
+        .dark ::-webkit-scrollbar-track { background-color: rgba(255,255,255,0.02) ; }
+        .dark ::-webkit-scrollbar-thumb { background-color: rgba(56,189,248,0.35) ; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb:hover { background-color: rgba(56,189,248,0.6) ; }
 
         /* Light mode body background */
         html.light body { background: #EFF4FF !important; }
         html.dark body  { background: #080E28 !important; }
 
-        /* ============================================
-           FIX: Select arrow color in dark mode
-           color-scheme:dark tells browser to use light-colored
-           native arrows automatically — no SVG needed
-           ============================================ */
-        .dark select {
-            color-scheme: dark !important;
-        }
+
 
         /* ============================================
            FIX: Prevent iOS auto-zoom on table inputs
@@ -1415,14 +1408,14 @@
         .modal-overlay .border-gray-700 { border-color: var(--border) !important; }
 
         /* Override any raw tailwind gray backgrounds */
-        .dark .bg-gray-800  { background: var(--bg-card) !important; }
-        .dark .bg-gray-900  { background: var(--bg-base) !important; }
-        .dark .bg-gray-700  { background: rgba(255,255,255,0.04) !important; }
-        .bg-white           { background: var(--bg-card) !important; }
+        .dark .bg-gray-800  { background-color: var(--bg-card) !important; }
+        .dark .bg-gray-900  { background-color: var(--bg-base) !important; }
+        .dark .bg-gray-700  { background-color: rgba(255,255,255,0.04) !important; }
+        .bg-white           { background-color: var(--bg-card) !important; }
 
         /* Report table hover rows */
-        #reportTableBody tr:hover { background: rgba(37,99,235,0.05) !important; }
-        .dark #reportTableBody tr:hover { background: rgba(56,189,248,0.04) !important; }
+        #reportTableBody tr:hover { background-color: rgba(37,99,235,0.05) !important; }
+        .dark #reportTableBody tr:hover { background-color: rgba(56,189,248,0.04) !important; }
 
         /* Mobile report table colored label prefixes */
         @media (max-width: 768px) {
@@ -1435,6 +1428,7 @@
             #reportTableBody td[data-label*="تأخير"]::before,
             #reportTableBody td[data-label*="Delay"]::before   { color: #F87171 !important; }
         }
+
     </style>
 
 
@@ -1799,7 +1793,7 @@
                     </div>
                     <div class="flex flex-col items-center">
                         <button onclick="applyBulkAction('break')" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_break">استراحة جماعية</button>
-                        <input type="number" inputmode="decimal" id="bulkBreakInput" step="0.5" min="0" value="0.5" placeholder="0.5" class="p-1 border border-orange-300 dark:border-orange-700 dark:bg-gray-700 dark:text-white rounded-b w-full text-center text-sm font-bold focus:ring-2 focus:ring-orange-400 outline-none" style="-moz-appearance:textfield;">
+                        <input type="number" inputmode="decimal" id="bulkBreakInput" step="0.5" min="0" value="1" placeholder="1" class="p-1 border border-orange-300 dark:border-orange-700 dark:bg-gray-700 dark:text-white rounded-b w-full text-center text-sm font-bold focus:ring-2 focus:ring-orange-400 outline-none" style="-moz-appearance:textfield;">
                     </div>
                 </div>
             </div>
@@ -2559,7 +2553,7 @@
             } else if (actionType === 'exit') {
                 timeValue = document.getElementById('bulkExitInput').value;
             } else if (actionType === 'break') {
-                timeValue = document.getElementById('bulkBreakInput').value || '0.5';
+                timeValue = document.getElementById('bulkBreakInput').value || '1';
             }
 
             if (actionType !== 'break' && !timeValue) {
@@ -2923,6 +2917,11 @@
 
             const record = currentMonthData[empId][date];
             if (field === 'status') {
+                if (value === '' || value === null) {
+                    // Reset ALL fields when status cleared to default
+                    record.entry = ''; record.exit = ''; record.breakDuration = '0';
+                    record.shortage = ''; record.overtime = ''; record.notes = '';
+                }
                 if (value === 'absent' || value === 'vacation') {
                     record.entry = ''; record.exit = ''; record.breakDuration = '0'; record.shortage = ''; record.overtime = '';
                 }
@@ -2933,6 +2932,14 @@
 
             const updates = {};
             updates[`records.${empId}.${date}.${field}`] = value;
+            if (field === 'status' && (value === '' || value === null)) {
+                updates[`records.${empId}.${date}.entry`]         = '';
+                updates[`records.${empId}.${date}.exit`]          = '';
+                updates[`records.${empId}.${date}.breakDuration`] = '0';
+                updates[`records.${empId}.${date}.shortage`]      = '';
+                updates[`records.${empId}.${date}.overtime`]      = '';
+                updates[`records.${empId}.${date}.notes`]         = '';
+            }
             if (field === 'status' && (value === 'absent' || value === 'vacation')) {
                 updates[`records.${empId}.${date}.entry`] = '';
                 updates[`records.${empId}.${date}.exit`] = '';
@@ -3587,5 +3594,54 @@
         changeLanguage(currentLang);
 
     </script>
+
+    <!-- SELECT ARROW: injected via JS to always win over Tailwind CDN -->
+    <script>
+        (function applySelectArrows() {
+            var LA = "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E\")";
+            var DA = "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394A3B8'/%3E%3C/svg%3E\")";
+
+            // Move styleEl to END of head each time so it always wins the cascade
+            var styleEl = document.createElement('style');
+            styleEl.id = 'select-arrow-override';
+            document.head.appendChild(styleEl);
+
+            function updateArrows() {
+                var isDark = document.documentElement.classList.contains('dark');
+                var arrow = isDark ? DA : LA;
+                // Move to end of head to beat any late-injected Tailwind styles
+                if (styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
+                document.head.appendChild(styleEl);
+                styleEl.textContent =
+                    'select, td select, #shiftFilter, #viewerPermission, #repMonthSelect, #transferShiftSelect, #newEmployeeShift {' +
+                    '  -webkit-appearance: none !important;' +
+                    '  -moz-appearance: none !important;' +
+                    '  appearance: none !important;' +
+                    '  background-image: ' + arrow + ' !important;' +
+                    '  background-repeat: no-repeat !important;' +
+                    '  background-size: 10px 6px !important;' +
+                    '  background-position: left 9px center !important;' +
+                    '  padding-left: 1.8rem !important;' +
+                    '}' +
+                    'select:disabled {' +
+                    '  background-image: none !important;' +
+                    '  padding-left: 0.5rem !important;' +
+                    '}';
+            }
+
+            updateArrows();
+
+            // Re-run on dark mode toggle
+            new MutationObserver(function(m) {
+                m.forEach(function(r) { if (r.attributeName === 'class') updateArrows(); });
+            }).observe(document.documentElement, { attributes: true });
+
+            // Re-run a few times after load to catch late Tailwind CDN injection
+            [100, 300, 600, 1000, 2000].forEach(function(ms) {
+                setTimeout(updateArrows, ms);
+            });
+        })();
+    </script>
+
 </body>
 </html>

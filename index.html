@@ -70,20 +70,20 @@
         }
 
         .dark {
-            --bg-base:       #05091A;
-            --bg-card:       #0C1535;
-            --bg-glass:      rgba(12,21,53,0.92);
-            --bg-toolbar:    #091230;
-            --bg-header:     linear-gradient(135deg, #06082A 0%, #0A1040 50%, #0C1535 100%);
+            --bg-base:       #080E28;
+            --bg-card:       #0F1B40;
+            --bg-glass:      rgba(15,27,64,0.92);
+            --bg-toolbar:    #0B1432;
+            --bg-header:     linear-gradient(135deg, #080C2A 0%, #0C1445 50%, #0F1840 100%);
             --accent:        #38BDF8;
             --accent-glow:   rgba(56,189,248,0.35);
             --accent2:       #A78BFA;
             --text-primary:  #E2E8F0;
             --text-secondary:#94A3B8;
-            --text-muted:    #4B5563;
+            --text-muted:    #5A6785;
             --border:        rgba(56,189,248,0.2);
-            --shadow-card:   0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(56,189,248,0.12);
-            --shadow-lg:     0 24px 80px rgba(0,0,0,0.8);
+            --shadow-card:   0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(56,189,248,0.12);
+            --shadow-lg:     0 24px 80px rgba(0,0,0,0.7);
         }
 
         /* ---- Base ---- */
@@ -648,6 +648,27 @@
         }
         button[onclick="applyBulkAction('exit')"]:hover { filter: brightness(1.15) !important; }
 
+        button[onclick="applyBulkAction('break')"] {
+            background: linear-gradient(135deg, #D97706, #F59E0B) !important;
+            border-radius: 8px 8px 0 0 !important;
+            border: none !important;
+            font-weight: 700 !important;
+            box-shadow: none !important;
+            transition: filter 0.2s ease !important;
+        }
+        button[onclick="applyBulkAction('break')"]:hover { filter: brightness(1.12) !important; }
+
+        #bulkBreakInput {
+            background: var(--bg-card) !important;
+            border-top: none !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+            border-color: rgba(245,158,11,0.4) !important;
+            color: var(--text-primary) !important;
+        }
+        #bulkBreakInput::-webkit-inner-spin-button,
+        #bulkBreakInput::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
         #bulkEntryInput, #bulkExitInput {
             background: var(--bg-card) !important;
             border-top: none !important;
@@ -714,6 +735,40 @@
             padding: 0.6rem 0.75rem !important;
             color: var(--text-primary) !important;
             vertical-align: middle !important;
+        }
+
+        /* ---- Admin name cell action buttons (float, don't affect name layout) ---- */
+        .admin-name-actions {
+            position: absolute;
+            bottom: 4px;
+            left: 6px;
+            display: inline-flex;
+            gap: 2px;
+            pointer-events: none;
+        }
+        .group:hover .admin-name-actions { pointer-events: auto; }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px;
+            color: #94A3B8;
+            transition: background 0.15s, color 0.15s;
+            padding: 0;
+        }
+        .action-btn:hover { background: rgba(37,99,235,0.12); color: #2563EB; }
+        .dark .action-btn:hover { background: rgba(56,189,248,0.12); color: #38BDF8; }
+
+        /* ---- Disable drag on interactive elements inside draggable rows ---- */
+        .draggable-row input,
+        .draggable-row select,
+        .draggable-row textarea,
+        .draggable-row button {
+            -webkit-user-drag: none !important;
+            user-drag: none !important;
         }
 
         /* ---- Status Row Colors (vibrant) ---- */
@@ -1333,7 +1388,27 @@
 
         /* Light mode body background */
         html.light body { background: #EFF4FF !important; }
-        html.dark body  { background: #05091A !important; }
+        html.dark body  { background: #080E28 !important; }
+
+        /* ============================================
+           FIX: Select arrow color in dark mode
+           color-scheme:dark tells browser to use light-colored
+           native arrows automatically — no SVG needed
+           ============================================ */
+        .dark select {
+            color-scheme: dark !important;
+        }
+
+        /* ============================================
+           FIX: Prevent iOS auto-zoom on table inputs
+           font-size < 16px triggers unwanted zoom on iOS
+           ============================================ */
+        @media (max-width: 768px) {
+            td input, td select {
+                font-size: 16px !important;
+                touch-action: manipulation !important;
+            }
+        }
 
         /* Global border-b color in modals */
         .modal-overlay .border-b { border-bottom-color: var(--border) !important; }
@@ -1414,7 +1489,7 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4.1</span></p>
             <div class="relative w-full mb-4">
                 <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full border rounded-lg text-center tracking-widest outline-none transition-colors" placeholder="Code">
                 <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()" title="إظهار/إخفاء الرمز">
@@ -1449,6 +1524,30 @@
                 <a href="https://t.me/edlm83" target="_blank" class="social-bubble tg" title="Telegram">
                     <i class="fa-brands fa-telegram"></i>
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة نقل الوردية -->
+    <div id="transferShiftOverlay" class="modal-overlay hidden">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border dark:border-gray-700">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-2">
+                <span style="font-size:1.3rem">🔄</span>
+                <span>نقل الوردية</span>
+                <span class="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold">Transfer</span>
+            </h3>
+            <input type="hidden" id="transferEmpId">
+            <p id="transferEmpNameDisplay" class="text-sm text-gray-500 dark:text-gray-400 mb-5 border-b dark:border-gray-700 pb-3"></p>
+            <div class="mb-5">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 block uppercase tracking-wider">الوردية الجديدة</label>
+                <select id="transferShiftSelect" class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-base font-bold">
+                    <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
+                    <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="executeTransferShift()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg transition shadow-md">تأكيد النقل</button>
+                <button onclick="toggleModal('transferShiftOverlay', false)" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold py-2.5 rounded-lg transition">إلغاء</button>
             </div>
         </div>
     </div>
@@ -1698,6 +1797,10 @@
                         <button onclick="applyBulkAction('exit')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_exit">خروج جماعي</button>
                         <input type="tel" inputmode="numeric" pattern="[0-9]*" id="bulkExitInput" placeholder="--:--" class="p-1 border border-blue-300 dark:border-blue-800 dark:bg-gray-700 dark:text-white rounded-b w-full text-center text-sm ltr placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none" onchange="validateBulkInput(this)">
                     </div>
+                    <div class="flex flex-col items-center">
+                        <button onclick="applyBulkAction('break')" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-t shadow text-xs font-bold w-full transition" data-i18n="bulk_break">استراحة جماعية</button>
+                        <input type="number" inputmode="decimal" id="bulkBreakInput" step="0.5" min="0" value="0.5" placeholder="0.5" class="p-1 border border-orange-300 dark:border-orange-700 dark:bg-gray-700 dark:text-white rounded-b w-full text-center text-sm font-bold focus:ring-2 focus:ring-orange-400 outline-none" style="-moz-appearance:textfield;">
+                    </div>
                 </div>
             </div>
 
@@ -1815,7 +1918,7 @@
                 ph_employee_name: "الاسم الثلاثي",
                 bulk_entry: "دخول جماعي",
                 bulk_exit: "خروج جماعي",
-                lbl_viewer_control: "عرض المحاسب",
+                bulk_break: "استراحة جماعية",
                 btn_login_log: "سجل الدخول",
                 log_modal_title: "سجل دخول المستخدمين",
                 th_time: "الوقت والتاريخ",
@@ -1892,7 +1995,7 @@
                 ph_employee_name: "Ad Soyad",
                 bulk_entry: "Toplu Giriş",
                 bulk_exit: "Toplu Çıkış",
-                lbl_viewer_control: "Muhasebe Görünümü",
+                bulk_break: "Toplu Mola",
                 btn_login_log: "Giriş Kaydı",
                 log_modal_title: "Kullanıcı Giriş Kaydı",
                 th_time: "Tarih ve Saat",
@@ -2453,11 +2556,13 @@
             let timeValue = '';
             if (actionType === 'entry') {
                 timeValue = document.getElementById('bulkEntryInput').value;
-            } else {
+            } else if (actionType === 'exit') {
                 timeValue = document.getElementById('bulkExitInput').value;
+            } else if (actionType === 'break') {
+                timeValue = document.getElementById('bulkBreakInput').value || '0.5';
             }
 
-            if (!timeValue) {
+            if (actionType !== 'break' && !timeValue) {
                 alert("الرجاء إدخال توقيت صحيح أولاً");
                 return;
             }
@@ -2491,17 +2596,31 @@
                 if (!currentMonthData[empId]) currentMonthData[empId] = {};
                 if (!currentMonthData[empId][dateStr]) currentMonthData[empId][dateStr] = {};
                 
-                updates[`${recordPath}.status`] = 'present';
-                currentMonthData[empId][dateStr].status = 'present';
+                // Statuses that are "locked" — bulk actions must never override them
+                const LOCKED_STATUSES = ['absent', 'vacation'];
+                const currentStatus = (currentMonthData[empId][dateStr] || {}).status;
+                const isLocked = LOCKED_STATUSES.includes(currentStatus);
 
-                if (actionType === 'entry') {
-                    updates[`${recordPath}.entry`] = timeValue;
-                    updates[`${recordPath}.breakDuration`] = '0.5'; 
-                    currentMonthData[empId][dateStr].entry = timeValue;
-                    currentMonthData[empId][dateStr].breakDuration = '0.5';
+                if (actionType === 'break') {
+                    // Break: only apply to employees who are already present
+                    if (currentStatus !== 'present') return;
+                    updates[`${recordPath}.breakDuration`] = timeValue;
+                    currentMonthData[empId][dateStr].breakDuration = timeValue;
                 } else {
-                    updates[`${recordPath}.exit`] = timeValue;
-                    currentMonthData[empId][dateStr].exit = timeValue;
+                    // Entry / Exit: skip any employee with a locked status
+                    if (isLocked) return;
+                    updates[`${recordPath}.status`] = 'present';
+                    currentMonthData[empId][dateStr].status = 'present';
+
+                    if (actionType === 'entry') {
+                        updates[`${recordPath}.entry`] = timeValue;
+                        updates[`${recordPath}.breakDuration`] = '0.5';
+                        currentMonthData[empId][dateStr].entry = timeValue;
+                        currentMonthData[empId][dateStr].breakDuration = '0.5';
+                    } else {
+                        updates[`${recordPath}.exit`] = timeValue;
+                        currentMonthData[empId][dateStr].exit = timeValue;
+                    }
                 }
             });
 
@@ -2525,7 +2644,8 @@
             } finally {
                 document.getElementById('loadingScreen').classList.add('hidden');
                 if (actionType === 'entry') document.getElementById('bulkEntryInput').value = '';
-                else document.getElementById('bulkExitInput').value = '';
+                else if (actionType === 'exit') document.getElementById('bulkExitInput').value = '';
+                // break select stays at last value (intentional UX)
             }
         };
 
@@ -2533,6 +2653,14 @@
 
         window.handleDragStart = function(e) {
             if (userRole !== 'admin') return;
+            // Block drag only when the click target itself is an interactive element
+            // This allows dragging from the name cell or empty space, but not from inputs/buttons
+            const tag = e.target.tagName;
+            if (['INPUT','SELECT','TEXTAREA','BUTTON'].includes(tag)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
             this.classList.add('dragging');
             dragSrcEl = this;
             e.dataTransfer.effectAllowed = 'move';
@@ -2717,17 +2845,16 @@
                     <td class="p-3 text-center text-gray-500 dark:text-gray-400 flex justify-center items-center" data-label="#" data-label-type="index">
                         ${index + 1} ${dragIcon}
                     </td>
-                    <td class="p-3 font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors select-none group" 
+                    <td class="p-3 font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors select-none group relative" 
                         onclick="showEmployeeSummary('${empId}')" 
                         data-label="${t('th_name')}" data-label-type="name">
-                        <div class="flex items-center justify-between">
-                            <span class="hover:text-blue-600 dark:hover:text-blue-400">${displayName}</span>
-                            ${userRole === 'admin' && !emp.deleted ? `
-                            <button onclick="event.stopPropagation(); openEditEmployeeModal('${empId}')" class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity px-1 text-lg" title="تعديل">
-                                ✎
-                            </button>
-                            ` : ''}
-                        </div>
+                        <span class="hover:text-blue-600 dark:hover:text-blue-400">${displayName}</span>
+                        ${userRole === 'admin' && !emp.deleted ? `
+                        <span class="admin-name-actions opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); openEditEmployeeModal('${empId}')" class="action-btn" title="تعديل الاسم">✎</button>
+                            <button onclick="event.stopPropagation(); openTransferShiftModal('${empId}')" class="action-btn" title="نقل الوردية">🔄</button>
+                        </span>
+                        ` : ''}
                     </td>
                     
                     <td class="p-3" data-label="${t('th_status')}">
@@ -2743,23 +2870,30 @@
                     </td>
 
                     <td class="p-3" data-label="${t('th_entry')}">
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center ltr placeholder-gray-300 dark:placeholder-gray-500 border-gray-200 dark:border-gray-600 dark:text-white">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="${dayData.entry || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'entry')" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center ltr placeholder-gray-300 dark:placeholder-gray-500 border-gray-200 dark:border-gray-600 dark:text-white">
                     </td>
                     <td class="p-3" data-label="${t('th_exit')}">
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" value="${dayData.exit || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'exit')" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center ltr placeholder-gray-300 dark:placeholder-gray-500 border-gray-200 dark:border-gray-600 dark:text-white">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="${dayData.exit || ''}" placeholder="--:--" onchange="handleSmartTimeInput(this, '${empId}', '${dateStr}', 'exit')" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center ltr placeholder-gray-300 dark:placeholder-gray-500 border-gray-200 dark:border-gray-600 dark:text-white">
                     </td>
                     <td class="p-3" data-label="${t('th_break')}">
-                        <input type="number" inputmode="decimal" step="0.5" min="0" value="${dayData.breakDuration || '0'}" onchange="saveData('${empId}', '${dateStr}', 'breakDuration', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white">
+                        <select onchange="saveData('${empId}', '${dateStr}', 'breakDuration', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white">
+                            <option value="0" ${(dayData.breakDuration||'0')==='0'?'selected':''}>0</option>
+                            <option value="0.5" ${(dayData.breakDuration||'0')==='0.5'?'selected':''}>0.5</option>
+                            <option value="1" ${(dayData.breakDuration||'')==='1'?'selected':''}>1</option>
+                            <option value="1.5" ${(dayData.breakDuration||'')==='1.5'?'selected':''}>1.5</option>
+                            <option value="2" ${(dayData.breakDuration||'')==='2'?'selected':''}>2</option>
+                        </select>
                     </td>
                     <td class="p-3" data-label="${t('th_delay')}">
-                        <input type="number" inputmode="decimal" step="0.5" max="0" value="${dayData.shortage || ''}" onchange="if(this.value > 0) this.value = -this.value; saveData('${empId}', '${dateStr}', 'shortage', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center text-red-600 dark:text-red-400 placeholder-red-300 dark:placeholder-red-900 border-gray-200 dark:border-gray-600" placeholder="-">
+                        <input type="number" inputmode="decimal" autocomplete="off" step="0.5" max="0" value="${dayData.shortage || ''}" onchange="if(this.value > 0) this.value = -this.value; saveData('${empId}', '${dateStr}', 'shortage', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center text-red-600 dark:text-red-400 placeholder-red-300 dark:placeholder-red-900 border-gray-200 dark:border-gray-600" placeholder="-">
                     </td>
                     <td class="p-3" data-label="${t('th_overtime')}">
-                        <input type="number" inputmode="decimal" step="0.5" value="${dayData.overtime || ''}" onchange="saveData('${empId}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white" placeholder="0">
+                        <input type="number" inputmode="decimal" autocomplete="off" step="0.5" value="${dayData.overtime || ''}" onchange="saveData('${empId}', '${dateStr}', 'overtime', this.value)" ${inputsDisabled} class="w-full p-2 border rounded bg-white dark:bg-gray-700 text-sm text-center border-gray-200 dark:border-gray-600 dark:text-white" placeholder="0">
                     </td>
                     <td class="p-3" data-label="${t('th_notes')}">
                         <input 
                             type="text" 
+                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             value="${escapedNotes}" 
                             title="${escapedNotes}" 
                             dir="ltr"
@@ -2820,6 +2954,57 @@
                 const docRef = getMonthDoc(year, month);
                 const deepObj = { records: { [empId]: { [date]: record } } };
                 await setDoc(docRef, deepObj, { merge: true });
+            }
+        };
+
+        // ============================================
+        //  نقل الوردية — Transfer Shift Feature
+        // ============================================
+        window.openTransferShiftModal = function(empId) {
+            const emp = masterEmployees[empId];
+            if (!emp || emp.deleted) return;
+            document.getElementById('transferEmpId').value = empId;
+            const currentShiftName = emp.shift === 'shift_A' ? t('val_shift_a') : t('val_shift_b');
+            document.getElementById('transferEmpNameDisplay').innerHTML =
+                `<span class="font-bold text-gray-800 dark:text-gray-100">${emp.name}</span>
+                 &nbsp;|&nbsp;
+                 <span class="text-indigo-600 dark:text-indigo-400">${currentShiftName}</span>`;
+            // Default to the OTHER shift
+            const sel = document.getElementById('transferShiftSelect');
+            sel.value = emp.shift === 'shift_A' ? 'shift_B' : 'shift_A';
+            toggleModal('transferShiftOverlay', true);
+        };
+
+        window.executeTransferShift = async function() {
+            const empId = document.getElementById('transferEmpId').value;
+            const newShift = document.getElementById('transferShiftSelect').value;
+            const emp = masterEmployees[empId];
+            if (!emp) return;
+
+            if (emp.shift === newShift) {
+                toggleModal('transferShiftOverlay', false);
+                return;
+            }
+
+            document.getElementById('loadingText').innerText = 'جاري نقل الوردية...';
+            document.getElementById('loadingScreen').classList.remove('hidden');
+            try {
+                const updates = {};
+                updates[`list.${empId}.shift`] = newShift;
+                await updateDoc(EMPLOYEES_DOC, updates);
+                toggleModal('transferShiftOverlay', false);
+            } catch (e) {
+                try {
+                    await setDoc(EMPLOYEES_DOC,
+                        { list: { [empId]: { ...masterEmployees[empId], shift: newShift } } },
+                        { merge: true }
+                    );
+                    toggleModal('transferShiftOverlay', false);
+                } catch (err) {
+                    alert('حدث خطأ: ' + err.message);
+                }
+            } finally {
+                document.getElementById('loadingScreen').classList.add('hidden');
             }
         };
 

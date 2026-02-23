@@ -4,14 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 1. عنوان المتصفح الجديد بالأحرف الكبيرة -->
+    <!-- 1. عنوان المتصفح -->
     <title>OZELBIMS</title>
     
-    <!-- 2. أيقونة المتصفح (Favicon) -->
+    <!-- 2. Favicon -->
     <link rel="icon" type="image/png" href="https://i.imgur.com/623NMYe.png">
-    
-    <!-- 3. أيقونة تطبيق الموبايل (عند الإضافة للشاشة الرئيسية) -->
     <link rel="apple-touch-icon" href="https://i.imgur.com/623NMYe.png">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1E3A8A" id="themeColorMeta">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OZELBIMS">
+    <meta name="description" content="نظام إدارة الحضور والانصراف - OZELBIMS">
+    <script>
+    // Inline PWA Manifest — no manifest.json file needed
+    (function(){
+        try {
+            const m = {name:"OZELBIMS — نظام الورديات",short_name:"OZELBIMS",start_url:"./",display:"standalone",background_color:"#080E28",theme_color:"#1E3A8A",lang:"ar",dir:"rtl",icons:[{src:"https://i.imgur.com/623NMYe.png",sizes:"192x192",type:"image/png",purpose:"any maskable"},{src:"https://i.imgur.com/623NMYe.png",sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+            const b = new Blob([JSON.stringify(m)],{type:'application/json'});
+            const l = document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(b);
+            document.head.appendChild(l);
+        } catch(e){}
+    })();
+    </script>
+
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -110,7 +127,7 @@
             pointer-events: none;
         }
 
-        .dark body::before {
+        html.dark body::before {
             background:
                 radial-gradient(ellipse 80% 50% at 10% 15%, rgba(56,189,248,0.07) 0%, transparent 60%),
                 radial-gradient(ellipse 60% 40% at 90% 80%, rgba(167,139,250,0.06) 0%, transparent 60%),
@@ -402,23 +419,7 @@
             background-color: rgba(56,189,248,0.1) !important;
             border-color: rgba(56,189,248,0.2) !important;
         }
-        #lang-knob {
-            background: linear-gradient(135deg, #1D4ED8, #2563EB) !important;
-            box-shadow: 0 0 10px rgba(37,99,235,0.4) !important;
-        }
-        .dark #lang-knob {
-            background: linear-gradient(135deg, #1D4ED8, #38BDF8) !important;
-            box-shadow: 0 0 10px rgba(56,189,248,0.5) !important;
-        }
-
-        /* Flag labels text */
-        #loginOverlay #label-tr span, #loginOverlay #label-ar span {
-            color: #64748B !important;
-        }
-        #loginOverlay #label-ar span { color: #1E3A8A !important; font-weight: 800 !important; }
-        .dark #loginOverlay #label-tr span,
-        .dark #loginOverlay #label-ar span { color: #94A3B8 !important; }
-        .dark #loginOverlay #label-ar span { color: #E2E8F0 !important; }
+        /* lang-knob now handled by .lang-pill CSS */
 
         /* Error message */
         #loginError { color: #DC2626 !important; font-weight: 700 !important; }
@@ -1428,6 +1429,422 @@
             #reportTableBody td[data-label*="Delay"]::before   { color: #F87171 !important; }
         }
 
+        /* ============================================
+           TOAST NOTIFICATION SYSTEM — v2.0
+           ============================================ */
+        #toastContainer {
+            position: fixed;
+            top: 1.25rem;
+            left: 1.25rem;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            pointer-events: none;
+            max-width: 380px;
+        }
+        [dir="rtl"] #toastContainer { left: auto; right: 1.25rem; }
+
+        .toast-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.1rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            font-family: 'Cairo', sans-serif;
+            min-width: 260px;
+            max-width: 380px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            pointer-events: auto;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+            animation: toastSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .toast-item.toast-removing {
+            animation: toastSlideOut 0.35s cubic-bezier(0.4,0,1,1) forwards;
+        }
+
+        /* Progress bar */
+        .toast-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 3px;
+            width: 100%;
+            transform-origin: left;
+            animation: toastProgress var(--toast-duration, 3.5s) linear forwards;
+            border-radius: 0 0 14px 14px;
+        }
+        [dir="rtl"] .toast-item::after { transform-origin: right; }
+
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(-32px) scale(0.94); }
+            to   { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        [dir="rtl"] @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(32px) scale(0.94); }
+            to   { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toastSlideOut {
+            from { opacity: 1; transform: translateX(0) scale(1); max-height: 80px; margin-bottom: 0; }
+            to   { opacity: 0; transform: translateX(-32px) scale(0.94); max-height: 0; margin-bottom: -0.6rem; padding: 0; }
+        }
+        @keyframes toastProgress {
+            from { transform: scaleX(1); }
+            to   { transform: scaleX(0); }
+        }
+
+        /* Toast type variants */
+        .toast-success {
+            background: linear-gradient(135deg, rgba(5,150,105,0.95), rgba(16,185,129,0.92));
+            color: #fff;
+        }
+        .toast-success .toast-icon { color: #a7f3d0; }
+        .toast-success::after { background: rgba(255,255,255,0.5); }
+
+        .toast-error {
+            background: linear-gradient(135deg, rgba(185,28,28,0.96), rgba(239,68,68,0.92));
+            color: #fff;
+        }
+        .toast-error .toast-icon { color: #fecaca; }
+        .toast-error::after { background: rgba(255,255,255,0.5); }
+
+        .toast-warning {
+            background: linear-gradient(135deg, rgba(180,83,9,0.96), rgba(245,158,11,0.92));
+            color: #fff;
+        }
+        .toast-warning .toast-icon { color: #fde68a; }
+        .toast-warning::after { background: rgba(255,255,255,0.5); }
+
+        .toast-info {
+            background: linear-gradient(135deg, rgba(3,105,161,0.96), rgba(56,189,248,0.92));
+            color: #fff;
+        }
+        .toast-info .toast-icon { color: #bae6fd; }
+        .toast-info::after { background: rgba(255,255,255,0.5); }
+
+        .toast-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .toast-close {
+            margin-inline-start: auto;
+            opacity: 0.6;
+            font-size: 0.9rem;
+            transition: opacity 0.15s;
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0 0 0 0.25rem;
+        }
+        .toast-close:hover { opacity: 1; }
+
+        /* ============================================
+           LOGIN ENHANCEMENTS
+           ============================================ */
+        /* Shake animation for wrong code */
+        @keyframes loginShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 50%, 90% { transform: translateX(-7px); }
+            30%, 70% { transform: translateX(7px); }
+        }
+        .login-shake {
+            animation: loginShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: rgba(239,68,68,0.7) !important;
+        }
+
+        /* Login button loading state */
+        #loginBtn {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        #loginBtn.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+        #loginBtn.loading #loginBtnText::after {
+            content: '';
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-inline-start: 0.4rem;
+            vertical-align: middle;
+        }
+
+        /* ============================================
+           SKELETON LOADING ROWS
+           ============================================ */
+        .skeleton-row td {
+            pointer-events: none;
+        }
+        .skeleton-cell {
+            height: 18px;
+            border-radius: 6px;
+            background: linear-gradient(
+                90deg,
+                var(--bg-toolbar) 0%,
+                rgba(148,163,184,0.2) 40%,
+                var(--bg-toolbar) 80%
+            );
+            background-size: 300% 100%;
+            animation: skeletonShimmer 1.8s ease-in-out infinite;
+            display: block;
+        }
+        @keyframes skeletonShimmer {
+            0%   { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        .skeleton-cell.w-3\/4 { width: 75%; }
+        .skeleton-cell.w-1\/2 { width: 50%; }
+        .skeleton-cell.w-1\/4 { width: 25%; }
+        .skeleton-cell.w-full { width: 100%; }
+        .skeleton-row { opacity: 0.85; }
+
+        /* ============================================
+           PWA INSTALL BANNER
+           ============================================ */
+        #pwaInstallBanner {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            z-index: 9998;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            max-width: 420px;
+            transition: transform 0.45s cubic-bezier(0.22,1,0.36,1);
+            backdrop-filter: blur(12px);
+        }
+        #pwaInstallBanner.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        #pwaInstallBanner .pwa-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        #pwaInstallBanner .pwa-text {
+            flex: 1;
+            min-width: 0;
+        }
+        #pwaInstallBanner .pwa-title {
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        #pwaInstallBanner .pwa-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        #pwaInstallBtn {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        #pwaInstallBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        #pwaDismissBtn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+        #pwaDismissBtn:hover { color: var(--text-secondary); }
+
+        /* ============================================
+           OFFLINE INDICATOR
+           ============================================ */
+        #offlineBanner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 99998;
+            background: linear-gradient(90deg, #7C3AED, #4F46E5);
+            color: white;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            font-family: 'Cairo', sans-serif;
+            letter-spacing: 0.3px;
+            transform: translateY(-100%);
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        #offlineBanner.show { transform: translateY(0); }
+
+
+        /* ============================================
+           LANGUAGE SWITCHER — Smart Swap Button
+           ============================================ */
+        .swap-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.7rem 0.4rem 0.6rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            width: auto;
+        }
+
+        /* Light mode */
+        html:not(.dark) .swap-btn {
+            background: rgba(239,244,255,0.8);
+            border: 1px solid rgba(37,99,235,0.18);
+            box-shadow: 0 2px 12px rgba(37,99,235,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+        html:not(.dark) .swap-btn:hover {
+            background: rgba(239,244,255,1);
+            border-color: rgba(37,99,235,0.32);
+            box-shadow: 0 6px 20px rgba(37,99,235,0.12);
+            transform: translateY(-1px);
+        }
+
+        /* Dark mode */
+        html.dark .swap-btn {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(56,189,248,0.16);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        html.dark .swap-btn:hover {
+            background: rgba(56,189,248,0.06);
+            border-color: rgba(56,189,248,0.32);
+            box-shadow: 0 6px 20px rgba(56,189,248,0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Shine sweep on hover */
+        .swap-btn::after {
+            content: '';
+            position: absolute; top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+            pointer-events: none;
+        }
+        .swap-btn:hover::after { left: 150%; }
+
+        /* Flag container */
+        .swap-flags {
+            position: relative;
+            width: 28px; height: 28px;
+            flex-shrink: 0;
+        }
+        .swap-flag {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            position: absolute; top: 0; left: 0;
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        html:not(.dark) .swap-flag.show {
+            border: 2px solid rgba(37,99,235,0.35);
+            box-shadow: 0 0 12px rgba(37,99,235,0.25);
+            opacity: 1; transform: scale(1) rotate(0deg);
+        }
+        html.dark .swap-flag.show {
+            border: 2px solid rgba(56,189,248,0.4);
+            box-shadow: 0 0 14px rgba(56,189,248,0.35);
+            opacity: 1; transform: scale(1) rotate(0deg);
+        }
+        .swap-flag.hide {
+            opacity: 0;
+            transform: scale(0.4) rotate(-90deg);
+            pointer-events: none;
+        }
+
+        /* Text block */
+        .swap-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+        .swap-current {
+            font-size: 0.78rem;
+            font-weight: 800;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+        html:not(.dark) .swap-current { color: #1E3A8A; }
+        html.dark       .swap-current { color: #E2E8F0; }
+
+        .swap-next {
+            font-size: 0.58rem;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        html:not(.dark) .swap-next { color: #3B82F6; }
+        html.dark       .swap-next { color: #38BDF8; }
+
+        /* Swap icon */
+        .swap-icon {
+            width: 20px; height: 20px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        html:not(.dark) .swap-icon {
+            background: rgba(37,99,235,0.1);
+            border: 1px solid rgba(37,99,235,0.2);
+            color: #2563EB;
+        }
+        html.dark .swap-icon {
+            background: rgba(56,189,248,0.08);
+            border: 1px solid rgba(56,189,248,0.2);
+            color: #38BDF8;
+        }
+        .swap-btn:hover .swap-icon { transform: rotate(180deg); }
+
     </style>
 
 
@@ -1441,6 +1858,26 @@
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- Offline Banner -->
+    <div id="offlineBanner" role="alert">
+        <i class="fa-solid fa-wifi-slash"></i>
+        <span id="offlineBannerText">أنت غير متصل بالإنترنت / İnternet bağlantısı yok</span>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwaInstallBanner" role="complementary">
+        <img src="https://i.imgur.com/623NMYe.png" alt="OZELBIMS" class="pwa-icon">
+        <div class="pwa-text">
+            <div class="pwa-title" id="pwaBannerTitle">تثبيت OZELBIMS / OZELBIMS'ı Yükle</div>
+            <div class="pwa-desc">أضف التطبيق للشاشة الرئيسية للوصول السريع</div>
+        </div>
+        <button id="pwaInstallBtn">تثبيت</button>
+        <button id="pwaDismissBtn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
     <div id="loginOverlay" class="overlay flex-col gap-10">
         <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-sm w-full text-center relative border border-gray-200 dark:border-gray-700">
             <!-- زر الوضع الليلي مع التوهج في الوضعين -->
@@ -1448,30 +1885,20 @@
                 <i class="theme-toggle-icon fa-solid fa-moon"></i>
             </button>
 
-            <!-- Language Toggle Switch (Capsule) - Vertical Flags with Glow -->
-            <!-- dir="ltr" ensures the order is always: TR - Toggle - AR -->
-            <div class="flex items-center justify-center gap-3 mb-8 cursor-pointer group" onclick="toggleLanguageSwitch()" dir="ltr">
-                
-                <!-- Turkish Side - Centered Moon with object-position CORRECTED to 25% (Shift Left) -->
-                <div class="flex flex-col items-center gap-1 transition-all duration-300 opacity-50 grayscale" id="label-tr">
-                    <img src="https://flagcdn.com/w80/tr.png" class="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-600 shadow-[0_0_15px_rgba(220,38,38,0.8)]" style="object-position: 25% center;">
-                    <span class="font-bold text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors text-xs mt-1">Türkçe</span>
+            <!-- Language Switcher — Smart Swap -->
+            <div class="swap-btn mb-6" onclick="toggleLanguageSwitch()" id="langSwapBtn">
+                <div class="swap-flags" dir="ltr">
+                    <img src="https://flagcdn.com/w80/sy.png"
+                         class="swap-flag show" id="swap-flag-show" alt="current lang flag">
+                    <img src="https://flagcdn.com/w80/tr.png"
+                         class="swap-flag hide" style="object-position:25% center"
+                         id="swap-flag-hide" alt="next lang flag">
                 </div>
-
-                <!-- Toggle Track -->
-                <div class="relative w-14 h-8 bg-gray-200 dark:bg-gray-700 rounded-full shadow-inner border border-gray-300 dark:border-gray-600 transition-colors mx-2">
-                    <!-- Green Knob -->
-                    <div id="lang-knob" class="absolute top-1 left-1 w-6 h-6 bg-green-500 rounded-full shadow-md transition-transform duration-300 transform translate-x-6">
-                        <!-- Optional: Small shine on knob -->
-                        <div class="absolute top-1 left-1 w-2 h-2 bg-white rounded-full opacity-30"></div>
-                    </div>
+                <div class="swap-text" id="swap-text">
+                    <span class="swap-current" id="swap-current-lang">العربية</span>
+                    <span class="swap-next"    id="swap-next-lang">← انتقل إلى التركية</span>
                 </div>
-
-                <!-- Arabic Side - Glow Green -->
-                <div class="flex flex-col items-center gap-1 transition-all duration-300 opacity-100" id="label-ar">
-                    <img src="https://flagcdn.com/w80/sy.png" class="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-600 shadow-[0_0_15px_rgba(22,163,74,0.8)]">
-                    <span class="font-bold text-gray-800 dark:text-white text-xs mt-1">العربية</span>
-                </div>
+                <div class="swap-icon">⇄</div>
             </div>
 
             <!-- شعار الشركة في شاشة الدخول مع تأثير اللمعة -->
@@ -1489,7 +1916,10 @@
                     <i id="eyeIcon" class="fa-solid fa-eye-slash" style="font-size:1rem;"></i>
                 </button>
             </div>
-            <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">دخول</button>
+            <button onclick="checkLogin()" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mb-4 shadow-lg" data-i18n="login_btn">
+                <i id="loginBtnIcon" class="fa-solid fa-arrow-right-to-bracket me-1.5"></i>
+                <span id="loginBtnText">دخول</span>
+            </button>
             
             <p id="loginError" class="text-red-500 text-sm mt-2 hidden" data-i18n="msg_wrong_code">رمز خاطئ</p>
         </div>
@@ -2021,44 +2451,56 @@
 
         const browserLang = navigator.language || navigator.userLanguage || 'ar';
         let currentLang = browserLang.startsWith('ar') ? 'ar' : 'tr';
+        window.currentLang = currentLang; // expose for enhancement suite
 
         function t(key) { return translations[currentLang][key] || key; }
         
+        // Smart Swap helper — the two flag images + text data
+        const SWAP_DATA = {
+            ar: {
+                flagSrc:     'https://flagcdn.com/w80/sy.png',
+                flagPos:     'center',
+                currentName: 'العربية',
+                nextHint:    '← Türkçeye geç'   // hint بالتركية لأن العلم عربي
+            },
+            tr: {
+                flagSrc:     'https://flagcdn.com/w80/tr.png',
+                flagPos:     '25% center',
+                currentName: 'Türkçe',
+                nextHint:    '← انتقل إلى العربية'  // hint بالعربية لأن العلم تركي
+            }
+        };
+
         window.changeLanguage = function(lang) {
             currentLang = lang;
+            window.currentLang = lang; // keep in sync
             document.documentElement.lang = lang;
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            
-            // Toggle Logic visual update
-            const knob = document.getElementById('lang-knob');
-            const labelAr = document.getElementById('label-ar');
-            const labelTr = document.getElementById('label-tr');
-            
-            if (lang === 'ar') {
-                // Move knob to Right (AR side)
-                knob.classList.remove('translate-x-0');
-                knob.classList.add('translate-x-6');
-                
-                // Highlight AR label
-                labelAr.classList.remove('opacity-50', 'grayscale');
-                labelAr.classList.add('opacity-100');
-                
-                // Dim TR label
-                labelTr.classList.add('opacity-50', 'grayscale');
-                labelTr.classList.remove('opacity-100');
-            } else {
-                // Move knob to Left (TR side)
-                knob.classList.remove('translate-x-6');
-                knob.classList.add('translate-x-0');
-                
-                // Highlight TR label
-                labelTr.classList.remove('opacity-50', 'grayscale');
-                labelTr.classList.add('opacity-100');
-                
-                // Dim AR label
-                labelAr.classList.add('opacity-50', 'grayscale');
-                labelAr.classList.remove('opacity-100');
+
+            // ── Smart Swap visual update ──
+            const showFlag   = document.getElementById('swap-flag-show');
+            const hideFlag   = document.getElementById('swap-flag-hide');
+            const currLabel  = document.getElementById('swap-current-lang');
+            const nextLabel  = document.getElementById('swap-next-lang');
+            const nextLang   = lang === 'ar' ? 'tr' : 'ar';
+
+            if (showFlag && hideFlag) {
+                // Animate out current, animate in new
+                showFlag.classList.add('hide');
+                showFlag.classList.remove('show');
+
+                setTimeout(() => {
+                    showFlag.src                  = SWAP_DATA[lang].flagSrc;
+                    showFlag.style.objectPosition = SWAP_DATA[lang].flagPos;
+                    hideFlag.src                  = SWAP_DATA[nextLang].flagSrc;
+                    hideFlag.style.objectPosition = SWAP_DATA[nextLang].flagPos;
+                    showFlag.classList.remove('hide');
+                    showFlag.classList.add('show');
+                }, 180);
             }
+
+            if (currLabel) currLabel.textContent = SWAP_DATA[lang].currentName;
+            if (nextLabel) nextLabel.textContent = SWAP_DATA[lang].nextHint;
             
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -2614,8 +3056,9 @@
                 const currentStatus  = (currentMonthData[empId][dateStr] || {}).status;
 
                 if (actionType === 'break') {
-                    // Break: only for present employees
-                    if (currentStatus !== 'present') return;
+                    // Break: for present, holiday, and sunday employees
+                    const BREAK_ALLOWED = ['present', 'holiday', 'sunday'];
+                    if (!BREAK_ALLOWED.includes(currentStatus)) return;
                     updates[`${recordPath}.breakDuration`] = timeValue;
                     currentMonthData[empId][dateStr].breakDuration = timeValue;
                 } else {
@@ -2644,6 +3087,9 @@
                     }
                 }
             });
+
+            // Expose actual change count so the toast patch can read it
+            window._bulkChangesCount = Object.keys(updates).length;
 
             try {
                 const docRef = getMonthDoc(year, month);
@@ -3622,10 +4068,454 @@
 
     </script>
 
+    <!-- ============================================
+         OZELBIMS ENHANCEMENT SUITE v2.0
+         Toast · PWA · Skeleton · Offline · Login++
+         
+         ⚠️  يشتغل بعد window.load لأن الـ Firebase Module
+             يحتاج وقت يحمل (type=module = deferred)
+         ============================================ -->
+    <script>
+    // Toast system متاح فوراً — قبل load
+    window._toastQueue = [];
+    window.showToast = function(message, type, duration) {
+        // لو الـ container موجود اشتغل، لو لا خزّن
+        const container = document.getElementById('toastContainer');
+        if (!container) { window._toastQueue.push({message,type,duration}); return; }
+        _renderToast(message, type || 'success', duration || 3800);
+    };
+
+    function _renderToast(message, type, duration) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const ICONS = { success:'fa-circle-check', error:'fa-circle-xmark', warning:'fa-triangle-exclamation', info:'fa-circle-info' };
+        const toast = document.createElement('div');
+        toast.className = 'toast-item toast-' + type;
+        toast.style.setProperty('--toast-duration', duration + 'ms');
+        toast.innerHTML =
+            '<i class="fa-solid ' + (ICONS[type]||ICONS.info) + ' toast-icon"></i>' +
+            '<span style="flex:1;line-height:1.4">' + message + '</span>' +
+            '<button class="toast-close"><i class="fa-solid fa-xmark"></i></button>';
+        
+        function remove() {
+            if (!toast.parentNode) return;
+            clearTimeout(toast._t);
+            toast.classList.add('toast-removing');
+            setTimeout(() => toast.remove(), 380);
+        }
+        toast.querySelector('.toast-close').addEventListener('click', remove);
+        toast._t = setTimeout(remove, duration);
+        container.appendChild(toast);
+    }
+
+    // flush queue بعد ما يصير الـ DOM جاهز
+    document.addEventListener('DOMContentLoaded', function() {
+        window._toastQueue.forEach(q => _renderToast(q.message, q.type||'success', q.duration||3800));
+        window._toastQueue = [];
+    });
+
+    // ============================================
+    //  كل الـ patches تشتغل بعد window.load
+    //  (بعد ما يكمل الـ Firebase module تحميله)
+    // ============================================
+    window.addEventListener('load', function() {
+        'use strict';
+
+        // ============================================
+        //  TOAST NOTIFICATION SYSTEM
+        // ============================================
+        const TOAST_ICONS = {
+            success: 'fa-circle-check',
+            error:   'fa-circle-xmark',
+            warning: 'fa-triangle-exclamation',
+            info:    'fa-circle-info'
+        };
+
+        window.showToast = function(message, type = 'success', duration = 3800) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-item toast-${type}`;
+            toast.style.setProperty('--toast-duration', `${duration}ms`);
+            toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+            toast.innerHTML = `
+                <i class="fa-solid ${TOAST_ICONS[type] || TOAST_ICONS.info} toast-icon" aria-hidden="true"></i>
+                <span style="flex:1; line-height:1.4;">${message}</span>
+                <button class="toast-close" aria-label="إغلاق الإشعار">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+
+            // Manual close
+            toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
+            toast.addEventListener('click', (e) => { if (!e.target.closest('.toast-close')) removeToast(toast); });
+
+            container.appendChild(toast);
+
+            // Auto remove
+            const timer = setTimeout(() => removeToast(toast), duration);
+            toast._timer = timer;
+        };
+
+        function removeToast(toast) {
+            if (!toast || !toast.parentNode) return;
+            clearTimeout(toast._timer);
+            toast.classList.add('toast-removing');
+            toast.addEventListener('animationend', () => toast.remove(), { once: true });
+            // Fallback
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
+        }
+
+        // ============================================
+        //  ENHANCED CHECK LOGIN — Loading + Shake
+        // ============================================
+        const _origCheckLogin = window.checkLogin; // ✓ module loaded, now defined
+        window.checkLogin = async function() {
+            const btn     = document.getElementById('loginBtn');
+            const btnIcon = document.getElementById('loginBtnIcon');
+            const input   = document.getElementById('accessCode');
+            const errorEl = document.getElementById('loginError');
+
+            // Loading state ON
+            if (btn)     { btn.classList.add('loading'); btn.disabled = true; }
+            if (btnIcon) { btnIcon.className = ''; }
+            if (errorEl) { errorEl.classList.add('hidden'); }
+
+            try {
+                await _origCheckLogin();
+            } catch(e) { console.error(e); }
+
+            // Still on login? = wrong code
+            const loginOverlay = document.getElementById('loginOverlay');
+            if (loginOverlay && !loginOverlay.classList.contains('hidden')) {
+                if (input) {
+                    input.classList.add('login-shake');
+                    input.addEventListener('animationend', () => input.classList.remove('login-shake'), { once: true });
+                    setTimeout(() => input.select(), 50);
+                }
+                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+                if (btnIcon) { btnIcon.className = 'fa-solid fa-arrow-right-to-bracket me-1.5'; }
+                const lang = document.documentElement.lang || 'ar';
+                showToast(
+                    (lang === 'ar') ? 'رمز الدخول غير صحيح ❌' : 'Yanlış giriş kodu ❌',
+                    'error', 3500
+                );
+            }
+        };
+
+        // ============================================
+        //  SKELETON LOADING — Show before table renders
+        // ============================================
+        window.showSkeletonLoading = function(rowCount = 6) {
+            const tbody = document.getElementById('dailyTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            for (let i = 0; i < rowCount; i++) {
+                const tr = document.createElement('tr');
+                tr.className = 'skeleton-row border-b';
+                tr.style.animationDelay = `${i * 60}ms`;
+                tr.innerHTML = `
+                    <td class="p-3 text-center"><span class="skeleton-cell w-1/4 mx-auto" style="width:28px;height:18px;"></span></td>
+                    <td class="p-3"><span class="skeleton-cell" style="width:${70 + (i % 3) * 15}px;height:18px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:70px;height:28px;border-radius:8px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:58px;height:28px;border-radius:8px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:58px;height:28px;border-radius:8px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:50px;height:28px;border-radius:8px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:48px;height:18px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:48px;height:18px;"></span></td>
+                    <td class="p-3"><span class="skeleton-cell" style="width:${80 + (i % 2) * 30}px;height:18px;"></span></td>
+                    <td class="p-3 text-center"><span class="skeleton-cell mx-auto" style="width:28px;height:28px;border-radius:6px;"></span></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        };
+
+        // Skeleton: show ONLY before login (not during real data load)
+        // renderDailyTable is NOT patched — left fully intact
+
+        // ============================================
+        //  SAVE DATA FEEDBACK TOAST
+        // ============================================
+        const _origSaveData = window.saveData; // ✓ defined now
+        if (_origSaveData) {
+            window.saveData = async function(empId, date, field, value) {
+                try {
+                    await _origSaveData(empId, date, field, value);
+                    // Subtle success toast only for status changes (avoid spam on time inputs)
+                    if (field === 'status' && value) {
+                        const lang = document.documentElement.lang || 'ar';
+                        const statusNames = {
+                            ar: { present:'✓ حضور', absent:'✗ غياب', vacation:'🏖 إجازة', holiday:'🎉 عطلة رسمية', sunday:'📅 يوم الأحد' },
+                            tr: { present:'✓ Mevcut', absent:'✗ Yok', vacation:'🏖 İzin', holiday:'🎉 Resmi Tatil', sunday:'📅 Pazar' }
+                        };
+                        const names = statusNames[lang] || statusNames.ar;
+                        const name  = window.masterEmployees?.[empId]?.name || '';
+                        showToast(`${name} — ${names[value] || value}`, 'success', 2200);
+                    }
+                } catch(e) {
+                    const _elang = document.documentElement.lang || 'ar';
+                    showToast(
+                        _elang === 'ar'
+                            ? 'فشل الحفظ — ' + (e.message || 'خطأ غير معروف')
+                            : 'Kayıt başarısız — ' + (e.message || 'Bilinmeyen hata'),
+                        'error'
+                    );
+                    throw e;
+                }
+            };
+        }
+
+        // ============================================
+        //  REPLACE ALL alert() CALLS WITH TOASTS
+        // ============================================
+        window._nativeConfirm = window.confirm;
+        window._nativeAlert   = window.alert;
+
+        // Override alert to use toast + set flag for validation errors
+        window._lastAlertWasError = false;
+        window.alert = function(msg) {
+            if (!msg) return;
+            const isErr = /خطأ|error|Error|فشل|تحذير|الرجاء|توقيت/i.test(msg);
+            const type  = isErr ? 'error'
+                        : /نجاح|success|تم|successfully/i.test(msg) ? 'success'
+                        : 'info';
+            window._lastAlertWasError = isErr;
+            showToast(msg, type);
+        };
+
+        // ============================================
+        //  BULK ACTION TOAST FEEDBACK
+        // ============================================
+        const _origBulk = window.applyBulkAction; // ✓ defined now
+        if (_origBulk) {
+            window.applyBulkAction = async function(actionType) {
+                window._lastAlertWasError  = false;
+                window._bulkChangesCount   = 0; // reset
+                try {
+                    await _origBulk(actionType);
+
+                    // Conditions to show success toast:
+                    // 1. No validation alert was triggered (e.g. "enter valid time")
+                    // 2. At least one real change was made (updates object was not empty)
+                    const hadRealChanges = (window._bulkChangesCount || 0) > 0;
+                    const noError        = !window._lastAlertWasError;
+
+                    if (noError && hadRealChanges) {
+                        // Read language from DOM — most reliable source
+                        const lang = document.documentElement.lang || 'ar';
+                        const labels = {
+                            ar: {
+                                entry: 'تم تطبيق الدخول الجماعي ✓',
+                                exit:  'تم تطبيق الخروج الجماعي ✓',
+                                break: 'تم تطبيق الاستراحة الجماعية ✓'
+                            },
+                            tr: {
+                                entry: 'Toplu giriş uygulandı ✓',
+                                exit:  'Toplu çıkış uygulandı ✓',
+                                break: 'Toplu mola uygulandı ✓'
+                            }
+                        };
+                        showToast((labels[lang] || labels.ar)[actionType] || 'تم التحديث ✓', 'success', 2500);
+                    } else if (noError && !hadRealChanges && actionType === 'break') {
+                        // Break attempted but no present employees — show warning
+                        const lang = document.documentElement.lang || 'ar';
+                        showToast(
+                            lang === 'ar'
+                                ? 'لا يوجد موظفون بحالة حضور أو عطلة رسمية أو أحد لتطبيق الاستراحة'
+                                : 'Mola uygulanacak uygun personel yok (Mevcut/Tatil/Pazar)',
+                            'warning', 4000
+                        );
+                    }
+                } catch(e) {
+                    showToast(
+                        (document.documentElement.lang === 'ar')
+                            ? 'فشل الإجراء الجماعي: ' + e.message
+                            : 'Toplu işlem başarısız: ' + e.message,
+                        'error'
+                    );
+                } finally {
+                    window._lastAlertWasError = false;
+                    window._bulkChangesCount  = 0;
+                }
+            };
+        }
+
+        // ============================================
+        //  EMPLOYEE SAVE/DELETE TOAST FEEDBACK
+        // ============================================
+        const _origSaveEmp = window.saveEmployeeToMasterList; // ✓ defined now
+        if (_origSaveEmp) {
+            window.saveEmployeeToMasterList = async function() {
+                const id   = document.getElementById('editEmployeeId').value;
+                const name = document.getElementById('newEmployeeName').value.trim();
+                try {
+                    await _origSaveEmp();
+                    const _lang = document.documentElement.lang || 'ar';
+                    showToast(
+                        _lang === 'ar'
+                            ? (id ? `تم تعديل بيانات ${name} ✓` : `تمت إضافة الموظف ${name} ✓`)
+                            : (id ? `${name} güncellendi ✓` : `${name} eklendi ✓`),
+                        'success'
+                    );
+                } catch(e) {
+                    showToast('فشل الحفظ: ' + e.message, 'error');
+                }
+            };
+        }
+
+        // ============================================
+        //  DARK MODE — Update PWA theme-color
+        // ============================================
+        const _origToggleDark = window.toggleDarkMode; // ✓ defined now
+        if (_origToggleDark) {
+            window.toggleDarkMode = function() {
+                _origToggleDark();
+                const isDark = document.documentElement.classList.contains('dark');
+                const meta = document.getElementById('themeColorMeta');
+                if (meta) meta.setAttribute('content', isDark ? '#080E28' : '#1E3A8A');
+            };
+        }
+
+        // ============================================
+        //  OFFLINE BANNER
+        // ============================================
+        const offlineBanner = document.getElementById('offlineBanner');
+        function updateOfflineBanner() {
+            if (!navigator.onLine) {
+                offlineBanner?.classList.add('show');
+            } else {
+                offlineBanner?.classList.remove('show');
+                // Small reconnect toast
+                const _rl = document.documentElement.lang || 'ar';
+                showToast(
+                    _rl === 'ar' ? 'تمت استعادة الاتصال بالإنترنت ✓' : 'İnternet bağlantısı yeniden kuruldu ✓',
+                    'success', 2500
+                );
+            }
+        }
+        window.addEventListener('online',  updateOfflineBanner);
+        window.addEventListener('offline', () => {
+            offlineBanner?.classList.add('show');
+            const _dl = document.documentElement.lang || 'ar';
+            showToast(
+                _dl === 'ar' ? 'انقطع الاتصال بالإنترنت' : 'İnternet bağlantısı kesildi',
+                'warning', 5000
+            );
+        });
+        updateOfflineBanner();
+
+        // ============================================
+        //  PWA INSTALL BANNER
+        // ============================================
+        let deferredInstallPrompt = null;
+        const installBanner  = document.getElementById('pwaInstallBanner');
+        const installBtn     = document.getElementById('pwaInstallBtn');
+        const dismissBtn     = document.getElementById('pwaDismissBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+
+            // Don't show if user dismissed before
+            if (localStorage.getItem('pwa-dismissed') === '1') return;
+
+            // Delay banner appearance slightly
+            setTimeout(() => {
+                installBanner?.classList.add('show');
+            }, 3000);
+        });
+
+        installBtn?.addEventListener('click', async () => {
+            if (!deferredInstallPrompt) return;
+            installBanner?.classList.remove('show');
+            deferredInstallPrompt.prompt();
+            const { outcome } = await deferredInstallPrompt.userChoice;
+            if (outcome === 'accepted') {
+                showToast('تم تثبيت التطبيق بنجاح!', 'success');
+            }
+            deferredInstallPrompt = null;
+        });
+
+        dismissBtn?.addEventListener('click', () => {
+            installBanner?.classList.remove('show');
+            localStorage.setItem('pwa-dismissed', '1');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBanner?.classList.remove('show');
+            deferredInstallPrompt = null;
+        });
+
+        // ============================================
+        //  SERVICE WORKER — Inline Blob (no extra files needed)
+        // ============================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const SW_CODE = `
+const CACHE = 'ozelbims-v2';
+const CDN   = ['fonts.googleapis.com','fonts.gstatic.com','cdnjs.cloudflare.com','cdn.tailwindcss.com'];
+const SKIP  = [/firestore/,/firebase/,/googleapis\.com\/v/,/imgur/];
+
+self.addEventListener('install',  e => { e.waitUntil(self.skipWaiting()); });
+self.addEventListener('activate', e => {
+    e.waitUntil(
+        caches.keys()
+            .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+            .then(() => self.clients.claim())
+    );
+});
+self.addEventListener('fetch', e => {
+    const req = e.request;
+    if (req.method !== 'GET' || !req.url.startsWith('http')) return;
+    if (SKIP.some(p => p.test(req.url))) {
+        e.respondWith(fetch(req).catch(() => new Response('',{status:503})));
+        return;
+    }
+    if (CDN.some(o => req.url.includes(o))) {
+        e.respondWith(
+            caches.open(CACHE).then(c =>
+                c.match(req).then(cached => {
+                    const net = fetch(req).then(r => { if(r&&r.status===200) c.put(req,r.clone()); return r; }).catch(()=>null);
+                    return cached || net;
+                })
+            )
+        );
+        return;
+    }
+    e.respondWith(
+        fetch(req)
+            .then(r => { if(r&&r.status===200){ const cl=r.clone(); caches.open(CACHE).then(c=>c.put(req,cl)); } return r; })
+            .catch(() => caches.match(req))
+    );
+});`;
+                    const blob = new Blob([SW_CODE], { type: 'text/javascript' });
+                    const swURL = URL.createObjectURL(blob);
+                    const reg = await navigator.serviceWorker.register(swURL, { scope: './' });
+                    console.log('[PWA] Inline Service Worker registered ✓');
+
+                    reg.addEventListener('updatefound', () => {
+                        const w = reg.installing;
+                        w.addEventListener('statechange', () => {
+                            if (w.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast('يتوفر إصدار جديد! أعد تحميل الصفحة للتحديث.', 'info', 8000);
+                            }
+                        });
+                    });
+                } catch (err) {
+                    console.log('[PWA] SW not available:', err.message);
+                }
+            });
+        }
+
+        console.log('%cOZELBIMS Enhancement Suite v2.0 ✓ (after module load)', 'color:#38BDF8; font-weight:bold; font-size:13px;');
+    }); // end window.load
+    </script>
+
     <!-- SELECT ARROW: injected via JS to always win over Tailwind CDN -->
     <script>
-        (function applySelectArrows() {
-            var LA = "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E\")";
+        (function applySelectArrows() {            var LA = "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E\")";
             var DA = "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394A3B8'/%3E%3C/svg%3E\")";
 
             // Move styleEl to END of head each time so it always wins the cascade

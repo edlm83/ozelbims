@@ -1351,8 +1351,10 @@
 
             td[data-label-type="name"] {
                 background: linear-gradient(135deg, rgba(37,99,235,0.08), var(--bg-card)) !important;
-                padding: 1rem !important;
+                padding: 1rem 3.5rem !important;
+                position: relative !important;
                 justify-content: center !important;
+                text-align: center !important;
                 color: var(--accent) !important;
                 font-size: 1rem !important;
                 font-weight: 900 !important;
@@ -1366,6 +1368,38 @@
             }
             td[data-label-type="name"]::before { display: none !important; }
             td[data-label-type="index"] { display: none !important; }
+
+            /* أزرار الأدمن: زر يمين + زر يسار + اسم بالوسط */
+            td[data-label-type="name"] .admin-name-actions {
+                position: absolute !important;
+                left: 0.6rem !important;
+                right: 0.6rem !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                pointer-events: auto !important;
+                opacity: 1 !important;
+                margin: 0 !important;
+            }
+            td[data-label-type="name"] .admin-name-actions .action-btn {
+                width: 32px !important;
+                height: 32px !important;
+                border-radius: 50% !important;
+                font-size: 0.95rem !important;
+                background-color: var(--bg-toolbar) !important;
+                border: 1px solid var(--border) !important;
+                color: var(--accent) !important;
+                opacity: 1 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            td[data-label-type="name"] .admin-name-actions .action-btn:active {
+                background-color: var(--accent) !important;
+                color: #fff !important;
+                transform: scale(0.88) !important;
+            }
 
             td input, td select { width: 55% !important; padding: 0.5rem !important; }
 
@@ -2596,6 +2630,9 @@
 
             } else if (hashedCode === HASH_SHIFT_B) {
                 userRole = 'shift_b_manager';
+                    const _styleShiftB = document.createElement('style');
+                    _styleShiftB.innerHTML = '.delete-col { display: none !important; }';
+                    document.head.appendChild(_styleShiftB);
                 detectedRole = 'Shift B Manager';
                 currentUserShift = 'shift_B';
                 document.getElementById('shiftBadge').classList.remove('hidden');
@@ -3267,7 +3304,7 @@
                     
                     ${userRole === 'admin' ? 
                     `<td class="p-3 text-center delete-col" data-label="${t('th_delete')}"><button onclick="deleteEmployee('${empId}')" class="text-red-400 hover:text-red-700 font-bold px-2">${emp.deleted ? '⟳' : '×'}</button></td>` 
-                    : '<td class="p-3"></td>'}
+                    : '<td class="p-3 delete-col"></td>'}
                 `;
                 tbody.appendChild(tr);
             });

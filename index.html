@@ -1455,8 +1455,8 @@
         @media (max-width: 768px) {
             #reportTableBody td[data-label*="حضور"]::before,
             #reportTableBody td[data-label*="Present"]::before { color: #10B981 !important; }
-            #reportTableBody td[data-label*="غياب"]::before,
-            #reportTableBody td[data-label*="Absent"]::before  { color: #EF4444 !important; }
+            #reportTableBody td[data-label*="تقرير"]::before,
+            #reportTableBody td[data-label*="Rapor"]::before   { color: #EF4444 !important; }
             #reportTableBody td[data-label*="إجازة"]::before,
             #reportTableBody td[data-label*="Vacation"]::before{ color: #F59E0B !important; }
             #reportTableBody td[data-label*="تأخير"]::before,
@@ -1837,7 +1837,7 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4.1</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4.2</span></p>
             <div class="relative w-full mb-4">
                 <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full border rounded-lg text-center tracking-widest outline-none transition-colors" placeholder="Code">
                 <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()" title="إظهار/إخفاء الرمز">
@@ -1916,6 +1916,17 @@
                     <option value="shift_A" data-i18n="val_shift_a">الوردية A</option>
                     <option value="shift_B" data-i18n="val_shift_b">الوردية B</option>
                 </select>
+            </div>
+
+            <!-- حقل تاريخ البداية — يظهر فقط عند إضافة موظف جديد -->
+            <div id="startDateContainer" class="mb-4 hidden">
+                <label class="text-xs font-bold text-blue-600 dark:text-blue-400 mb-1 block flex items-center gap-1" data-i18n="lbl_start_date">
+                    <span>📅</span> تاريخ بداية الظهور بالقوائم
+                </label>
+                <input type="date" id="newEmployeeStartDate"
+                    class="w-full p-2 border border-blue-300 dark:border-blue-700 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-gray-700 dark:text-gray-200"
+                    style="color-scheme: light dark;">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1" style="font-size:0.7rem;">سيبدأ ظهور الموظف في الجداول اليومية ابتداءً من هذا التاريخ</p>
             </div>
 
             <div class="flex gap-2">
@@ -2060,7 +2071,7 @@
                         <tr>
                             <th class="p-3 border border-gray-200 dark:border-gray-600 text-start" data-i18n="th_name">الموظف</th>
                             <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_present">أيام الحضور</th>
-                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_absent">أيام الغياب</th>
+                            <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_absent">تقرير طبي</th>
                             <th class="p-3 border border-gray-200 dark:border-gray-600 text-center" data-i18n="th_vacation">أيام الإجازة</th>
                             <th class="p-3 border border-gray-200 dark:border-gray-600 text-center text-purple-700 dark:text-purple-300" data-i18n="th_holiday">رسمية</th>
                             <th class="p-3 border border-gray-200 dark:border-gray-600 text-center text-cyan-700 dark:text-cyan-300" data-i18n="th_sunday">الأحد</th>
@@ -2202,7 +2213,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, collection, writeBatch, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, collection, writeBatch, getDoc, getDocs, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const translations = {
             ar: {
@@ -2237,8 +2248,8 @@
                 th_notes: "ملاحظات",
                 th_delete: "حذف",
                 no_data: "لا يوجد موظفين مسجلين.",
-                val_present: "حضور", val_absent: "غياب", val_vacation: "إجازة", val_holiday: "عطلة رسمية", val_sunday: "يوم الأحد", val_choose: "--",
-                th_present: "حضور", th_absent: "غياب", th_vacation: "إجازة", th_holiday: "رسمية", th_sunday: "الأحد", th_total_overtime: "س.إضافي", th_total_delay: "س.تأخير",
+                val_present: "حضور", val_absent: "تقرير طبي", val_vacation: "إجازة", val_holiday: "عطلة رسمية", val_sunday: "يوم الأحد", val_choose: "--",
+                th_present: "حضور", th_absent: "تقرير طبي", th_vacation: "إجازة", th_holiday: "رسمية", th_sunday: "الأحد", th_total_overtime: "س.إضافي", th_total_delay: "س.تأخير",
                 sum_title: "ملخص", sum_emp: "لـ", sum_days: "يوم", sum_hrs: "س",
                 day_sunday: "الأحد", day_monday: "الإثنين", day_tuesday: "الثلاثاء", day_wednesday: "الأربعاء", day_thursday: "الخميس", day_friday: "الجمعة", day_saturday: "السبت",
                 lbl_shift: "الوردية", val_all_shifts: "الكل",
@@ -2287,8 +2298,11 @@
                 btn_recycle_bin: "المحذوفات",
                 recycle_bin_title: "الموظفون المحذوفون",
                 btn_restore: "استعادة",
+                btn_permanent_delete: "حذف نهائي",
                 no_deleted_emp: "لا يوجد موظفين محذوفين.",
-                deleted_at: "تاريخ الحذف: "
+                deleted_at: "تاريخ الحذف: ",
+                lbl_start_date: "تاريخ بداية الظهور بالقوائم",
+                ph_start_date: "اختر تاريخ البداية"
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -2322,8 +2336,8 @@
                 th_notes: "Not",
                 th_delete: "Sil",
                 no_data: "Kayıt yok.",
-                val_present: "Mevcut", val_absent: "Yok", val_vacation: "İzinli", val_holiday: "R.Tatil", val_sunday: "Pazar", val_choose: "--",
-                th_present: "Geldi", th_absent: "Gelmedi", th_vacation: "İzin", th_holiday: "R.Tatil", th_sunday: "Pazar", th_total_overtime: "Mesai", th_total_delay: "Gecikme",
+                val_present: "Mevcut", val_absent: "S.Raporu", val_vacation: "İzinli", val_holiday: "R.Tatil", val_sunday: "Pazar", val_choose: "--",
+                th_present: "Geldi", th_absent: "S.Raporu", th_vacation: "İzin", th_holiday: "R.Tatil", th_sunday: "Pazar", th_total_overtime: "Mesai", th_total_delay: "Gecikme",
                 sum_title: "Özet", sum_emp: "Personel:", sum_days: "Gün", sum_hrs: "S",
                 day_sunday: "Pazar", day_monday: "Pazartesi", day_tuesday: "Salı", day_wednesday: "Çarşamba", day_thursday: "Perşembe", day_friday: "Cuma", day_saturday: "Cumartesi",
                 lbl_shift: "Vardiya", val_all_shifts: "Tümü",
@@ -2372,8 +2386,11 @@
                 btn_recycle_bin: "Geri Dönüşüm Kutusu",
                 recycle_bin_title: "Silinen Personel",
                 btn_restore: "Geri Yükle",
+                btn_permanent_delete: "Kalıcı Sil",
                 no_deleted_emp: "Silinen personel yok.",
-                deleted_at: "Silinme Tarihi: "
+                deleted_at: "Silinme Tarihi: ",
+                lbl_start_date: "Listede Görünüm Başlangıç Tarihi",
+                ph_start_date: "Başlangıç tarihi seçin"
             }
         };
 
@@ -2620,6 +2637,11 @@
                 
                 // Show Admin Controls (+ موظف)
                 document.getElementById('adminControls').classList.remove('hidden');
+
+                // استعادة اختيار الوردية المحفوظ
+                const savedShiftFilter = localStorage.getItem('adminShiftFilter') || 'all';
+                currentSelectedShift = savedShiftFilter;
+                document.getElementById('shiftFilter').value = savedShiftFilter;
 
                 // Fetch current viewer permission setting
                 getDoc(GLOBAL_SETTINGS_DOC).then(snap => {
@@ -2906,6 +2928,8 @@
 
         window.applyShiftFilter = function() {
             currentSelectedShift = document.getElementById('shiftFilter').value;
+            // حفظ اختيار الوردية في localStorage ليبقى بعد إعادة الدخول
+            localStorage.setItem('adminShiftFilter', currentSelectedShift);
             renderDailyTable();
         };
 
@@ -3151,18 +3175,19 @@
                 order: data.order || 9999,
                 deleted: data.deleted || false,
                 deletedAt: data.deletedAt || null,
-                createdAt: data.createdAt || null
+                createdAt: data.createdAt || null,
+                startDate: data.startDate || null
             }));
 
             // Filter Logic
             empArray = empArray.filter(e => {
-                // 1. Hide if selected date is BEFORE employee creation date
-                if (e.createdAt) {
-                    // Convert createdAt to Date object (YYYY-MM-DD) for comparison
-                    const creationDate = new Date(e.createdAt.split('T')[0]);
+                // 1. Hide if selected date is BEFORE employee start date
+                // startDate takes priority over createdAt for visibility control
+                const effectiveStartDate = e.startDate || (e.createdAt ? e.createdAt.split('T')[0] : null);
+                if (effectiveStartDate) {
+                    const startD = new Date(effectiveStartDate);
                     const currentViewDate = new Date(dateStr);
-                    // If viewing a date strictly BEFORE creation, hide
-                    if (currentViewDate < creationDate) {
+                    if (currentViewDate < startD) {
                         return false;
                     }
                 }
@@ -3424,6 +3449,14 @@
             document.getElementById('editEmployeeId').value = '';
             document.getElementById('newEmployeeName').value = '';
             
+            // Show start date field for NEW employees, set to today
+            const startDateContainer = document.getElementById('startDateContainer');
+            startDateContainer.classList.remove('hidden');
+            document.getElementById('newEmployeeStartDate').value = new Date().toISOString().split('T')[0];
+            // Update label text for current lang
+            const lbl = startDateContainer.querySelector('label');
+            if (lbl) lbl.setAttribute('data-i18n', 'lbl_start_date');
+            
             const shiftSelect = document.getElementById('newEmployeeShift');
             if (userRole === 'shift_b_manager') {
                 shiftSelect.value = 'shift_B';
@@ -3442,6 +3475,9 @@
             document.getElementById('empModalTitle').innerText = t('add_emp_title');
             document.getElementById('editEmployeeId').value = empId;
             document.getElementById('newEmployeeName').value = emp.name;
+            
+            // Hide start date field for EDIT mode
+            document.getElementById('startDateContainer').classList.add('hidden');
             
             const shiftSelect = document.getElementById('newEmployeeShift');
             shiftSelect.value = emp.shift || 'shift_A';
@@ -3475,12 +3511,14 @@
                 updates[`list.${id}.shift`] = shift;
             } else {
                 const newId = 'emp_' + Date.now();
+                const startDateVal = document.getElementById('newEmployeeStartDate').value || new Date().toISOString().split('T')[0];
                 // Add createdAt field for new employees
                 updates[`list.${newId}`] = { 
                     name: name, 
                     shift: shift, 
                     order: newOrder,
-                    createdAt: new Date().toISOString() // Save creation timestamp
+                    createdAt: new Date().toISOString(),
+                    startDate: startDateVal  // تاريخ بداية الظهور المحدد من المشرف
                 };
             }
 
@@ -3489,11 +3527,13 @@
             } catch (e) {
                 const deepObj = { list: {} };
                 const newId = id || 'emp_' + Date.now();
+                const startDateVal = document.getElementById('newEmployeeStartDate').value || new Date().toISOString().split('T')[0];
                 deepObj.list[newId] = { 
                     name: name, 
                     shift: shift, 
                     order: newOrder,
-                    createdAt: new Date().toISOString() // Save creation timestamp
+                    createdAt: new Date().toISOString(),
+                    startDate: startDateVal
                 };
                 await setDoc(EMPLOYEES_DOC, deepObj, { merge: true });
             }
@@ -3546,6 +3586,33 @@
             }
         };
 
+        // NEW: Permanent Delete Employee — حذف نهائي كامل لا رجعة منه
+        window.permanentDeleteEmployee = async function(empId) {
+            const emp = masterEmployees[empId];
+            if (!emp) return;
+
+            const lang = document.documentElement.lang || 'ar';
+            const confirmMsg = lang === 'ar'
+                ? `⚠️ تحذير: الحذف النهائي لـ "${emp.name}"\n\nسيختفي الاسم تماماً من جميع القوائم والتقارير.\nهذا الإجراء لا يمكن التراجع عنه.\n\nهل أنت متأكد؟`
+                : `⚠️ Uyarı: "${emp.name}" kalıcı olarak silinecek.\n\nBu isim tüm listelerden ve raporlardan kaldırılacak.\nBu işlem geri alınamaz.\n\nEmin misiniz?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const updates = {};
+                updates[`list.${empId}`] = deleteField();
+                await updateDoc(EMPLOYEES_DOC, updates);
+                await logAccess('Admin', `Permanently Deleted: ${emp.name}`);
+                openRecycleBin(); // Refresh list
+            } catch (e) {
+                console.error("Permanent delete failed", e);
+                const errMsg = (document.documentElement.lang === 'ar')
+                    ? 'فشل الحذف النهائي: ' + e.message
+                    : 'Kalıcı silme başarısız: ' + e.message;
+                alert(errMsg);
+            }
+        };
+
         // NEW: Recycle Bin Logic
         window.openRecycleBin = function() {
             toggleModal('dataManagerOverlay', false);
@@ -3561,15 +3628,24 @@
                 deletedEmps.forEach(([id, data]) => {
                     const date = new Date(data.deletedAt).toLocaleDateString('en-GB');
                     const div = document.createElement('div');
-                    div.className = "flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg";
+                    div.className = "flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg gap-2";
                     div.innerHTML = `
-                        <div>
-                            <p class="font-bold text-gray-800 dark:text-gray-200">${data.name}</p>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-gray-800 dark:text-gray-200 truncate">${data.name}</p>
                             <p class="text-xs text-red-500">${t('deleted_at')} ${date}</p>
                         </div>
-                        <button onclick="restoreEmployee('${id}')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold shadow transition">
-                            ${t('btn_restore')} ⟳
-                        </button>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <button onclick="restoreEmployee('${id}')"
+                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-bold shadow transition flex items-center gap-1"
+                                title="${t('btn_restore')}">
+                                <span>⟳</span> <span>${t('btn_restore')}</span>
+                            </button>
+                            <button onclick="permanentDeleteEmployee('${id}')"
+                                class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded text-sm font-bold shadow transition flex items-center gap-1"
+                                title="${t('btn_permanent_delete')}">
+                                <span>🗑</span> <span>${t('btn_permanent_delete')}</span>
+                            </button>
+                        </div>
                     `;
                     listContainer.appendChild(div);
                 });

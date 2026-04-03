@@ -1786,6 +1786,81 @@
         }
         .swap-btn:hover .swap-icon { transform: rotate(180deg); }
 
+        /* ============================================
+           EMPLOYEE SUMMARY — Interactive Detail Cards
+           ============================================ */
+        .stat-box-clickable {
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.22,1,0.36,1) !important;
+            position: relative;
+        }
+        .stat-box-clickable:hover {
+            transform: translateY(-3px) scale(1.04) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+        }
+        .stat-box-clickable.active-stat {
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.18) !important;
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
+        }
+        .stat-box-clickable .chevron-hint {
+            font-size: 0.55rem;
+            opacity: 0.45;
+            transition: transform 0.25s ease, opacity 0.2s ease;
+            display: block;
+            margin-top: 2px;
+            line-height: 1;
+        }
+        .stat-box-clickable.active-stat .chevron-hint {
+            transform: rotate(180deg);
+            opacity: 0.8;
+        }
+        .stat-box-disabled {
+            opacity: 0.45 !important;
+            cursor: default !important;
+        }
+
+        /* Date chips */
+        .date-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.35rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            border: 1px solid rgba(0,0,0,0.07);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            white-space: nowrap;
+        }
+        .dark .date-chip { border-color: rgba(255,255,255,0.06); }
+        .date-chip:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .date-chip .chip-day {
+            font-size: 0.65rem;
+            font-weight: 600;
+            opacity: 0.55;
+        }
+        .date-chip .chip-extra {
+            font-size: 0.7rem;
+            opacity: 0.75;
+            font-weight: 800;
+        }
+
+        /* Detail panel animation */
+        @keyframes detailSlideDown {
+            from { opacity: 0; transform: translateY(-8px) scaleY(0.95); }
+            to   { opacity: 1; transform: translateY(0) scaleY(1); }
+        }
+        .detail-panel-anim {
+            animation: detailSlideDown 0.28s cubic-bezier(0.22,1,0.36,1) forwards;
+            transform-origin: top center;
+        }
+
     </style>
 
 
@@ -4012,59 +4087,194 @@
         
         window.showEmployeeSummary = function(empId) {
             const empName = masterEmployees[empId]?.name || 'Unknown';
-            const dateStr = document.getElementById('currentDateInput').value;
-            const currentMonth = dateStr.slice(0, 7); 
-            
-            let present = 0, absent = 0, vacation = 0, holiday = 0, sunday = 0, totalOvertime = 0, totalShortage = 0;
+            const isAr = (document.documentElement.lang || 'ar') === 'ar';
+
+            // ── Collect detailed per-day data ──
+            const det = {
+                present:  [],   // {date, entry, exit}
+                absent:   [],   // {date}
+                vacation: [],   // {date}
+                holiday:  [],   // {date}
+                sunday:   [],   // {date}
+                overtime: [],   // {date, value}
+                delay:    [],   // {date, value (abs)}
+            };
+
             const empData = currentMonthData[empId] || {};
-            
-            Object.values(empData).forEach(d => {
-                if (d.status === 'present') present++;
-                if (d.status === 'absent') absent++;
-                if (d.status === 'vacation') vacation++;
-                if (d.status === 'holiday') holiday++; 
-                if (d.status === 'sunday') sunday++;
-                totalOvertime += parseFloat(d.overtime) || 0;
-                totalShortage += parseFloat(d.shortage) || 0;
+            Object.entries(empData).forEach(([date, d]) => {
+                const s = d.status;
+                if (s === 'present')  det.present.push({date, entry: d.entry||'', exit: d.exit||''});
+                if (s === 'absent')   det.absent.push({date});
+                if (s === 'vacation') det.vacation.push({date});
+                if (s === 'holiday')  det.holiday.push({date});
+                if (s === 'sunday')   det.sunday.push({date});
+                if (parseFloat(d.overtime)  > 0) det.overtime.push({date, value: parseFloat(d.overtime)});
+                if (parseFloat(d.shortage)  < 0) det.delay.push({date, value: Math.abs(parseFloat(d.shortage))});
             });
-            
+            // Sort ascending by date
+            Object.values(det).forEach(a => a.sort((x,y) => x.date.localeCompare(y.date)));
+
+            const dayNamesAr = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+            const dayNamesTr = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+
+            function shortDate(dateStr) {
+                const d   = new Date(dateStr + 'T00:00:00');
+                const day = isAr ? dayNamesAr[d.getDay()] : dayNamesTr[d.getDay()];
+                const [,mm,dd] = dateStr.split('-');
+                return `<span class="chip-day">${day}</span>${dd}/${mm}`;
+            }
+
+            // ── Box definitions ──
+            const totalOT  = det.overtime.reduce((s,i)=>s+i.value, 0);
+            const totalDel = det.delay.reduce((s,i)=>s+i.value, 0);
+
+            const boxes = [
+                {
+                    key:'present', label: t('th_present'),
+                    count: det.present.length,
+                    box: 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300',
+                    lbl: 'text-green-500 dark:text-green-400',
+                    chip:'bg-green-100 dark:bg-green-900/60 text-green-800 dark:text-green-200',
+                    render: i => i.entry ? `<span class="chip-extra">${i.entry}${i.exit?'–'+i.exit:''}</span>` : ''
+                },
+                {
+                    key:'absent', label: t('th_absent'),
+                    count: det.absent.length,
+                    box: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300',
+                    lbl: 'text-red-500 dark:text-red-400',
+                    chip:'bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-200',
+                    render: null
+                },
+                {
+                    key:'vacation', label: t('th_vacation'),
+                    count: det.vacation.length,
+                    box: 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300',
+                    lbl: 'text-yellow-600 dark:text-yellow-400',
+                    chip:'bg-yellow-100 dark:bg-yellow-900/60 text-yellow-800 dark:text-yellow-200',
+                    render: null
+                },
+                {
+                    key:'holiday', label: t('th_holiday'),
+                    count: det.holiday.length,
+                    box: 'bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300',
+                    lbl: 'text-purple-600 dark:text-purple-400',
+                    chip:'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200',
+                    render: null
+                },
+                {
+                    key:'sunday', label: t('th_sunday'),
+                    count: det.sunday.length,
+                    box: 'bg-cyan-50 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-800 text-cyan-800 dark:text-cyan-300',
+                    lbl: 'text-cyan-600 dark:text-cyan-400',
+                    chip:'bg-cyan-100 dark:bg-cyan-900/60 text-cyan-800 dark:text-cyan-200',
+                    render: null
+                },
+                {
+                    key:'overtime', label: t('th_overtime'),
+                    count: totalOT,
+                    box: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300',
+                    lbl: 'text-blue-500 dark:text-blue-400',
+                    chip:'bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200',
+                    render: i => `<span class="chip-extra">+${i.value}${t('sum_hrs')}</span>`
+                },
+                {
+                    key:'delay', label: t('th_delay'),
+                    count: totalDel,
+                    box: 'bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-800 dark:text-orange-300',
+                    lbl: 'text-orange-500 dark:text-orange-400',
+                    chip:'bg-orange-100 dark:bg-orange-900/60 text-orange-800 dark:text-orange-200',
+                    render: i => `<span class="chip-extra">-${i.value}${t('sum_hrs')}</span>`
+                },
+            ];
+
+            // ── Build stat boxes HTML ──
+            const boxesHTML = boxes.map(b => {
+                const arr     = det[b.key];
+                const hasData = Array.isArray(arr) && arr.length > 0;
+                const disabled = !hasData ? 'stat-box-disabled' : '';
+                const onclick  = hasData ? `onclick="window._toggleEmpDetail('${b.key}')"` : '';
+                return `
+                <div class="stat-box-clickable ${b.box} ${disabled} border px-4 py-2 rounded-xl text-center min-w-[76px]"
+                     data-stat-box="${b.key}" ${onclick}>
+                    <span class="text-xs block ${b.lbl} font-bold leading-tight">${b.label}</span>
+                    <span class="text-2xl font-black leading-tight">${b.count}</span>
+                    ${hasData ? `<span class="chevron-hint">▼</span>` : `<span class="chevron-hint" style="opacity:0">▼</span>`}
+                </div>`;
+            }).join('');
+
+            // ── Build hidden detail panels HTML ──
+            const detailPanelsHTML = boxes.map(b => {
+                const arr = det[b.key];
+                if (!Array.isArray(arr) || !arr.length) return `<div id="empdet-${b.key}" class="hidden"></div>`;
+                const chips = arr.map(item => {
+                    const extra = b.render ? b.render(item) : '';
+                    return `<span class="date-chip ${b.chip}">${shortDate(item.date)}${extra}</span>`;
+                }).join('');
+                const countLabel = isAr
+                    ? `${arr.length} ${arr.length === 1 ? 'يوم' : 'أيام'}`
+                    : `${arr.length} gün`;
+                return `
+                <div id="empdet-${b.key}" class="hidden">
+                    <div class="detail-panel-anim mt-3 rounded-xl border ${b.box.split(' ').filter(c=>c.includes('border')).join(' ')} bg-opacity-40 p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold ${b.lbl} uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-current opacity-70"></span>
+                                ${b.label}
+                            </span>
+                            <span class="text-xs font-bold opacity-50 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full">${countLabel}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">${chips}</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // ── Render card ──
             const statsContainer = document.getElementById('employeeStatsCard');
             statsContainer.classList.remove('hidden');
             statsContainer.innerHTML = `
-                <div class="flex flex-wrap justify-between items-center gap-4">
-                    <div>
-                        <h3 class="font-bold text-xl text-blue-900 dark:text-blue-300 flex items-center gap-2">
+                <div class="flex flex-wrap justify-between items-start gap-4">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-xl text-blue-900 dark:text-blue-300 flex items-center gap-2 flex-wrap">
                             <span class="bg-blue-100 dark:bg-blue-900 p-1 rounded text-blue-600 dark:text-blue-300">👤</span>
-                            ${t('sum_title')} ${t('sum_emp')} <span class="text-indigo-600 dark:text-indigo-300 underline">${empName}</span>
+                            ${t('sum_title')} ${t('sum_emp')} <span class="text-indigo-600 dark:text-indigo-300 underline truncate">${empName}</span>
                         </h3>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 select-none">
+                            ${isAr ? '💡 اضغط على أي خانة لعرض تفاصيل الأيام' : '💡 Gün detayları için herhangi bir kutuya tıklayın'}
+                        </p>
                     </div>
-                    <div class="flex flex-wrap gap-4 text-sm font-bold">
-                        <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-green-500 dark:text-green-400">${t('th_present')}</span> ${present}
-                        </div>
-                        <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-red-500 dark:text-red-400">${t('th_absent')}</span> ${absent}
-                        </div>
-                         <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-yellow-600 dark:text-yellow-400">${t('th_vacation')}</span> ${vacation}
-                        </div>
-                        <div class="bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-purple-600 dark:text-purple-400">${t('th_holiday')}</span> ${holiday}
-                        </div>
-                        <div class="bg-cyan-50 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800 text-cyan-800 dark:text-cyan-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-cyan-600 dark:text-cyan-400">${t('th_sunday')}</span> ${sunday}
-                        </div>
-                        <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-blue-500 dark:text-blue-400">${t('th_overtime')}</span> ${totalOvertime}
-                        </div>
-                        <div class="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 text-orange-800 dark:text-orange-300 px-4 py-2 rounded-lg text-center">
-                            <span class="text-xs block text-orange-500 dark:text-orange-400">${t('th_delay')}</span> <span dir="ltr">${Math.abs(totalShortage)}</span>
-                        </div>
+                    <div class="flex flex-wrap gap-2 text-sm font-bold items-end">
+                        ${boxesHTML}
                     </div>
-                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden')" class="bg-gray-100 dark:bg-gray-600 px-3 py-1 rounded text-gray-500 dark:text-gray-300">×</button>
+                    <button onclick="document.getElementById('employeeStatsCard').classList.add('hidden'); window._activeEmpDetail=null;"
+                            class="bg-gray-100 dark:bg-gray-600 px-3 py-1 rounded text-gray-500 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition self-start">×</button>
                 </div>
+                <div id="empDetPanelContainer">${detailPanelsHTML}</div>
             `;
-            statsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            window._activeEmpDetail = null;
+            statsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        // ── Toggle detail panel (accordion — only one open at a time) ──
+        window._toggleEmpDetail = function(key) {
+            const panel   = document.getElementById('empdet-' + key);
+            const allBoxes   = document.querySelectorAll('[data-stat-box]');
+            const allPanels  = document.querySelectorAll('[id^="empdet-"]');
+
+            if (window._activeEmpDetail === key) {
+                // Close current
+                panel.classList.add('hidden');
+                allBoxes.forEach(b => b.classList.remove('active-stat'));
+                window._activeEmpDetail = null;
+            } else {
+                // Close all, open this
+                allPanels.forEach(p => p.classList.add('hidden'));
+                allBoxes.forEach(b => b.classList.remove('active-stat'));
+                panel.classList.remove('hidden');
+                const activeBox = document.querySelector(`[data-stat-box="${key}"]`);
+                if (activeBox) activeBox.classList.add('active-stat');
+                window._activeEmpDetail = key;
+            }
         };
 
         document.getElementById('accessCode').addEventListener('keypress', (e) => {

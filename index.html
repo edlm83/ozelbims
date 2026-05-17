@@ -1212,21 +1212,54 @@
             color: white !important;
         }
 
-        /* Hover brand colors */
-        .social-bubble.fb:hover  { background: #1877F2 !important; box-shadow: 0 12px 28px rgba(24,119,242,0.5) !important; }
-        .social-bubble.ig:hover  { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%) !important; }
-        .social-bubble.x:hover   { background: #0F0F0F !important; box-shadow: 0 12px 28px rgba(0,0,0,0.45) !important; }
-        .social-bubble.tg:hover  { background: linear-gradient(135deg, #2AABEE, #229ED9) !important; box-shadow: 0 12px 28px rgba(42,171,238,0.5) !important; }
+        /* Brand colors stay visible, hover keeps the existing lift motion */
+        #loginOverlay .social-bubble.fb,
+        html:not(.dark) #loginOverlay .social-bubble.fb,
+        html.dark #loginOverlay .social-bubble.fb {
+            background: #1877F2 !important;
+            color: #FFFFFF !important;
+            border-color: rgba(24,119,242,0.42) !important;
+            box-shadow: 0 12px 28px rgba(24,119,242,0.5) !important;
+        }
+        #loginOverlay .social-bubble.ig,
+        html:not(.dark) #loginOverlay .social-bubble.ig,
+        html.dark #loginOverlay .social-bubble.ig {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%) !important;
+            color: #FFFFFF !important;
+            border-color: rgba(214,36,159,0.42) !important;
+            box-shadow: 0 12px 28px rgba(214,36,159,0.45) !important;
+        }
+        #loginOverlay .social-bubble.x,
+        html:not(.dark) #loginOverlay .social-bubble.x,
+        html.dark #loginOverlay .social-bubble.x {
+            background: #0F0F0F !important;
+            color: #FFFFFF !important;
+            border-color: rgba(15,15,15,0.45) !important;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.45) !important;
+        }
+        #loginOverlay .social-bubble.tg,
+        html:not(.dark) #loginOverlay .social-bubble.tg,
+        html.dark #loginOverlay .social-bubble.tg {
+            background: linear-gradient(135deg, #2AABEE, #229ED9) !important;
+            color: #FFFFFF !important;
+            border-color: rgba(42,171,238,0.42) !important;
+            box-shadow: 0 12px 28px rgba(42,171,238,0.5) !important;
+        }
+
+        .social-bubble.fb:hover  { box-shadow: 0 14px 32px rgba(24,119,242,0.52) !important; }
+        .social-bubble.ig:hover  { box-shadow: 0 14px 32px rgba(214,36,159,0.45) !important; }
+        .social-bubble.x:hover   { box-shadow: 0 14px 32px rgba(0,0,0,0.48) !important; }
+        .social-bubble.tg:hover  { box-shadow: 0 14px 32px rgba(42,171,238,0.52) !important; }
 
         /* Shine on bubbles */
         .social-bubble::after {
             content: '';
-            position: absolute; top: 0; left: -200%;
-            width: 100%; height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            position: absolute; top: 0; left: -150%;
+            width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.62), transparent);
             transform: skewX(-25deg);
             z-index: 1;
-            animation: icon-shine-continuous 3s infinite ease-in-out;
+            animation: continuous-shine 3.5s infinite ease-in-out;
         }
         @keyframes icon-shine-continuous {
             0%   { left: -150%; opacity: 0; }
@@ -1864,6 +1897,850 @@
     </style>
 
 
+    <style id="ozelbims-pro-layer-style">
+        /* ============================================
+           OZELBIMS PRO LAYER — Command Center additions
+           ============================================ */
+        #appContainer {
+            position: relative;
+            isolation: isolate;
+        }
+
+        #proDashboard {
+            position: relative;
+            overflow: hidden;
+            margin: 0 0 0.75rem;
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            border-radius: 8px;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.9)),
+                linear-gradient(90deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08), rgba(124,58,237,0.08));
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.85);
+        }
+
+        .dark #proDashboard {
+            border-color: rgba(56, 189, 248, 0.2);
+            background:
+                linear-gradient(135deg, rgba(8,14,40,0.95), rgba(15,27,64,0.94)),
+                linear-gradient(90deg, rgba(16,185,129,0.08), rgba(56,189,248,0.09), rgba(167,139,250,0.08));
+            box-shadow: 0 18px 58px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .pro-dashboard-head {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) auto auto;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(37,99,235,0.12);
+            background: rgba(255,255,255,0.52);
+            backdrop-filter: blur(16px);
+        }
+
+        .dark .pro-dashboard-head {
+            border-bottom-color: rgba(56,189,248,0.12);
+            background: rgba(8,14,40,0.46);
+        }
+
+        .pro-head-main {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .pro-head-icon {
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 8px;
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #2563EB, #10B981);
+            box-shadow: 0 8px 18px rgba(37,99,235,0.2);
+        }
+
+        .pro-head-text {
+            min-width: 0;
+        }
+
+        .pro-head-title-line {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .pro-head-title-line strong {
+            color: var(--text-primary);
+            font-size: 0.96rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .pro-head-title-line span {
+            color: #2563EB;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .dark .pro-head-title-line span { color: #38BDF8; }
+
+        .pro-head-metrics {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .pro-collapse-btn {
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 10px;
+            border: 1px solid rgba(37,99,235,0.16);
+            border-radius: 8px;
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.78);
+            font-size: 0.76rem;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .pro-collapse-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(37,99,235,0.34);
+            box-shadow: 0 8px 18px rgba(37,99,235,0.1);
+        }
+
+        .dark .pro-collapse-btn {
+            border-color: rgba(56,189,248,0.16);
+            background: rgba(15,23,42,0.55);
+        }
+
+        .pro-collapse-icon {
+            transition: transform 0.22s ease;
+        }
+
+        #proDashboard.is-collapsed .pro-collapse-icon {
+            transform: rotate(180deg);
+        }
+
+        .pro-dashboard-body {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: max-height 0.28s ease, opacity 0.22s ease;
+        }
+
+        #proDashboard.is-collapsed .pro-dashboard-body {
+            max-height: 0 !important;
+            opacity: 0;
+        }
+
+        #proDashboard::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.42;
+            background-image:
+                linear-gradient(rgba(37,99,235,0.055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37,99,235,0.055) 1px, transparent 1px);
+            background-size: 26px 26px;
+            mask-image: linear-gradient(90deg, rgba(0,0,0,0.78), transparent 82%);
+        }
+
+        .dark #proDashboard::before {
+            background-image:
+                linear-gradient(rgba(56,189,248,0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56,189,248,0.045) 1px, transparent 1px);
+        }
+
+        .pro-dashboard-inner {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 8px;
+            padding: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .pro-dashboard-inner {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pro-head-ring {
+            --progress: 0%;
+            position: relative;
+            width: 52px;
+            height: 52px;
+            flex: 0 0 52px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 999px;
+            background:
+                conic-gradient(#10B981 var(--progress), rgba(148,163,184,0.26) 0),
+                rgba(255,255,255,0.72);
+            box-shadow: 0 7px 20px rgba(16,185,129,0.22);
+        }
+
+        .pro-head-ring::after {
+            content: '';
+            position: absolute;
+            inset: 7px;
+            border-radius: inherit;
+            background: var(--bg-card);
+        }
+
+        .pro-head-ring span {
+            position: relative;
+            z-index: 1;
+            color: var(--text-primary);
+            font-family: 'Exo 2', 'Cairo', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .pro-hero,
+        .pro-workspace,
+        .pro-attention {
+            border: 1px solid rgba(37,99,235,0.13);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.78);
+            backdrop-filter: blur(18px);
+        }
+
+        .dark .pro-hero,
+        .dark .pro-workspace,
+        .dark .pro-attention {
+            border-color: rgba(56,189,248,0.14);
+            background: rgba(11,20,50,0.7);
+        }
+
+        .pro-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 0;
+            padding: 8px 6px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .pro-hero-copy {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .pro-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            color: #2563EB;
+            font-size: 0.72rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0;
+        }
+
+        .dark .pro-kicker { color: #38BDF8; }
+
+        .pro-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+            line-height: 1.25;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .pro-scope {
+            margin-top: 1px;
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-weight: 800;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pro-ring {
+            --progress: 0%;
+            position: relative;
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            background:
+                conic-gradient(#10B981 var(--progress), rgba(148,163,184,0.24) 0),
+                linear-gradient(135deg, rgba(16,185,129,0.16), rgba(59,130,246,0.12));
+            box-shadow: 0 12px 26px rgba(16,185,129,0.16);
+        }
+
+        .pro-ring::after {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: inherit;
+            background: var(--bg-card);
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,0.14);
+        }
+
+        .pro-ring span {
+            position: relative;
+            z-index: 1;
+            color: var(--text-primary);
+            font-family: 'Exo 2', 'Cairo', sans-serif;
+            font-size: 0.86rem;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        #proReadinessCaption {
+            max-width: 100%;
+            color: var(--text-secondary);
+            font-size: 0.72rem !important;
+            line-height: 1.18;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+            -webkit-text-fill-color: currentColor !important;
+        }
+
+        .pro-hero .pro-kicker {
+            justify-content: center;
+            margin-bottom: 1px;
+            font-size: 0.62rem;
+            line-height: 1.15;
+            white-space: normal;
+        }
+
+        .pro-mini-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 0;
+        }
+
+        .pro-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(37,99,235,0.12);
+            color: var(--text-secondary);
+            background: rgba(239,246,255,0.72);
+            font-size: 0.69rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .dark .pro-pill {
+            border-color: rgba(56,189,248,0.12);
+            background: rgba(15,23,42,0.42);
+        }
+
+        .pro-workspace {
+            display: grid;
+            gap: 7px;
+            padding: 8px;
+        }
+
+        .pro-toolbar {
+            display: grid;
+            grid-template-columns: minmax(190px, 1fr) minmax(158px, 0.54fr) minmax(124px, auto) minmax(112px, auto) minmax(78px, auto);
+            gap: 6px;
+            align-items: center;
+        }
+
+        .pro-field,
+        .pro-select {
+            width: 100%;
+            min-height: 34px;
+            border: 1px solid rgba(37,99,235,0.18);
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.9);
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            font-weight: 800;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .pro-field {
+            padding: 0 2.35rem 0 0.8rem;
+        }
+
+        html[dir="ltr"] .pro-field {
+            padding: 0 0.8rem 0 2.35rem;
+        }
+
+        .pro-select {
+            padding: 0 0.9rem;
+            cursor: pointer;
+            min-width: 0;
+        }
+
+        #proStatusFilter {
+            min-width: 150px;
+        }
+
+        .dark .pro-field,
+        .dark .pro-select {
+            border-color: rgba(56,189,248,0.16);
+            background-color: rgba(15,23,42,0.58);
+            color: var(--text-primary);
+        }
+
+        .pro-field:focus,
+        .pro-select:focus {
+            border-color: rgba(37,99,235,0.48);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        .dark .pro-field:focus,
+        .dark .pro-select:focus {
+            border-color: rgba(56,189,248,0.48);
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.11);
+        }
+
+        .pro-search-wrap {
+            position: relative;
+        }
+
+        .pro-search-wrap i {
+            position: absolute;
+            inset-inline-start: 0.78rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        html[dir="rtl"] .pro-search-wrap i {
+            inset-inline-start: auto;
+            inset-inline-end: 0.78rem;
+        }
+
+        .pro-btn {
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 9px;
+            border: 1px solid rgba(37,99,235,0.16);
+            border-radius: 8px;
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.82);
+            font-size: 0.75rem;
+            font-weight: 900;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .pro-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(37,99,235,0.34);
+            box-shadow: 0 8px 18px rgba(37,99,235,0.12);
+        }
+
+        .dark .pro-btn {
+            border-color: rgba(56,189,248,0.14);
+            background: rgba(15,23,42,0.55);
+        }
+
+        .pro-btn-primary {
+            border-color: rgba(16,185,129,0.34);
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #059669, #2563EB);
+            box-shadow: 0 10px 22px rgba(16,185,129,0.18);
+        }
+
+        .pro-switch {
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
+            border: 1px solid rgba(245,158,11,0.25);
+            border-radius: 8px;
+            color: var(--text-primary);
+            background: rgba(255,251,235,0.7);
+            font-size: 0.75rem;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .dark .pro-switch {
+            border-color: rgba(245,158,11,0.18);
+            background: rgba(69,26,3,0.18);
+        }
+
+        .pro-switch input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pro-switch-track {
+            position: relative;
+            width: 34px;
+            height: 18px;
+            flex: 0 0 34px;
+            border-radius: 999px;
+            background: rgba(148,163,184,0.42);
+            transition: background 0.18s ease;
+        }
+
+        .pro-switch-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            inset-inline-start: 3px;
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: #FFFFFF;
+            box-shadow: 0 2px 6px rgba(15,23,42,0.28);
+            transition: transform 0.18s ease;
+        }
+
+        .pro-switch input:checked + .pro-switch-track {
+            background: linear-gradient(135deg, #F59E0B, #EF4444);
+        }
+
+        html[dir="rtl"] .pro-switch input:checked + .pro-switch-track::after {
+            transform: translateX(-16px);
+        }
+
+        html[dir="ltr"] .pro-switch input:checked + .pro-switch-track::after {
+            transform: translateX(16px);
+        }
+
+        .pro-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+            gap: 6px;
+        }
+
+        .pro-stat-card {
+            min-height: 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 4px;
+            padding: 7px;
+            border: 1px solid rgba(148,163,184,0.18);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.72);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.74);
+        }
+
+        .dark .pro-stat-card {
+            border-color: rgba(148,163,184,0.12);
+            background: rgba(15,23,42,0.44);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        .pro-stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 0.66rem;
+            font-weight: 900;
+        }
+
+        .pro-stat-value {
+            color: var(--text-primary);
+            font-family: 'Exo 2', 'Cairo', sans-serif;
+            font-size: 1.08rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 0;
+        }
+
+        .pro-stat-card[data-tone="present"] { border-color: rgba(16,185,129,0.22); }
+        .pro-stat-card[data-tone="missing"] { border-color: rgba(245,158,11,0.24); }
+        .pro-stat-card[data-tone="absent"] { border-color: rgba(239,68,68,0.22); }
+        .pro-stat-card[data-tone="time"] { border-color: rgba(59,130,246,0.22); }
+        .pro-stat-card[data-tone="delay"] { border-color: rgba(249,115,22,0.24); }
+        .pro-stat-card[data-tone="neutral"] { border-color: rgba(99,102,241,0.22); }
+
+        .pro-bars {
+            display: grid;
+            gap: 5px;
+        }
+
+        .pro-bar-track {
+            display: flex;
+            height: 8px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(148,163,184,0.2);
+        }
+
+        .pro-bar-segment {
+            min-width: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .pro-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            color: var(--text-secondary);
+            font-size: 0.68rem;
+            font-weight: 800;
+        }
+
+        .pro-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pro-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            flex: 0 0 8px;
+        }
+
+        .pro-attention {
+            padding: 7px 8px;
+        }
+
+        .pro-attention-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 0.76rem;
+            font-weight: 900;
+        }
+
+        .pro-attention-count {
+            min-width: 28px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            color: #92400E;
+            background: rgba(245,158,11,0.16);
+            text-align: center;
+            font-family: 'Exo 2', 'Cairo', sans-serif;
+        }
+
+        .dark .pro-attention-count {
+            color: #FCD34D;
+            background: rgba(245,158,11,0.12);
+        }
+
+        .pro-attention-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            min-height: 30px;
+            align-items: center;
+        }
+
+        .pro-attention-chip {
+            max-width: 100%;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 8px;
+            border: 1px solid rgba(245,158,11,0.22);
+            border-radius: 999px;
+            color: #92400E;
+            background: rgba(255,251,235,0.75);
+            font-size: 0.69rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .pro-attention-chip:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(245,158,11,0.14);
+        }
+
+        .dark .pro-attention-chip {
+            color: #FCD34D;
+            border-color: rgba(245,158,11,0.2);
+            background: rgba(69,26,3,0.24);
+        }
+
+        .pro-attention-chip strong {
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pro-empty-match {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 10px;
+            border: 1px dashed rgba(245,158,11,0.32);
+            border-radius: 8px;
+            color: #92400E;
+            background: rgba(255,251,235,0.62);
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .dark .pro-empty-match {
+            color: #FCD34D;
+            background: rgba(69,26,3,0.18);
+        }
+
+        .pro-empty-match.is-visible { display: flex; }
+
+        #dailyTableBody tr.pro-filter-hidden {
+            display: none !important;
+        }
+
+        #dailyTableBody tr.pro-attention-row > td:first-child {
+            box-shadow: inset -4px 0 0 #F59E0B;
+        }
+
+        html[dir="ltr"] #dailyTableBody tr.pro-attention-row > td:first-child {
+            box-shadow: inset 4px 0 0 #F59E0B;
+        }
+
+        #dailyTableBody tr.pro-row-flash {
+            animation: proRowFlash 1.15s ease;
+        }
+
+        @keyframes proRowFlash {
+            0%, 100% { outline: 0 solid rgba(245,158,11,0); }
+            18%, 72% { outline: 3px solid rgba(245,158,11,0.52); outline-offset: -3px; }
+        }
+
+        .table-container thead th {
+            position: sticky;
+            top: 0;
+            z-index: 7;
+        }
+
+        @media (max-width: 1120px) {
+            .pro-dashboard-head {
+                grid-template-columns: 1fr auto;
+            }
+
+            .pro-head-metrics {
+                grid-column: 1 / -1;
+                justify-content: flex-start;
+                order: 3;
+            }
+
+            .pro-dashboard-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .pro-hero {
+                justify-content: flex-start;
+                min-height: 0;
+            }
+
+            .pro-toolbar {
+                grid-template-columns: minmax(220px, 1fr) minmax(158px, 190px) minmax(124px, auto) repeat(2, minmax(84px, auto));
+            }
+
+            .pro-stat-grid {
+                grid-template-columns: repeat(3, minmax(92px, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            #proDashboard {
+                margin-inline: -0.25rem;
+            }
+
+            .pro-dashboard-inner {
+                padding: 9px;
+            }
+
+            .pro-dashboard-head {
+                grid-template-columns: 1fr;
+                align-items: stretch;
+            }
+
+            .pro-collapse-btn {
+                width: 100%;
+            }
+
+            .pro-head-metrics {
+                justify-content: flex-start;
+            }
+
+            .pro-hero {
+                align-items: center;
+                min-height: 0;
+            }
+
+            .pro-ring {
+                width: 62px;
+                height: 62px;
+                flex-basis: 62px;
+                margin-inline: auto;
+            }
+
+            .pro-ring span {
+                font-size: 1.06rem;
+            }
+
+            .pro-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .pro-btn,
+            .pro-switch {
+                width: 100%;
+            }
+
+            .pro-stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #dailyTableBody tr.pro-row-flash,
+            .pro-btn,
+            .pro-attention-chip,
+            .pro-bar-segment {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
 </head>
 <body class="text-gray-800 dark:text-gray-100 transition-colors duration-300" style="padding: 1rem 1.25rem; min-height: 100vh;">
 
@@ -1912,7 +2789,7 @@
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2" data-i18n="login_title">تسجيل الدخول</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4.2</span></p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">Version <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V4.4</span></p>
             <div class="relative w-full mb-4">
                 <input type="password" id="accessCode" inputmode="numeric" pattern="[0-9]*" class="w-full border rounded-lg text-center tracking-widest outline-none transition-colors" placeholder="Code">
                 <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()" title="إظهار/إخفاء الرمز">
@@ -2001,7 +2878,7 @@
                 <input type="date" id="newEmployeeStartDate"
                     class="w-full p-2 border border-blue-300 dark:border-blue-700 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-gray-700 dark:text-gray-200"
                     style="color-scheme: light dark;">
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1" style="font-size:0.7rem;">سيبدأ ظهور الموظف في الجداول اليومية ابتداءً من هذا التاريخ</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1" style="font-size:0.7rem;" data-i18n="start_date_hint">سيبدأ ظهور الموظف في الجداول اليومية ابتداءً من هذا التاريخ</p>
             </div>
 
             <div class="flex gap-2">
@@ -2377,7 +3254,8 @@
                 no_deleted_emp: "لا يوجد موظفين محذوفين.",
                 deleted_at: "تاريخ الحذف: ",
                 lbl_start_date: "تاريخ بداية الظهور بالقوائم",
-                ph_start_date: "اختر تاريخ البداية"
+                ph_start_date: "اختر تاريخ البداية",
+                start_date_hint: "سيبدأ ظهور الموظف في الجداول اليومية ابتداءً من هذا التاريخ"
             },
             tr: {
                 app_title: "Vardiya Sistemi",
@@ -2465,7 +3343,8 @@
                 no_deleted_emp: "Silinen personel yok.",
                 deleted_at: "Silinme Tarihi: ",
                 lbl_start_date: "Listede Görünüm Başlangıç Tarihi",
-                ph_start_date: "Başlangıç tarihi seçin"
+                ph_start_date: "Başlangıç tarihi seçin",
+                start_date_hint: "Personel bu tarihten itibaren günlük tablolarda görünecek"
             }
         };
 
@@ -2629,6 +3508,18 @@
         let currentMonthData = {}; 
         let loadedYearMonth = ''; 
 
+        window.__ozelbimsState = function() {
+            return {
+                userRole,
+                currentSelectedShift,
+                viewerPermissionFilter,
+                masterEmployees,
+                currentMonthData,
+                loadedYearMonth,
+                currentLang
+            };
+        };
+        
         const EMPLOYEES_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'employees');
         const GLOBAL_SETTINGS_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global_config');
         const LOGS_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'logs', 'access_history');
@@ -4024,8 +4915,12 @@
                                 if (day.status === 'vacation') reportData[empId].vacation++;
                                 if (day.status === 'holiday') reportData[empId].holiday++;
                                 if (day.status === 'sunday') reportData[empId].sunday++;
-                                reportData[empId].overtime += parseFloat(day.overtime) || 0;
-                                reportData[empId].delay += parseFloat(day.shortage) || 0;
+                                // Overtime: only positive values
+                                const ot = parseFloat(day.overtime);
+                                if (ot > 0) reportData[empId].overtime += ot;
+                                // Delay: shortage is negative, accumulate as positive
+                                const sh = parseFloat(day.shortage);
+                                if (sh < 0) reportData[empId].delay += Math.abs(sh);
                             });
                         });
                     }
@@ -4057,8 +4952,8 @@
                     <td class="p-3 border dark:border-gray-600 text-center text-yellow-700 dark:text-yellow-400 font-bold" data-label="${t('th_vacation')}">${d.vacation}</td>
                     <td class="p-3 border dark:border-gray-600 text-center text-purple-700 dark:text-purple-400 font-bold" data-label="${t('th_holiday')}">${d.holiday}</td>
                     <td class="p-3 border dark:border-gray-600 text-center text-cyan-700 dark:text-cyan-400 font-bold" data-label="${t('th_sunday')}">${d.sunday}</td>
-                    <td class="p-3 border dark:border-gray-600 text-center text-blue-700 dark:text-blue-400 font-bold" data-label="${t('th_total_overtime')}">${d.overtime}</td>
-                    <td class="p-3 border dark:border-gray-600 text-center text-red-600 dark:text-red-500 font-bold" data-label="${t('th_total_delay')}"><span dir="ltr">${Math.abs(d.delay)}</span></td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-blue-700 dark:text-blue-400 font-bold" data-label="${t('th_total_overtime')}">${Number.isInteger(d.overtime) ? d.overtime : d.overtime.toFixed(1).replace(/\.0$/,'')}</td>
+                    <td class="p-3 border dark:border-gray-600 text-center text-red-600 dark:text-red-500 font-bold" data-label="${t('th_total_delay')}"><span dir="ltr">${Number.isInteger(d.delay) ? d.delay : d.delay.toFixed(1).replace(/\.0$/,'')}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -4091,7 +4986,7 @@
 
             // ── Collect detailed per-day data ──
             const det = {
-                present:  [],   // {date, entry, exit}
+                present:  [],   // {date, entry, exit, sourceStatus?, sourceLabel?, sourceChip?}
                 absent:   [],   // {date}
                 vacation: [],   // {date}
                 holiday:  [],   // {date}
@@ -4103,11 +4998,33 @@
             const empData = currentMonthData[empId] || {};
             Object.entries(empData).forEach(([date, d]) => {
                 const s = d.status;
-                if (s === 'present')  det.present.push({date, entry: d.entry||'', exit: d.exit||''});
+                const entry = d.entry || '';
+                const exit = d.exit || '';
+                if (s === 'present')  det.present.push({date, entry, exit});
                 if (s === 'absent')   det.absent.push({date});
                 if (s === 'vacation') det.vacation.push({date});
-                if (s === 'holiday')  det.holiday.push({date});
-                if (s === 'sunday')   det.sunday.push({date});
+                if (s === 'holiday') {
+                    det.holiday.push({date, entry, exit});
+                    if (entry || exit) {
+                        det.present.push({
+                            date, entry, exit,
+                            sourceStatus: 'holiday',
+                            sourceLabel: t('th_holiday'),
+                            sourceChip: 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200'
+                        });
+                    }
+                }
+                if (s === 'sunday') {
+                    det.sunday.push({date, entry, exit});
+                    if (entry || exit) {
+                        det.present.push({
+                            date, entry, exit,
+                            sourceStatus: 'sunday',
+                            sourceLabel: t('th_sunday'),
+                            sourceChip: 'bg-cyan-100 dark:bg-cyan-900/60 text-cyan-800 dark:text-cyan-200'
+                        });
+                    }
+                }
                 if (parseFloat(d.overtime)  > 0) det.overtime.push({date, value: parseFloat(d.overtime)});
                 if (parseFloat(d.shortage)  < 0) det.delay.push({date, value: Math.abs(parseFloat(d.shortage))});
             });
@@ -4135,7 +5052,11 @@
                     box: 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300',
                     lbl: 'text-green-500 dark:text-green-400',
                     chip:'bg-green-100 dark:bg-green-900/60 text-green-800 dark:text-green-200',
-                    render: i => i.entry ? `<span class="chip-extra">${i.entry}${i.exit?'–'+i.exit:''}</span>` : ''
+                    render: i => {
+                        const time = i.entry ? `<span class="chip-extra">${i.entry}${i.exit?'–'+i.exit:''}</span>` : '';
+                        const source = i.sourceLabel ? `<span class="chip-extra">${i.sourceLabel}</span>` : '';
+                        return `${time}${source}`;
+                    }
                 },
                 {
                     key:'absent', label: t('th_absent'),
@@ -4159,7 +5080,7 @@
                     box: 'bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300',
                     lbl: 'text-purple-600 dark:text-purple-400',
                     chip:'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200',
-                    render: null
+                    render: i => i.entry ? `<span class="chip-extra">${i.entry}${i.exit?'–'+i.exit:''}</span>` : ''
                 },
                 {
                     key:'sunday', label: t('th_sunday'),
@@ -4167,7 +5088,7 @@
                     box: 'bg-cyan-50 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-800 text-cyan-800 dark:text-cyan-300',
                     lbl: 'text-cyan-600 dark:text-cyan-400',
                     chip:'bg-cyan-100 dark:bg-cyan-900/60 text-cyan-800 dark:text-cyan-200',
-                    render: null
+                    render: i => i.entry ? `<span class="chip-extra">${i.entry}${i.exit?'–'+i.exit:''}</span>` : ''
                 },
                 {
                     key:'overtime', label: t('th_overtime'),
@@ -4208,7 +5129,7 @@
                 if (!Array.isArray(arr) || !arr.length) return `<div id="empdet-${b.key}" class="hidden"></div>`;
                 const chips = arr.map(item => {
                     const extra = b.render ? b.render(item) : '';
-                    return `<span class="date-chip ${b.chip}">${shortDate(item.date)}${extra}</span>`;
+                    return `<span class="date-chip ${item.sourceChip || b.chip}">${shortDate(item.date)}${extra}</span>`;
                 }).join('');
                 const countLabel = isAr
                     ? `${arr.length} ${arr.length === 1 ? 'يوم' : 'أيام'}`
@@ -4463,8 +5384,8 @@
                     if (field === 'status' && value) {
                         const lang = document.documentElement.lang || 'ar';
                         const statusNames = {
-                            ar: { present:'✓ حضور', absent:'✗ غياب', vacation:'🏖 إجازة', holiday:'🎉 عطلة رسمية', sunday:'📅 يوم الأحد' },
-                            tr: { present:'✓ Mevcut', absent:'✗ Yok', vacation:'🏖 İzin', holiday:'🎉 Resmi Tatil', sunday:'📅 Pazar' }
+                            ar: { present:'✓ حضور', absent:'🩺 تقرير طبي', vacation:'🏖 إجازة', holiday:'🎉 عطلة رسمية', sunday:'📅 يوم الأحد' },
+                            tr: { present:'✓ Mevcut', absent:'🩺 S.Raporu', vacation:'🏖 İzin', holiday:'🎉 Resmi Tatil', sunday:'📅 Pazar' }
                         };
                         const names = statusNames[lang] || statusNames.ar;
                         const name  = window.masterEmployees?.[empId]?.name || '';
@@ -4709,6 +5630,975 @@ self.addEventListener('fetch', e => {
                 setTimeout(updateArrows, ms);
             });
         })();
+    </script>
+
+    <script id="ozelbims-pro-layer-script">
+    (function() {
+        'use strict';
+
+        const PRO_TEXT = {
+            ar: {
+                kicker: 'OZELBIMS PRO',
+                title: 'لوحة اليوم',
+                scopeFallback: 'اختر التاريخ والوردية',
+                readiness: 'جاهزية السجل',
+                complete: 'مكتمل',
+                shown: 'المعروض',
+                total: 'الموظفون',
+                present: 'حضور',
+                missing: 'بدون حالة',
+                absent: 'تقرير طبي',
+                vacation: 'إجازة',
+                holiday: 'رسمية',
+                sunday: 'الأحد',
+                incomplete: 'وقت ناقص',
+                overtime: 'إضافي',
+                delay: 'تأخير',
+                notes: 'ملاحظات',
+                searchPh: 'بحث بالاسم أو الملاحظة',
+                allStatuses: 'كل الحالات',
+                focus: 'النواقص فقط',
+                pdf: 'PDF شهري',
+                today: 'اليوم',
+                reset: 'مسح',
+                collapse: 'طي اللوحة',
+                expand: 'فتح اللوحة',
+                attention: 'تحتاج متابعة',
+                allClear: 'لا توجد نواقص ظاهرة',
+                noMatches: 'لا توجد نتائج مطابقة',
+                statusMissingReason: 'بدون حالة',
+                timeReason: 'وقت ناقص',
+                delayReason: 'تأخير',
+                pdfReady: 'تم فتح التقرير الشهري في صفحة مستقلة',
+                pdfFail: 'تعذر تجهيز تقرير PDF',
+                printReport: 'طباعة / حفظ PDF',
+                closeReport: 'إغلاق التقرير',
+                summaryTitle: 'التقرير الشهري العام',
+                generatedAt: 'تاريخ الاستخراج',
+                month: 'الشهر',
+                completion: 'الاكتمال',
+                employee: 'الموظف',
+                totalDays: 'أيام مسجلة',
+                date: 'التاريخ',
+                shift: 'الوردية',
+                viewAll: 'الكل',
+                noDate: 'بدون تاريخ'
+            },
+            tr: {
+                kicker: 'OZELBIMS PRO',
+                title: 'Gün Paneli',
+                scopeFallback: 'Tarih ve vardiya seçin',
+                readiness: 'Kayıt Hazırlığı',
+                complete: 'Tamamlanan',
+                shown: 'Görünen',
+                total: 'Personel',
+                present: 'Mevcut',
+                missing: 'Durum Yok',
+                absent: 'S.Raporu',
+                vacation: 'İzin',
+                holiday: 'R.Tatil',
+                sunday: 'Pazar',
+                incomplete: 'Eksik Saat',
+                overtime: 'Mesai',
+                delay: 'Gecikme',
+                notes: 'Not',
+                searchPh: 'İsim veya not ara',
+                allStatuses: 'Tüm durumlar',
+                focus: 'Eksikler',
+                pdf: 'Aylık PDF',
+                today: 'Bugün',
+                reset: 'Temizle',
+                collapse: 'Paneli Kapat',
+                expand: 'Paneli Aç',
+                attention: 'Takip',
+                allClear: 'Görünen eksik yok',
+                noMatches: 'Eşleşen sonuç yok',
+                statusMissingReason: 'Durum yok',
+                timeReason: 'Eksik saat',
+                delayReason: 'Gecikme',
+                pdfReady: 'Aylık rapor ayrı sayfada açıldı',
+                pdfFail: 'PDF raporu hazırlanamadı',
+                printReport: 'Yazdır / PDF kaydet',
+                closeReport: 'Raporu Kapat',
+                summaryTitle: 'Genel Aylık Rapor',
+                generatedAt: 'Oluşturma tarihi',
+                month: 'Ay',
+                completion: 'Tamamlanma',
+                employee: 'Personel',
+                totalDays: 'Kayıtlı gün',
+                date: 'Tarih',
+                shift: 'Vardiya',
+                viewAll: 'Tümü',
+                noDate: 'Tarih yok'
+            }
+        };
+
+        const STATUS_META = {
+            present:  { color: '#10B981', icon: 'fa-user-check', tone: 'present' },
+            missing:  { color: '#F59E0B', icon: 'fa-circle-question', tone: 'missing' },
+            absent:   { color: '#EF4444', icon: 'fa-kit-medical', tone: 'absent' },
+            vacation: { color: '#EAB308', icon: 'fa-umbrella-beach', tone: 'neutral' },
+            holiday:  { color: '#8B5CF6', icon: 'fa-star', tone: 'neutral' },
+            sunday:   { color: '#06B6D4', icon: 'fa-calendar-day', tone: 'neutral' },
+            overtime: { color: '#2563EB', icon: 'fa-arrow-trend-up', tone: 'time' },
+            delay:    { color: '#F97316', icon: 'fa-triangle-exclamation', tone: 'delay' },
+            total:    { color: '#6366F1', icon: 'fa-users', tone: 'neutral' },
+            shown:    { color: '#0EA5E9', icon: 'fa-eye', tone: 'neutral' },
+            incomplete: { color: '#F59E0B', icon: 'fa-clock-rotate-left', tone: 'missing' }
+        };
+
+        let installTimer = null;
+        let updateTimer = null;
+        let lastSnapshot = null;
+
+        function getLang() {
+            return document.documentElement.lang === 'tr' ? 'tr' : 'ar';
+        }
+
+        function L(key) {
+            const lang = getLang();
+            return (PRO_TEXT[lang] && PRO_TEXT[lang][key]) || PRO_TEXT.ar[key] || key;
+        }
+
+        function normalizeText(value) {
+            return String(value || '')
+                .toLowerCase()
+                .normalize('NFKD')
+                .replace(/[\u064B-\u065F\u0670]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function formatNumber(value) {
+            const num = Number(value) || 0;
+            return Number.isInteger(num) ? String(num) : num.toFixed(1).replace(/\.0$/, '');
+        }
+
+        function localDateString() {
+            const now = new Date();
+            const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+            return local.toISOString().slice(0, 10);
+        }
+
+        function ensurePanel() {
+            let panel = document.getElementById('proDashboard');
+            if (panel) {
+                applyPanelLanguage(panel);
+                return panel;
+            }
+
+            const anchor = document.getElementById('employeeStatsCard') || document.querySelector('.table-container');
+            if (!anchor || !anchor.parentNode) return null;
+
+            panel = document.createElement('section');
+            panel.id = 'proDashboard';
+            panel.setAttribute('aria-label', 'OZELBIMS Pro');
+            panel.innerHTML = `
+                <div class="pro-dashboard-head">
+                    <div class="pro-head-main">
+                        <span class="pro-head-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+                        <span class="pro-head-ring" id="proHeadReadinessRing" aria-label="completion">
+                            <span id="proHeadReadinessValue">0%</span>
+                        </span>
+                        <div class="pro-head-text">
+                            <div class="pro-head-title-line">
+                                <strong data-pro-label="title"></strong>
+                                <span data-pro-label="kicker"></span>
+                            </div>
+                            <p class="pro-scope" id="proScopeText"></p>
+                        </div>
+                    </div>
+                    <div class="pro-head-metrics">
+                        <span class="pro-pill">
+                            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                            <span data-pro-label="complete"></span>
+                            <strong id="proCompleteCount">0</strong>
+                        </span>
+                        <span class="pro-pill">
+                            <i class="fa-solid fa-users" aria-hidden="true"></i>
+                            <span data-pro-label="total"></span>
+                            <strong id="proTotalCount">0</strong>
+                        </span>
+                        <span class="pro-pill">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                            <span data-pro-label="shown"></span>
+                            <strong id="proShownCount">0</strong>
+                        </span>
+                    </div>
+                    <button id="proCollapseBtn" type="button" class="pro-collapse-btn" aria-expanded="true">
+                        <i id="proCollapseIcon" class="pro-collapse-icon fa-solid fa-chevron-up" aria-hidden="true"></i>
+                        <span id="proCollapseText" data-pro-label="collapse"></span>
+                    </button>
+                </div>
+                <div class="pro-dashboard-body">
+                    <div class="pro-dashboard-inner">
+                        <div class="pro-hero">
+                            <div class="pro-ring" id="proMainRing" aria-label="completion ring">
+                                <span id="proMainRingValue">0%</span>
+                            </div>
+                            <div class="pro-hero-copy">
+                                <div class="pro-kicker">
+                                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                                    <span data-pro-label="kicker"></span>
+                                </div>
+                                <p class="pro-title" id="proRingCompleteLabel">0 / 0</p>
+                                <p class="pro-scope" data-pro-label="complete"></p>
+                            </div>
+                        </div>
+                        <div class="pro-workspace">
+                            <div class="pro-toolbar">
+                                <div class="pro-search-wrap">
+                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                    <input id="proSearchInput" class="pro-field" type="search" autocomplete="off" data-pro-ph="searchPh">
+                                </div>
+                                <select id="proStatusFilter" class="pro-select">
+                                    <option value="" data-pro-label="allStatuses"></option>
+                                    <option value="present" data-pro-label="present"></option>
+                                    <option value="missing" data-pro-label="missing"></option>
+                                    <option value="absent" data-pro-label="absent"></option>
+                                    <option value="vacation" data-pro-label="vacation"></option>
+                                </select>
+                                <label class="pro-switch" for="proFocusToggle">
+                                    <input id="proFocusToggle" type="checkbox">
+                                    <span class="pro-switch-track" aria-hidden="true"></span>
+                                    <span data-pro-label="focus"></span>
+                                </label>
+                                <button id="proPdfReport" type="button" class="pro-btn pro-btn-primary">
+                                    <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+                                    <span data-pro-label="pdf"></span>
+                                </button>
+                                <button id="proTodayBtn" type="button" class="pro-btn">
+                                    <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+                                    <span data-pro-label="today"></span>
+                                </button>
+                            </div>
+
+                            <div id="proStatsGrid" class="pro-stat-grid"></div>
+                            <div id="proDistribution" class="pro-bars"></div>
+                            <div id="proNoMatches" class="pro-empty-match">
+                                <i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i>
+                                <span data-pro-label="noMatches"></span>
+                            </div>
+                            <div class="pro-attention">
+                                <div class="pro-attention-head">
+                                    <span>
+                                        <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                                        <span data-pro-label="attention"></span>
+                                    </span>
+                                    <span id="proAttentionCount" class="pro-attention-count">0</span>
+                                </div>
+                                <div id="proAttentionList" class="pro-attention-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            anchor.parentNode.insertBefore(panel, anchor);
+            bindPanel(panel);
+            applyPanelLanguage(panel);
+            return panel;
+        }
+
+        function applyPanelLanguage(panel) {
+            panel.querySelectorAll('[data-pro-label]').forEach(el => {
+                el.textContent = L(el.getAttribute('data-pro-label'));
+            });
+            panel.querySelectorAll('[data-pro-ph]').forEach(el => {
+                el.setAttribute('placeholder', L(el.getAttribute('data-pro-ph')));
+                el.setAttribute('aria-label', L(el.getAttribute('data-pro-ph')));
+            });
+            syncCollapseButton(panel);
+        }
+
+        function bindPanel(panel) {
+            panel.addEventListener('input', event => {
+                if (event.target.closest('#proSearchInput')) scheduleUpdate();
+            });
+
+            panel.addEventListener('change', event => {
+                if (event.target.closest('#proStatusFilter') || event.target.closest('#proFocusToggle')) {
+                    scheduleUpdate();
+                }
+            });
+
+            panel.addEventListener('click', event => {
+                const target = event.target;
+                const rowButton = target.closest('[data-pro-row-jump]');
+                if (rowButton) {
+                    focusRow(rowButton.getAttribute('data-pro-row-jump'));
+                    return;
+                }
+
+                if (target.closest('#proCollapseBtn')) {
+                    const isCollapsed = panel.classList.toggle('is-collapsed');
+                    const btn = document.getElementById('proCollapseBtn');
+                    if (btn) btn.setAttribute('aria-expanded', String(!isCollapsed));
+                    syncCollapseButton(panel);
+                    return;
+                }
+
+                if (target.closest('#proTodayBtn')) {
+                    const dateInput = document.getElementById('currentDateInput');
+                    if (dateInput) {
+                        dateInput.value = localDateString();
+                        if (typeof window.changeDate === 'function') window.changeDate();
+                    }
+                    return;
+                }
+
+                if (target.closest('#proPdfReport')) {
+                    openMonthlyPdfReport();
+                }
+            });
+        }
+
+        function syncCollapseButton(panel) {
+            const host = panel || document.getElementById('proDashboard');
+            const text = document.getElementById('proCollapseText');
+            const icon = document.getElementById('proCollapseIcon');
+            const collapsed = !!(host && host.classList.contains('is-collapsed'));
+            if (text) text.textContent = collapsed ? L('expand') : L('collapse');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-up', !collapsed);
+                icon.classList.toggle('fa-chevron-down', collapsed);
+            }
+        }
+
+        function scheduleUpdate() {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(updateDashboard, 35);
+        }
+
+        function collectRows() {
+            const tbody = document.getElementById('dailyTableBody');
+            if (!tbody) return [];
+            const selectedDate = document.getElementById('currentDateInput')?.value || localDateString();
+            const isFutureDate = selectedDate > localDateString();
+
+            return Array.from(tbody.querySelectorAll('tr'))
+                .filter(row => !row.classList.contains('skeleton-row'))
+                .map((row, index) => {
+                    row.dataset.proRow = String(index);
+                    const cells = row.children;
+                    const nameCell = row.querySelector('[data-label-type="name"]') || cells[1];
+                    const rawName = (nameCell ? nameCell.innerText : '').replace(/[✎🔄]/g, ' ');
+                    const statusSelect = row.querySelector('select');
+                    const inputs = row.querySelectorAll('input');
+                    const entry = inputs[0] ? inputs[0].value.trim() : '';
+                    const exit = inputs[1] ? inputs[1].value.trim() : '';
+                    const shortage = inputs[2] ? parseFloat(inputs[2].value) || 0 : 0;
+                    const overtime = inputs[3] ? parseFloat(inputs[3].value) || 0 : 0;
+                    const notes = inputs[4] ? inputs[4].value.trim() : '';
+                    const status = statusSelect ? statusSelect.value : '';
+                    const statusText = statusSelect && statusSelect.selectedOptions[0]
+                        ? statusSelect.selectedOptions[0].textContent.trim()
+                        : '';
+                    const incomplete = status === 'present' && !isFutureDate && (!entry || !exit);
+                    const delay = shortage < 0 ? Math.abs(shortage) : 0;
+
+                    return {
+                        row,
+                        index,
+                        name: rawName.replace(/\s+/g, ' ').trim(),
+                        status,
+                        statusText,
+                        entry,
+                        exit,
+                        notes,
+                        incomplete,
+                        delay,
+                        overtime,
+                        searchable: normalizeText(`${rawName} ${notes}`)
+                    };
+                });
+        }
+
+        function buildTotals(rows) {
+            const totals = {
+                total: rows.length,
+                shown: rows.length,
+                complete: 0,
+                present: 0,
+                missing: 0,
+                absent: 0,
+                vacation: 0,
+                holiday: 0,
+                sunday: 0,
+                incomplete: 0,
+                overtime: 0,
+                delay: 0,
+                notes: 0
+            };
+
+            rows.forEach(info => {
+                if (info.status && Object.prototype.hasOwnProperty.call(totals, info.status)) {
+                    totals[info.status]++;
+                } else {
+                    totals.missing++;
+                }
+                if (info.incomplete) totals.incomplete++;
+                if (info.overtime > 0) totals.overtime += info.overtime;
+                if (info.delay > 0) totals.delay += info.delay;
+                if (info.notes) totals.notes++;
+                if (info.status && !info.incomplete) totals.complete++;
+            });
+
+            return totals;
+        }
+
+        function applyFilters(rows) {
+            const search = document.getElementById('proSearchInput');
+            const status = document.getElementById('proStatusFilter');
+            const focus = document.getElementById('proFocusToggle');
+            const query = normalizeText(search ? search.value : '');
+            const statusValue = status ? status.value : '';
+            const focusOnly = !!(focus && focus.checked);
+            let visible = 0;
+
+            rows.forEach(info => {
+                const statusKey = info.status || 'missing';
+                const matchesSearch = !query || info.searchable.includes(query);
+                const matchesStatus = !statusValue || statusKey === statusValue;
+                const needsAttention = !info.status || info.incomplete || info.delay > 0;
+                const matchesFocus = !focusOnly || needsAttention;
+                const shouldShow = matchesSearch && matchesStatus && matchesFocus;
+
+                info.row.classList.toggle('pro-filter-hidden', !shouldShow);
+                info.row.classList.toggle('pro-attention-row', needsAttention);
+                if (shouldShow) visible++;
+            });
+
+            return visible;
+        }
+
+        function updateDashboard() {
+            const panel = ensurePanel();
+            if (!panel) return;
+
+            const rows = collectRows();
+            const totals = buildTotals(rows);
+            const visible = applyFilters(rows);
+            totals.shown = visible;
+
+            const completePercent = totals.total ? Math.round((totals.complete / totals.total) * 100) : 0;
+            const ring = document.getElementById('proHeadReadinessRing');
+            const value = document.getElementById('proHeadReadinessValue');
+            if (ring) ring.style.setProperty('--progress', `${completePercent}%`);
+            if (value) value.textContent = `${completePercent}%`;
+
+            // Big ring in hero section
+            const mainRing = document.getElementById('proMainRing');
+            const mainRingValue = document.getElementById('proMainRingValue');
+            const mainRingLabel = document.getElementById('proRingCompleteLabel');
+            if (mainRing) mainRing.style.setProperty('--progress', `${completePercent}%`);
+            if (mainRingValue) mainRingValue.textContent = `${completePercent}%`;
+            if (mainRingLabel) mainRingLabel.textContent = `${totals.complete} / ${totals.total}`;
+
+            setText('proCompleteCount', totals.complete);
+            setText('proTotalCount', totals.total);
+            setText('proShownCount', `${visible}/${totals.total}`);
+
+            const noMatches = document.getElementById('proNoMatches');
+            if (noMatches) noMatches.classList.toggle('is-visible', totals.total > 0 && visible === 0);
+
+            updateScopeText();
+            renderStats(totals);
+            renderDistribution(totals);
+            renderAttention(rows);
+
+            lastSnapshot = {
+                rows,
+                totals,
+                visible,
+                percent: completePercent,
+                scope: document.getElementById('proScopeText')?.textContent || ''
+            };
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(value);
+        }
+
+        function updateScopeText() {
+            const el = document.getElementById('proScopeText');
+            if (!el) return;
+
+            const day = document.getElementById('dayNameDisplay')?.textContent.trim();
+            const date = document.getElementById('currentDateInput')?.value || document.getElementById('dateDisplay')?.textContent.trim();
+            const shiftFilter = document.getElementById('shiftFilter');
+            let shiftText = '';
+            if (shiftFilter && !shiftFilter.closest('.hidden') && shiftFilter.selectedOptions[0]) {
+                shiftText = shiftFilter.selectedOptions[0].textContent.trim();
+                if (!shiftText || shiftFilter.value === 'all') shiftText = L('viewAll');
+            }
+
+            const parts = [day, date, shiftText].filter(Boolean);
+            el.textContent = parts.length ? parts.join(' | ') : L('scopeFallback');
+        }
+
+        function renderStats(totals) {
+            const grid = document.getElementById('proStatsGrid');
+            if (!grid) return;
+
+            const cards = [
+                { key: 'shown',    value: `${totals.shown}/${totals.total}` },
+                { key: 'present',  value: totals.present },
+                { key: 'missing',  value: totals.missing },
+                { key: 'absent',   value: totals.absent },
+                { key: 'vacation', value: totals.vacation }
+            ];
+
+            grid.innerHTML = cards.map(card => {
+                const meta = STATUS_META[card.key] || STATUS_META.total;
+                return `
+                    <div class="pro-stat-card" data-tone="${meta.tone}">
+                        <div class="pro-stat-top">
+                            <span>${L(card.key)}</span>
+                            <i class="fa-solid ${meta.icon}" style="color:${meta.color}" aria-hidden="true"></i>
+                        </div>
+                        <div class="pro-stat-value">${card.value}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDistribution(totals) {
+            const box = document.getElementById('proDistribution');
+            if (!box) return;
+
+            const keys = ['present', 'absent', 'vacation', 'missing'];
+            const segments = keys
+                .filter(key => totals[key] > 0)
+                .map(key => {
+                    const meta = STATUS_META[key];
+                    const width = totals.total ? Math.max((totals[key] / totals.total) * 100, 2) : 0;
+                    return `<span class="pro-bar-segment" style="width:${width}%; background:${meta.color}" title="${L(key)}: ${totals[key]}"></span>`;
+                }).join('');
+
+            const legend = keys
+                .filter(key => totals[key] > 0)
+                .map(key => {
+                    const meta = STATUS_META[key];
+                    return `<span><i class="pro-dot" style="background:${meta.color}"></i>${L(key)} ${totals[key]}</span>`;
+                }).join('');
+
+            box.innerHTML = `
+                <div class="pro-bar-track">${segments || '<span class="pro-bar-segment" style="width:100%; background:rgba(148,163,184,0.25)"></span>'}</div>
+                <div class="pro-legend">${legend || `<span>${L('scopeFallback')}</span>`}</div>
+            `;
+        }
+
+        function getAttentionReason(info) {
+            if (!info.status) return L('statusMissingReason');
+            if (info.incomplete) return L('timeReason');
+            if (info.delay > 0) return `${L('delayReason')} ${formatNumber(info.delay)}`;
+            return '';
+        }
+
+        function renderAttention(rows) {
+            const list = document.getElementById('proAttentionList');
+            const count = document.getElementById('proAttentionCount');
+            if (!list || !count) return;
+
+            const attention = rows.filter(info => !info.status || info.incomplete || info.delay > 0);
+            count.textContent = String(attention.length);
+
+            if (!attention.length) {
+                list.innerHTML = `<span class="pro-pill"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>${L('allClear')}</span>`;
+                return;
+            }
+
+            list.innerHTML = attention.map(info => `
+                <button type="button" class="pro-attention-chip" data-pro-row-jump="${info.index}" title="${info.name}">
+                    <i class="fa-solid ${!info.status ? 'fa-circle-question' : info.incomplete ? 'fa-clock' : 'fa-triangle-exclamation'}" aria-hidden="true"></i>
+                    <strong>${escapeHtmlLocal(info.name || '-')}</strong>
+                    <span>${escapeHtmlLocal(getAttentionReason(info))}</span>
+                </button>
+            `).join('');
+        }
+
+        function focusRow(index) {
+            const safeIndex = String(index).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            const row = document.querySelector(`#dailyTableBody tr[data-pro-row="${safeIndex}"]`);
+            if (!row) return;
+            row.classList.remove('pro-filter-hidden');
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.remove('pro-row-flash');
+            void row.offsetWidth;
+            row.classList.add('pro-row-flash');
+            setTimeout(() => row.classList.remove('pro-row-flash'), 1300);
+        }
+
+        function escapeHtmlLocal(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function currentMonthParts() {
+            const value = document.getElementById('currentDateInput')?.value || localDateString();
+            const parts = value.split('-');
+            const year = parseInt(parts[0], 10) || new Date().getFullYear();
+            const month = parseInt(parts[1], 10) || (new Date().getMonth() + 1);
+            const mm = String(month).padStart(2, '0');
+            const today = new Date();
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const isCurrentMonth = today.getFullYear() === year && (today.getMonth() + 1) === month;
+            return {
+                year,
+                month,
+                mm,
+                label: `${year}-${mm}`,
+                daysInMonth,
+                elapsedDays: isCurrentMonth ? Math.min(today.getDate(), daysInMonth) : daysInMonth,
+                scopeDays: daysInMonth
+            };
+        }
+
+        function getStateSnapshot() {
+            try {
+                return typeof window.__ozelbimsState === 'function' ? window.__ozelbimsState() : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function employeeVisibleInMonth(emp, year, month) {
+            const monthStart = new Date(year, month - 1, 1);
+            const monthEnd = new Date(year, month, 0);
+            const effectiveStart = emp.startDate || (emp.createdAt ? String(emp.createdAt).split('T')[0] : null);
+            if (effectiveStart && new Date(effectiveStart) > monthEnd) return false;
+
+            if (emp.deleted && emp.deletedAt) {
+                const deletionDate = new Date(emp.deletedAt);
+                const deletionMonthEnd = new Date(deletionDate.getFullYear(), deletionDate.getMonth() + 1, 0);
+                if (monthStart > deletionMonthEnd) return false;
+            }
+
+            return true;
+        }
+
+        function employeeAllowedByShift(emp, state) {
+            if (state.userRole === 'shift_b_manager') return (emp.shift || 'shift_A') === 'shift_B';
+            if ((state.userRole === 'admin' || state.userRole === 'viewer') && state.currentSelectedShift && state.currentSelectedShift !== 'all') {
+                return (emp.shift || 'shift_A') === state.currentSelectedShift;
+            }
+            return true;
+        }
+
+        function emptyMonthlyRow(id, emp) {
+            return {
+                id,
+                name: emp.name || '-',
+                shift: emp.shift || 'shift_A',
+                order: emp.order || 9999,
+                present: 0,
+                absent: 0,
+                vacation: 0,
+                holiday: 0,
+                sunday: 0,
+                recorded: 0,
+                overtime: 0,
+                delay: 0,
+                notes: 0
+            };
+        }
+
+        function buildMonthlyReportData() {
+            const state = getStateSnapshot();
+            const monthInfo = currentMonthParts();
+            const employees = state.masterEmployees || {};
+            const monthData = state.currentMonthData || {};
+            const rows = [];
+
+            Object.entries(employees).forEach(([id, emp]) => {
+                if (!emp || !employeeVisibleInMonth(emp, monthInfo.year, monthInfo.month)) return;
+                if (!employeeAllowedByShift(emp, state)) return;
+
+                const row = emptyMonthlyRow(id, emp);
+                const records = monthData[id] || {};
+                Object.entries(records).forEach(([date, data]) => {
+                    if (!date.startsWith(`${monthInfo.year}-${monthInfo.mm}-`) || !data) return;
+                    const status = data.status || '';
+                    if (['present', 'absent', 'vacation', 'holiday', 'sunday'].includes(status)) {
+                        row[status]++;
+                        row.recorded++;
+                    }
+                    if (data.notes) row.notes++;
+                    // Overtime: always positive float, guard against NaN/negative
+                    const ot = parseFloat(data.overtime);
+                    if (ot > 0) row.overtime += ot;
+                    // Delay: shortage stored as negative string, take abs value
+                    const sh = parseFloat(data.shortage);
+                    if (sh < 0) row.delay += Math.abs(sh);
+                });
+
+                rows.push(row);
+            });
+
+            rows.sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name));
+
+            const totals = rows.reduce((acc, row) => {
+                ['present', 'absent', 'vacation', 'holiday', 'sunday', 'recorded', 'notes'].forEach(key => acc[key] += row[key]);
+                acc.overtime += row.overtime;
+                acc.delay += row.delay;
+                return acc;
+            }, { present:0, absent:0, vacation:0, holiday:0, sunday:0, recorded:0, overtime:0, delay:0, notes:0 });
+
+            const possibleRecords = Math.max(rows.length * monthInfo.scopeDays, 1);
+            totals.completion = Math.round((totals.recorded / possibleRecords) * 100);
+
+            return {
+                state,
+                monthInfo,
+                rows,
+                totals,
+                shiftText: document.getElementById('shiftFilter')?.selectedOptions?.[0]?.textContent?.trim() || L('viewAll')
+            };
+        }
+
+        function monthlyRowsHtml(data) {
+            if (!data.rows.length) {
+                return `<tr><td colspan="12" class="empty">${escapeHtmlLocal(L('noMatches'))}</td></tr>`;
+            }
+
+            return data.rows.map((row, index) => {
+                const completion = data.monthInfo.scopeDays ? Math.round((row.recorded / data.monthInfo.scopeDays) * 100) : 0;
+                const shiftName = row.shift === 'shift_B' ? 'B' : 'A';
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="name">${escapeHtmlLocal(row.name)}</td>
+                        <td>${shiftName}</td>
+                        <td>${row.recorded}</td>
+                        <td>${row.present}</td>
+                        <td>${row.absent}</td>
+                        <td>${row.vacation}</td>
+                        <td>${row.holiday}</td>
+                        <td>${row.sunday}</td>
+                        <td>${formatNumber(row.overtime)}</td>
+                        <td>${formatNumber(row.delay)}</td>
+                        <td>${completion}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function buildMonthlyPdfHtml(data) {
+            const lang = getLang();
+            const dir = lang === 'ar' ? 'rtl' : 'ltr';
+            const generatedAt = new Date().toLocaleString(lang === 'ar' ? 'ar-SY' : 'tr-TR');
+            const title = `${L('summaryTitle')} - ${data.monthInfo.label}`;
+            return `<!DOCTYPE html>
+<html lang="${lang}" dir="${dir}">
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtmlLocal(title)}</title>
+<style>
+    @page { size: A4 landscape; margin: 10mm; }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        color: #0F172A;
+        background: #F8FAFC;
+        font-family: Cairo, Arial, sans-serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .sheet { padding: 18px; }
+    .pdf-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 16px;
+        padding: 16px 18px;
+        border-radius: 8px;
+        color: #FFFFFF;
+        background: linear-gradient(135deg, #1E3A8A, #2563EB 55%, #059669);
+    }
+    .brand { font-size: 28px; font-weight: 900; letter-spacing: 0; }
+    .subtitle { margin-top: 4px; font-size: 14px; font-weight: 800; opacity: 0.9; }
+    .meta { text-align: end; font-size: 12px; line-height: 1.8; font-weight: 800; }
+    .report-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin: 12px 0;
+    }
+    .report-actions button {
+        border: 0;
+        border-radius: 8px;
+        padding: 9px 14px;
+        color: #FFFFFF;
+        background: #1E3A8A;
+        font: 900 12px Cairo, Arial, sans-serif;
+        cursor: pointer;
+    }
+    .report-actions button.secondary { background: #64748B; }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #FFFFFF;
+        box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+    }
+    th, td {
+        padding: 7px 8px;
+        border-bottom: 1px solid #E2E8F0;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    th { color: #FFFFFF; background: #1E3A8A; }
+    tr:nth-child(even) td { background: #F8FAFC; }
+    td.name { min-width: 180px; text-align: start; color: #1E3A8A; font-weight: 900; }
+    .empty { padding: 22px; color: #64748B; }
+    .print-note { margin-top: 10px; color: #64748B; font-size: 10px; font-weight: 700; }
+    @media print {
+        body { background: #FFFFFF; }
+        .sheet { padding: 0; }
+        .report-actions { display: none; }
+        .pdf-header, table { box-shadow: none; }
+    }
+</style>
+</head>
+<body>
+    <main class="sheet">
+        <header class="pdf-header">
+            <div>
+                <div class="brand">OZELBIMS</div>
+                <div class="subtitle">${escapeHtmlLocal(title)}</div>
+            </div>
+            <div class="meta">
+                <div>${escapeHtmlLocal(L('month'))}: ${escapeHtmlLocal(data.monthInfo.label)}</div>
+                <div>${escapeHtmlLocal(L('shift'))}: ${escapeHtmlLocal(data.shiftText || L('viewAll'))}</div>
+                <div>${escapeHtmlLocal(L('generatedAt'))}: ${escapeHtmlLocal(generatedAt)}</div>
+            </div>
+        </header>
+        <div class="report-actions">
+            <button onclick="window.print()">${escapeHtmlLocal(L('printReport'))}</button>
+            <button class="secondary" onclick="window.close()">${escapeHtmlLocal(L('closeReport'))}</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>${escapeHtmlLocal(L('employee'))}</th>
+                    <th>${escapeHtmlLocal(L('shift'))}</th>
+                    <th>${escapeHtmlLocal(L('totalDays'))}</th>
+                    <th>${escapeHtmlLocal(L('present'))}</th>
+                    <th>${escapeHtmlLocal(L('absent'))}</th>
+                    <th>${escapeHtmlLocal(L('vacation'))}</th>
+                    <th>${escapeHtmlLocal(L('holiday'))}</th>
+                    <th>${escapeHtmlLocal(L('sunday'))}</th>
+                    <th>${escapeHtmlLocal(L('overtime'))}</th>
+                    <th>${escapeHtmlLocal(L('delay'))}</th>
+                    <th>${escapeHtmlLocal(L('completion'))}</th>
+                </tr>
+            </thead>
+            <tbody>${monthlyRowsHtml(data)}</tbody>
+        </table>
+        <div class="print-note">OZELBIMS PRO | ${escapeHtmlLocal(L('summaryTitle'))}</div>
+    </main>
+</body>
+</html>`;
+        }
+
+        function printHtmlDocument(html) {
+            const win = window.open('', '_blank');
+            if (win) {
+                win.document.open();
+                win.document.write(html);
+                win.document.close();
+                win.focus();
+                return true;
+            }
+
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+            return true;
+        }
+
+        function openMonthlyPdfReport() {
+            try {
+                const data = buildMonthlyReportData();
+                const html = buildMonthlyPdfHtml(data);
+                printHtmlDocument(html);
+                if (typeof window.showToast === 'function') window.showToast(L('pdfReady'), 'success', 3200);
+            } catch (error) {
+                console.error('[OZELBIMS PRO] PDF report failed', error);
+                if (typeof window.showToast === 'function') window.showToast(L('pdfFail'), 'error', 3600);
+            }
+        }
+
+        function installProLayer() {
+            if (!window.renderDailyTable) {
+                clearTimeout(installTimer);
+                installTimer = setTimeout(installProLayer, 120);
+                return;
+            }
+
+            if (!window.renderDailyTable.__proLayerWrapped) {
+                const originalRender = window.renderDailyTable;
+                window.renderDailyTable = function() {
+                    const result = originalRender.apply(this, arguments);
+                    scheduleUpdate();
+                    return result;
+                };
+                window.renderDailyTable.__proLayerWrapped = true;
+
+                // Immediate update on select changes (status, break)
+                document.addEventListener('change', event => {
+                    if (event.target.closest && event.target.closest('#dailyTableBody')) {
+                        clearTimeout(updateTimer);
+                        updateDashboard();
+                    }
+                }, true);
+
+                // Debounced update on text/number input keystrokes
+                document.addEventListener('input', event => {
+                    if (event.target.closest && event.target.closest('#dailyTableBody')) scheduleUpdate();
+                }, true);
+
+                // Watch for tbody DOM rebuild (onSnapshot re-render)
+                const tbodyEl = document.getElementById('dailyTableBody');
+                if (tbodyEl) {
+                    new MutationObserver(() => scheduleUpdate())
+                        .observe(tbodyEl, { childList: true });
+                }
+
+                // Language/theme changes
+                new MutationObserver(() => scheduleUpdate())
+                    .observe(document.documentElement, { attributes: true, attributeFilter: ['lang', 'dir', 'class'] });
+            }
+
+            scheduleUpdate();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', installProLayer, { once: true });
+        } else {
+            installProLayer();
+        }
+        window.addEventListener('load', installProLayer, { once: true });
+
+        window.__ozelbimsProUpdate = updateDashboard;
+    })();
     </script>
 
 </body>
